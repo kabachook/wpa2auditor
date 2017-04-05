@@ -52,7 +52,14 @@
 
 					<!-- LOGIN PAGE START -->
 					<!-- Button HTML (to Trigger Modal) -->
-					<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>
+					<?php
+						if(!isset($_COOKIE['key'])) {
+							echo '<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>';
+						}
+						else {
+							echo '<a href="#" class="btn btn-default navbar-btn" data-toggle="modal">Log out</a>';
+						}
+					?>
 
 					<!-- Modal HTML -->
 					<div id="myModal" class="modal fade">
