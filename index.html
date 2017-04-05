@@ -7,21 +7,63 @@
 
 	<title>Distributed WPA auditor</title>
 
-	<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
-
+	<!--<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />-->
+	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
 </head>
 <body>
-	<div id="header">Distributed WPA auditor</div>
+<!-- script -->
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<!-- scripts end -->
 
-	<ul id="navtop">
-		<li><a href="/">Home</a></li>
-		<li><a href="agents.html">Agents</a></li>
-		<li><a href="tasks.html">Tasks</a></li>
-		<li><a href="hashes.html">Hashes</a></li>
-		<li><a href="files.html">Files</a></li>
-		<li><a href="config.html">Config</a></li>
-		<li id="log_button">Login</li>
-	</ul>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Distributed WPA auditor</a>
+    </div>
 
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="agents.html">Agents</a></li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tasks <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Show Tasks</a></li>
+            <li><a href="#">New Task</a></li>
+            <li><a href="#">Pre-conf Tasks</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Files</a></li>
+        <li><a href="#">Stats</a></li>
+      </ul>
+      <form class="navbar-form navbar-right">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <p class="navbar-text">Signed in as Mark Otto</p>
+        <button type="button" class="btn btn-default navbar-btn">Sign in</button>
+      </ul>
+      
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<!-- nav bar end -->
+
+<div class="page-header">
+  <h1>Как стать частью команды?</h1>
+	<p>Нажимаем кнопку Sign up и регистрируемся</p>
+</div>
 </body>
 </html>

@@ -1,4 +1,12 @@
-body {margin:0;padding:0;line-height: 1.5em;background: #fff;font: 76%/160% verdana, arial, helvetica, sans-serif;color: #000;letter-spacing: 1px;}
+body {
+	margin:0;
+	padding:0;
+	line-height: 1.5em;
+	background: #fff;
+	font: 76%/160% verdana, arial, helvetica, sans-serif;
+	color: #000;
+	letter-spacing: 1px;
+}
 
 #header {
 	
@@ -8,7 +16,7 @@ body {margin:0;padding:0;line-height: 1.5em;background: #fff;font: 76%/160% verd
 	
 	height: 40px;
 	text-align: center;
-	border-bottom: 1px solid #000;
+	/*border-bottom: 1px solid #000;*/
 }
 
 .nav_top_elem {
@@ -21,13 +29,21 @@ body {margin:0;padding:0;line-height: 1.5em;background: #fff;font: 76%/160% verd
 	
 }
 ul#navtop {
-	border-radius: 8px;
+	display : inline-block;
+	object-position: center;
+	border-radius : 8px;
+	border : 1px solid #000;
 	background-color: #e7e7e7;
-	margin: 0; 
 	padding: 10px 0 10px 30px;
-	white-space: nowrap;
-	border-bottom: 1px solid #000;
 	
+	/*
+	border-radius: 8px;
+	border: 2px solid #fff;
+	
+	margin: 0; 
+	
+	white-space: nowrap;
+	*/
 	
 }
 
