@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
@@ -44,16 +44,30 @@
         <li><a href="#">Files</a></li>
         <li><a href="#">Stats</a></li>
       </ul>
+      
+      <ul class="nav navbar-nav navbar-right">
+       <?php
+			if(isset($_COOKIE['key'])) {
+				echo '<p class="navbar-text">' . $username . '</p>';
+				echo '
+				<form class="navbar-form navbar-left" action="login.php?logout=1">
+  					<button type="submit" class="btn btn-default">Log out</button>
+				</form>
+				';
+			} else {
+				echo '
+				<form class="navbar-form navbar-left" action="login.php">
+  					<button type="submit" class="btn btn-default">Log in</button>
+				</form>';
+			}
+		?>     
+      </ul>
       <form class="navbar-form navbar-right">
         <div class="form-group">
           <input type="text" class="form-control" placeholder="Search">
         </div>
         <button type="submit" class="btn btn-default">Submit</button>
       </form>
-      <ul class="nav navbar-nav navbar-right">
-        <p class="navbar-text">Signed in as Mark Otto</p>
-        <button type="button" class="btn btn-default navbar-btn">Sign in</button>
-      </ul>
       
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
