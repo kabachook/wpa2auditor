@@ -4,11 +4,10 @@
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
-	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
+	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist, hashcat, online hashcat"/>
 
 	<title>Distributed WPA auditor</title>
 
-	<!--<link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />-->
 	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
 	<link href="css/login_page.css" rel="stylesheet" media="screen">
 </head>
@@ -24,20 +23,13 @@
 		<div class="container-fluid">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-			
 				<a class="navbar-brand" href="#">Distributed WPA auditor</a>
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li><a href="agents.html">Agents</a>
+					<li><a href="#">Agents</a>
 					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tasks <span class="caret"></span></a>
@@ -60,9 +52,7 @@
 
 					<!-- LOGIN PAGE START -->
 					<!-- Button HTML (to Trigger Modal) -->
-					<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Launch Demo Modal</a>
-
-
+					<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>
 
 					<!-- Modal HTML -->
 					<div id="myModal" class="modal fade">
@@ -78,13 +68,10 @@
 										<div class="model-l">
 											<form method="post" id="logFrm" class="log-frm" name="logFrm">
 												<ul>
-													<li>Email</li>
-													<li> <input type="text" placeholder="User ID" id="userName" name="userName" class="form-control" onfocus="checkNullProf();">
+													<li>Key</li>
+													<li> <input type="text" placeholder="Your key" id="userName" name="userName" class="form-control" onfocus="checkNullProf();">
 													</li>
-													<li>Password</li>
-													<li><input type="password" placeholder="Password" id="password" name="password" class="form-control" onfocus="checkNullProf();">
-													</li>
-													<li><br/><button type="button" onclick="userLogin();" id="logBtn" class="btn btn-default">Submit</button>
+													<li><br/><button type="button" onclick="userLogin();" id="logBtn" class="btn btn-default">Log in</button>
 													</li>
 													<div style="display:none;" id="loginFail" class="sign">
 														<li>
@@ -97,13 +84,13 @@
 											<form method="post" id="logFrm1" class="log-frm" name="logFrm1">
 												<ul>
 													<li>
-														<a class="for-got" onclick="ayantoggle();" href="javascript:;">Forgot your password?</a>
+														<a class="for-got" onclick="ayantoggle();" href="javascript:;">Forgot your key?</a>
 														<div class="forgot">
 															<ul>
 																<li>
-																	<p>Enter your Email Address here to receive a link to change password.</p>
+																	<p>Enter your Email Address here to receive your key.</p>
 																</li>
-																<li>Email Id</li>
+																<li>Email</li>
 																<li><input type="text" placeholder="Your email id" id="forgetemailId" class="form-control" name="forgetemailId">
 																</li>
 																<li><button type="button" class="btn btn-default" onclick="forgot();">Send Mail</button>
@@ -122,20 +109,11 @@
 											</div>
 											<form method="post" id="userRegisterFrm" class="log-frm" name="userRegisterFrm">
 												<ul>
-													<li>First Name</li>
-													<li><input type="text" placeholder="First Name" name="fName" class="form-control">
-													</li>
-													<li>Last Name</li>
-													<li><input type="text" placeholder="Last Name" name="lName" class="form-control">
+													<li>Nickname</li>
+													<li><input type="text" placeholder="Nickname" name="fName" class="form-control">
 													</li>
 													<li>Email</li>
-													<li><input type="text" placeholder="Email Id" name="emailId" class="form-control">
-													</li>
-													<li>Password</li>
-													<li><input type="password" placeholder="Password" name="password" class="form-control">
-													</li>
-													<li>Confirm Password</li>
-													<li><input type="password" placeholder="Confirm Password" name="repassword" class="form-control">
+													<li><input type="text" placeholder="Email" name="emailId" class="form-control">
 													</li>
 													<br>
 													<li><button type="button" name="userRegBtn" class="btn btn-default">Signup Now</button>
@@ -143,8 +121,7 @@
 													<div style="display:none;" class="sign greenglow">
 														<li> <i class="icon-check"></i><br>
 															<font color="red">
-																User registration successful.<br> Your login Url already send to your email.
-
+																User registration successful.<br> Your key already send to your email.
 															</font>
 														</li>
 													</div>
@@ -166,10 +143,6 @@
 								</div>
 							</div>
 						</div>
-						<!--  </div>
-</div>
-	</div>
-</div>-->
 						<!-- LOGIN PAGE END -->
 
 				</ul>
