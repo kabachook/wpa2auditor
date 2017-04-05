@@ -23,12 +23,13 @@
 		<div class="container-fluid">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
          		<span class="sr-only">Toggle navigation</span>
          		<span class="icon-bar"></span>
          		<span class="icon-bar"></span>
          		<span class="icon-bar"></span>
        		</button>
+			
 				<a class="navbar-brand" href="#">Distributed WPA auditor</a>
 			</div>
 
@@ -58,13 +59,13 @@
 
 					<!-- LOGIN PAGE START -->
 					<!-- Button HTML (to Trigger Modal) -->
+
 					<?php
-						if(!isset($_COOKIE['key'])) {
-							echo '<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>';
-						}
-						else {
-							echo '<a href="#" class="btn btn-default navbar-btn" data-toggle="modal">Log out</a>';
-						}
+					if ( !isset( $_COOKIE[ 'key' ] ) ) {
+						echo '<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>';
+					} else {
+						echo '<a href="#" class="btn btn-default navbar-btn" data-toggle="modal">Log out</a>';
+					}
 					?>
 
 					<!-- Modal HTML -->
@@ -155,13 +156,6 @@
 						<!-- LOGIN PAGE END -->
 
 				</ul>
-				<form class="navbar-form navbar-right">
-					<div class="form-group">
-						<input type="text" class="form-control" placeholder="Search">
-					</div>
-					<button type="submit" class="btn btn-default">Submit</button>
-				</form>
-
 				</div>
 				<!-- /.navbar-collapse -->
 			</div>
