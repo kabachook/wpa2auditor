@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
@@ -61,7 +62,7 @@
 					<!-- LOGIN PAGE START -->
 					<!-- Button HTML (to Trigger Modal) -->
 
-					<!-- <?php
+          <!-- <?php
 					if ( !isset( $_COOKIE[ 'key' ] ) ) {
 						echo '<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>';
 					} else {
@@ -167,23 +168,31 @@
 
 	<!-- nav bar end -->
 
-  <div class="jumbotron mb0 mx">
-    <div class="container">
-      <h1 class="display-1">WPA2 Auditor</h1>
-      <p>Simple distributed wpa2 handshake bruteforce resistance auditor</p>
-    </div>
-
-  </div>
   <div class="container">
-    <h1>Our features</h1>
+  	<h2>Tasks</h2>
+  	<div id="buttons">
+  		<button type="button" class="btn btn-danger">Delete finished</button>
+  		<button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  			Auto-refresh
+  		</button>
+  	</div>
+  	<br>
+  	<div class="panel panel-default">
+  	<table class="table table-striped table-bordered">
+  		<tbody>
+  			<tr>
+  				<th>ID</th>
+  				<th>Name</th>
+  				<th>Progress</th>
+  				<th>Files</th>
+  			</tr>
+  		</tbody>
+  	</table>
+  	</div>
   </div>
 
-
-  <hr>
   <div class="container">
-    <div class="alert alert-neutral">
-      <h1>Welcome here!</h1>
-    </div>
+    <hr>
     <footer>
       Copyright Nick Gant and Atomnijchetottam
     </footer>
