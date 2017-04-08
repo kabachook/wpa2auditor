@@ -32,14 +32,12 @@
          		<span class="icon-bar"></span>
        		</button>
 
-				<a class="navbar-brand" href="#">Distributed WPA auditor</a>
+				<a class="navbar-brand" href="index.php">Distributed WPA auditor</a>
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
-					<li><a href="#">Agents</a>
-					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tasks <span class="caret"></span></a>
 						<ul class="dropdown-menu">
@@ -170,33 +168,43 @@
 
   <div class="container">
   	<h2>Tasks</h2>
-  	<div id="buttons">
-  		<button type="button" class="btn btn-danger">Delete finished</button>
-  		<button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
-  			Auto-refresh
-  		</button>
-  	</div>
-  	<br>
-  	<div class="panel panel-default">
-  	<table class="table table-striped table-bordered">
-  		<tbody>
-  			<tr>
-  				<th>ID</th>
-  				<th>Name</th>
-  				<th>Progress</th>
-  				<th>Files</th>
-  			</tr>
-  		</tbody>
-  	</table>
-  	</div>
-  </div>
+    <div style="overflow: auto;">
+		    <form style="float: left; padding-right: 5px;" action="tasks.php" class="form-inline" method="POST">
+			       <input type="hidden" name="action" value="finishedtasksdelete">
+			          <input type="submit" value="Delete finished" class="btn btn-default">
+		    </form>
 
-  <div class="container">
-    <hr>
-    <footer>
-      Copyright Nick Gant and Atomnijchetottam
-    </footer>
-  </div>
+	  <div style="overflow: auto;">
+           <form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
+              <input type="hidden" name="toggleautorefresh" value="On">
+              <input type="submit" value="Turn on auto-reload" class="btn btn-success">
+            </form>
+        <br>
+
+      </div>
+	       <br>
+      </div>
+
+
+      	<div class="panel panel-default">
+      	<table class="table table-striped table-bordered table-nonfluid">
+      		<tbody>
+      			<tr>
+      				<th>ID</th>
+      				<th>Name</th>
+      				<th>Progress</th>
+      				<th>Files</th>
+      			</tr>
+      		</tbody>
+      	</table>
+      	</div>
+      </div>
+
+      <div class="container">
+        <hr>
+        <footer>
+          Copyright Nick Gant and Atomnijchetottam
+        </footer>
 </body>
 
 </html>

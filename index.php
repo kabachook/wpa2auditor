@@ -31,14 +31,12 @@
          		<span class="icon-bar"></span>
        		</button>
 
-				<a class="navbar-brand" href="#">Distributed WPA auditor</a>
+				<a class="navbar-brand" href="index.php">Distributed WPA auditor</a>
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
-					<li><a href="#">Agents</a>
-					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tasks <span class="caret"></span></a>
 						<ul class="dropdown-menu">
