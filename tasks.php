@@ -45,8 +45,6 @@
 							</li>
 							<li><a href="#">New Task</a>
 							</li>
-							<li><a href="#">Pre-conf Tasks</a>
-							</li>
 						</ul>
 					</li>
 					<li><a href="#">Files</a>
