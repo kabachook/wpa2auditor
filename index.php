@@ -5,6 +5,7 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 	unset( $_COOKIE[ 'key' ] );
 }
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
@@ -15,17 +16,12 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 
 	<title>Distributed WPA auditor</title>
 
-	<!-- BOOTSTRAP START -->
+	<!-- BOOTSTRAP CSS START -->
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<!-- BOOTSTRAP END -->
-
-	<!-- LOGIN PAGE -->
-	<script src="js/login_page.js"></script>
-	<link href="css/login_page.css" rel="stylesheet" media="screen">
-	<!-- LOGIN PAGE END -->
+	<!-- BOOTSTRAP CSS END -->
 
 	<link rel="stylesheet" href="css/style.css">
 </head>
@@ -42,9 +38,6 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
          		<span class="icon-bar"></span>
        		</button>
 			
-
-
-
 				<a class="navbar-brand" href="index.php">Distributed WPA auditor</a>
 			</div>
 
@@ -67,17 +60,20 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">
+					<!-- LOGIN BUTTON -->
 					<?php
-						if ( isset( $_COOKIE[ 'key' ] ) ) {
-							echo '<p class="navbar-text">Signed in as AtomnijPchelovek</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
-						} else {
-							echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
+					//Check if we have key in cookie
+					if ( isset( $_COOKIE[ 'key' ] ) ) {
+						echo '<p class="navbar-text">Signed in as AtomnijPchelovek</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
+					} else {
+						echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
 									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
 								  </div>
 								  <button type="submit" class="btn btn-default">Log in</button>';
-						}
-						?>						
+					}
+					?>
 					</form>
+					<!-- LOGIN BUTTON END -->
 				</ul>
 			</div>
 			<!-- /.navbar-collapse -->
@@ -105,7 +101,7 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 			<h1>Welcome here!</h1>
 		</div>
 		<footer>
-			Copyright Nick Gant and Atomnijchetottam
+			Copyright Nick Gant and Atomnijchelovek
 		</footer>
 	</div>
 </body>
