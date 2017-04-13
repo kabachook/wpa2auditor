@@ -35,7 +35,7 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 
 //CMS
 $content = 'content/';
-$keys = array('home', 'get_key', 'my_nets', 'submit', 'nets', 'dicts', 'stats', 'search', 'get_work', 'put_work');
+$keys = array('home', 'tasks');
 $keys_if = array('get_work', 'put_work');
 
 list($key) = each($_GET);
@@ -82,7 +82,7 @@ $cont = $content.$key.'.php';
          		<span class="icon-bar"></span>
        		</button>
 			
-				<a class="navbar-brand" href="index.php">Distributed WPA auditor</a>
+				<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->
@@ -91,13 +91,13 @@ $cont = $content.$key.'.php';
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tasks <span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="tasks.php">Show Tasks</a>
+							<li><a href="?tasks">Show Tasks</a>
 							</li>
 							<li><a href="#">New Task</a>
 							</li>
 						</ul>
 					</li>
-					<li><a href="#">Files</a>
+					<li><a href="#">Dicts</a>
 					</li>
 					<li><a href="#">Stats</a>
 					</li>
@@ -127,6 +127,15 @@ $cont = $content.$key.'.php';
 	<!-- nav bar end -->
 	
 	<?php @include($cont) ?>
+	
+	<!-- FOOTER -->
+	<hr>
+	<div class="container">
+		<footer>
+			Copyright Nick Gant and Atomnijchelovek
+		</footer>
+	</div>
+	<!-- FOOTER END -->
 	
 </body>
 
