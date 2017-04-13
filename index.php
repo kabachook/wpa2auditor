@@ -1,22 +1,33 @@
+<?php
+//Remove key
+if ( isset( $_POST[ 'remkey' ] ) ) {
+	setcookie( 'key', '', 1, '', '', false, true );
+	unset( $_COOKIE[ 'key' ] );
+}
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-  <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
-  <meta name="description" content="Distributed WPA PSK security audit environment" />
-  <meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist" />
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
+	<meta name="description" content="Distributed WPA PSK security audit environment"/>
+	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
 
-  <title>Distributed WPA auditor</title>
+	<title>Distributed WPA auditor</title>
 
-  <script src="http://code.jquery.com/jquery-latest.js"></script>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<!-- BOOTSTRAP START -->
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<!-- BOOTSTRAP END -->
 
-  <script src="js/login_page.js"></script>
-  <link href="css/login_page.css" rel="stylesheet" media="screen">
+	<!-- LOGIN PAGE -->
+	<script src="js/login_page.js"></script>
+	<link href="css/login_page.css" rel="stylesheet" media="screen">
+	<!-- LOGIN PAGE END -->
 
-  <link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -30,6 +41,9 @@
          		<span class="icon-bar"></span>
          		<span class="icon-bar"></span>
        		</button>
+			
+
+
 
 				<a class="navbar-brand" href="index.php">Distributed WPA auditor</a>
 			</div>
@@ -53,137 +67,47 @@
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">
-
-					<!-- LOGIN PAGE START -->
-					<!-- Button HTML (to Trigger Modal) -->
-
-					<!-- <?php
-					if ( !isset( $_COOKIE[ 'key' ] ) ) {
-						echo '<a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>';
-					} else {
-						echo '<a href="#" class="btn btn-default navbar-btn" data-toggle="modal">Log out</a>';
-					}
-					?> -->
-
-          <a href="#myModal" class="btn btn-default navbar-btn" data-toggle="modal">Login</a>
-
-					<!-- Modal HTML -->
-					<div id="myModal" class="modal fade">
-						<div class="modal-dialog">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-									<h4 class="modal-title">Login & Register</h4>
-								</div>
-
-								<div class="modal-body">
-									<div class="col-md-6 col-sm-6 no-padng">
-										<div class="model-l">
-											<form method="post" id="logFrm" class="log-frm" name="logFrm">
-												<ul>
-													<li>Key</li>
-													<li> <input type="text" placeholder="Your key" id="userName" name="userName" class="form-control" onfocus="checkNullProf();">
-													</li>
-													<li><br/><button type="button" onclick="userLogin();" id="logBtn" class="btn btn-default">Log in</button>
-													</li>
-													<div style="display:none;" id="loginFail" class="sign">
-														<li>
-															<font color="red"> Username or password is incorrect.</font>
-														</li>
-													</div>
-												</ul>
-											</form>
-											<div class="clearfix"></div>
-											<form method="post" id="logFrm1" class="log-frm" name="logFrm1">
-												<ul>
-													<li>
-														<a class="for-got" onclick="ayantoggle();" href="javascript:;">Forgot your key?</a>
-														<div class="forgot">
-															<ul>
-																<li>
-																	<p>Enter your Email Address here to receive your key.</p>
-																</li>
-																<li>Email</li>
-																<li><input type="text" placeholder="Your email id" id="forgetemailId" class="form-control" name="forgetemailId">
-																</li>
-																<li><button type="button" class="btn btn-default" onclick="forgot();">Send Mail</button>
-																</li>
-															</ul>
-														</div>
-													</li>
-												</ul>
-											</form>
-										</div>
-									</div>
-									<div class="col-md-6 col-sm-6 no-padng">
-										<div class="model-r">
-											<div class="o-r">
-												<span>OR</span>
-											</div>
-											<form method="post" id="userRegisterFrm" class="log-frm" name="userRegisterFrm">
-												<ul>
-													<li>Nickname</li>
-													<li><input type="text" placeholder="Nickname" name="fName" class="form-control">
-													</li>
-													<li>Email</li>
-													<li><input type="text" placeholder="Email" name="emailId" class="form-control">
-													</li>
-													<br>
-													<li><button type="button" name="userRegBtn" class="btn btn-default">Signup Now</button>
-													</li>
-													<div style="display:none;" class="sign greenglow">
-														<li> <i class="icon-check"></i><br>
-															<font color="red">
-																User registration successful.<br> Your key already send to your email.
-															</font>
-														</li>
-													</div>
-													<div style="display:none;" id="regnSuc11" class="sign redglow">
-														<li> <i class="icon-mail"></i><br>
-															<font color="red"> Email Exist.</font>
-														</li>
-													</div>
-												</ul>
-											</form>
-										</div>
-									</div>
-
-									<div class="clearfix"></div>
-								</div>
-							</div>
-						</div>
-						<!-- LOGIN PAGE END -->
-
+					<?php
+						if ( isset( $_COOKIE[ 'key' ] ) ) {
+							echo '<p class="navbar-text">Signed in as AtomnijPchelovek</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
+						} else {
+							echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
+									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
+								  </div>
+								  <button type="submit" class="btn btn-default">Log in</button>';
+						}
+						?>						
+					</form>
 				</ul>
-				</div>
-				<!-- /.navbar-collapse -->
 			</div>
-			<!-- /.container-fluid -->
+			<!-- /.navbar-collapse -->
+		</div>
+		<!-- /.container-fluid -->
 	</nav>
 
 	<!-- nav bar end -->
 
-  <div class="jumbotron mb0 mx">
-    <div class="container">
-      <h1 class="display-1">WPA2 Auditor</h1>
-      <p>Simple distributed wpa2 handshake bruteforce resistance auditor</p>
-    </div>
+	<div class="jumbotron mb0 mx">
+		<div class="container">
+			<h1 class="display-1">WPA2 Auditor</h1>
+			<p>Simple distributed wpa2 handshake bruteforce resistance auditor</p>
+		</div>
 
-  </div>
-  <div class="container">
-    <h1>Our features</h1>
-  </div>
+	</div>
+	<div class="container">
+		<h1>Our features</h1>
+	</div>
 
 
-  <hr>
-  <div class="container">
-    <div class="alert alert-neutral">
-      <h1>Welcome here!</h1>
-    </div>
-    <footer>
-      Copyright Nick Gant and Atomnijchetottam
-    </footer>
-  </div>
+	<hr>
+	<div class="container">
+		<div class="alert alert-neutral">
+			<h1>Welcome here!</h1>
+		</div>
+		<footer>
+			Copyright Nick Gant and Atomnijchetottam
+		</footer>
+	</div>
 </body>
 
 </html>
