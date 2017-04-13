@@ -35,7 +35,7 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 
 //CMS
 $content = 'content/';
-$keys = array('home', 'tasks');
+$keys = array('home', 'tasks', 'dicts');
 $keys_if = array('get_work', 'put_work');
 
 list($key) = each($_GET);
@@ -97,7 +97,7 @@ $cont = $content.$key.'.php';
 							</li>
 						</ul>
 					</li>
-					<li><a href="#">Dicts</a>
+					<li><a href="?dicts">Dicts</a>
 					</li>
 					<li><a href="#">Stats</a>
 					</li>
@@ -113,7 +113,7 @@ $cont = $content.$key.'.php';
 						echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
 									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
 								  </div>
-								  <button type="submit" class="btn btn-default">Log in</button>';
+								  <button type="submit" class="btn btn-default">Log in</button> or <button type="submit" class="btn btn-default">Sign up</button>';
 					}
 					?>
 					</form>
