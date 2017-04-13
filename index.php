@@ -1,9 +1,53 @@
 <?php
+
+//validate 32 char key
+function valid_key($key) {
+    //return preg_match('/^[a-f0-9]{32}$/', strtolower($key));
+	return true;
+}
+
+//Set key
+if (isset($_POST['key'])) {
+    if (valid_key($_POST['key'])) {
+        /*require_once('db.php');
+        $sql = 'SELECT HEX(userkey) FROM users WHERE userkey=UNHEX(?)';
+        $stmt = $mysql->stmt_init();
+        $stmt->prepare($sql);
+        $stmt->bind_param('s', $_POST['key']);
+        $stmt->execute();
+        $stmt->store_result();*/
+        
+       // if ($stmt->num_rows == 1) {
+		if (true) {
+            setcookie('key', $_POST['key'], 2147483647, '', '', false, true);
+            $_COOKIE['key'] = $_POST['key'];
+        } else
+            $_POST['remkey'] = '1';
+        //$stmt->close();
+    }
+}
+
 //Remove key
 if ( isset( $_POST[ 'remkey' ] ) ) {
 	setcookie( 'key', '', 1, '', '', false, true );
 	unset( $_COOKIE[ 'key' ] );
 }
+
+//CMS
+$content = 'content/';
+$keys = array('home', 'get_key', 'my_nets', 'submit', 'nets', 'dicts', 'stats', 'search', 'get_work', 'put_work');
+$keys_if = array('get_work', 'put_work');
+
+list($key) = each($_GET);
+if (!in_array($key,$keys))
+	$key = 'home';
+
+if (in_array($key, $keys_if)) {
+    require($content.$key.'.php');
+    exit;
+}
+
+$cont = $content.$key.'.php';
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -80,30 +124,10 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 		</div>
 		<!-- /.container-fluid -->
 	</nav>
-
 	<!-- nav bar end -->
-
-	<div class="jumbotron mb0 mx">
-		<div class="container">
-			<h1 class="display-1">WPA2 Auditor</h1>
-			<p>Simple distributed wpa2 handshake bruteforce resistance auditor</p>
-		</div>
-
-	</div>
-	<div class="container">
-		<h1>Our features</h1>
-	</div>
-
-
-	<hr>
-	<div class="container">
-		<div class="alert alert-neutral">
-			<h1>Welcome here!</h1>
-		</div>
-		<footer>
-			Copyright Nick Gant and Atomnijchelovek
-		</footer>
-	</div>
+	
+	<?php @include($cont) ?>
+	
 </body>
 
 </html>
