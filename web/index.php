@@ -1,30 +1,40 @@
 <?php
+require('conf.php');
 
 //validate 32 char key
 function valid_key($key) {
-    //return preg_match('/^[a-f0-9]{32}$/', strtolower($key));
-	return true;
+    //
+    return preg_match('/^[a-f0-9]{32}$/', strtolower($key));
 }
 
 //Set key
 if (isset($_POST['key'])) {
     if (valid_key($_POST['key'])) {
-        /*require_once('db.php');
+        require_once('db.php');
         $sql = 'SELECT HEX(userkey) FROM users WHERE userkey=UNHEX(?)';
         $stmt = $mysql->stmt_init();
         $stmt->prepare($sql);
         $stmt->bind_param('s', $_POST['key']);
         $stmt->execute();
-        $stmt->store_result();*/
+        $stmt->store_result();
         
-       // if ($stmt->num_rows == 1) {
-		if (true) {
+        if ($stmt->num_rows == 1) {
             setcookie('key', $_POST['key'], 2147483647, '', '', false, true);
             $_COOKIE['key'] = $_POST['key'];
         } else
             $_POST['remkey'] = '1';
-        //$stmt->close();
+        $stmt->close();
     }
+}
+
+//Get nick
+if(isset($_COOKIE['key'])) {
+	require_once('db.php');
+	$sql = "SELECT nick FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
+	$mysqli = new mysqli($cfg_db_host, $cfg_db_user, $cfg_db_pass, $cfg_db_name);
+	$result = $mysqli->query($sql);
+	$obj = $result->fetch_object();
+	$nick = $obj->nick;	
 }
 
 //Remove key
@@ -108,7 +118,7 @@ $cont = $content.$key.'.php';
 					<?php
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
-						echo '<p class="navbar-text">Signed in as AtomnijPchelovek</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
+						echo '<p class="navbar-text">Signed in as ' . $nick .'</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
 					} else {
 						echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
 									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
