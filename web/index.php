@@ -26,10 +26,13 @@
 	
 	<!-- Our CSS -->
 	<link rel="stylesheet" href="css/style.css">
+	
+	<script src="/js/get_key.js"></script>
+	<script src="http://code.jquery.com/jquery-1.8.3.js"></script>
 </head>
 
 <body>
-	<nav class="navbar navbar-default">
+	<nav class="navbar navbar-default mb0">
 		<div class="container-fluid">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
@@ -65,16 +68,19 @@
 					<!-- LOGIN BUTTON -->
 					<?php
 					//Check if we have key in cookie
-					if (isset($_COOKIE['key']) && check_cookie($_COOKIE['key'])) {
-						echo '<p class="navbar-text">Signed in as ' . $nick .'</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
+					if ( isset( $_COOKIE[ 'key' ] ) ) {
+						echo '<p class="navbar-text">Signed in as ' . $nick .'</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
 					} else {
-						echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
-									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32" required="">
+						echo '<form class="navbar-form navbar-left" action="" method="post">
+								  <div class="form-group">
+									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
+									<button type="submit" class="btn btn-default">Log in</button> or <a href="?get_key" class="btn btn-default">Sign up</a>
 								  </div>
-								  <button type="submit" class="btn btn-default">Log in</button> or <button type="submit" class="btn btn-default">Sign up</button>';
+							  </form>
+							  ';
 					}
 					?>
-					</form>
+
 					<!-- LOGIN BUTTON END -->
 				</ul>
 			</div>
