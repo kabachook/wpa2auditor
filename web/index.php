@@ -25,9 +25,6 @@ include( 'common.php' );
 	<!-- BOOTSTRAP CSS END -->
 
 	<link rel="stylesheet" href="css/style.css">
-
-	<script src="/js/get_key.js"></script>
-	<script src="http://code.jquery.com/jquery-1.8.3.js"></script>
 </head>
 
 <body>
