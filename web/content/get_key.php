@@ -1,6 +1,6 @@
 ﻿<?php
 	if(isset($_COOKIE['key'])) {
-		echo "YOU HAVE THE KEY";
+		echo '<div class="alert alert-danger" role="alert">Key already issued. If you forgot it, your key is <strong>' . $_COOKIE['key'] . '</strong></div>';
 	} else {
 		echo '<div class="container">
 	<div class="col-md-12">

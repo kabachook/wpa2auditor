@@ -1,18 +1,18 @@
-<?php 
-	include('common.php');
+<?php
+include( 'common.php' );
 ?>
 
 <!DOCTYPE html>
 <html>
 
 <head>
-	<meta charset="utf-8" />
+	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width">
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
 	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
 
 	<title>Distributed WPA auditor</title>
-	
+
 	<!--[if IE]>
    		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   	<![endif]-->
@@ -23,10 +23,9 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<!-- BOOTSTRAP CSS END -->
-	
-	<!-- Our CSS -->
+
 	<link rel="stylesheet" href="css/style.css">
-	
+
 	<script src="/js/get_key.js"></script>
 	<script src="http://code.jquery.com/jquery-1.8.3.js"></script>
 </head>
@@ -43,6 +42,7 @@
          		<span class="icon-bar"></span>
        		</button>
 			
+
 				<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 			</div>
 
@@ -69,7 +69,7 @@
 					<?php
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
-						echo '<p class="navbar-text">Signed in as ' . $nick .'</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
+						echo '<p class="navbar-text">Signed in as ' . $nick . '</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
 					} else {
 						echo '<form class="navbar-form navbar-left" action="" method="post">
 								  <div class="form-group">
@@ -89,9 +89,9 @@
 		<!-- /.container-fluid -->
 	</nav>
 	<!-- nav bar end -->
-	
+
 	<?php @include($cont) ?>
-	
+
 	<!-- FOOTER -->
 	<hr>
 	<div class="container">
@@ -100,7 +100,7 @@
 		</footer>
 	</div>
 	<!-- FOOTER END -->
-	
+
 </body>
 
 </html>
