@@ -2,15 +2,20 @@
 	include('common.php');
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html>
 
 <head>
-	<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width">
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
 	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
 
 	<title>Distributed WPA auditor</title>
+	
+	<!--[if IE]>
+   		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  	<![endif]-->
 
 	<!-- BOOTSTRAP CSS START -->
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
@@ -18,7 +23,8 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<!-- BOOTSTRAP CSS END -->
-
+	
+	<!-- Our CSS -->
 	<link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -59,7 +65,7 @@
 					<!-- LOGIN BUTTON -->
 					<?php
 					//Check if we have key in cookie
-					if ( isset( $_COOKIE[ 'key' ] ) ) {
+					if (isset($_COOKIE['key']) && check_cookie($_COOKIE['key'])) {
 						echo '<p class="navbar-text">Signed in as ' . $nick .'</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
 					} else {
 						echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
