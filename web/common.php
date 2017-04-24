@@ -30,12 +30,12 @@ if ( isset( $_POST[ 'rec_valid' ] ) ) {
 	        $mail = trim($_POST['mail']);*/
 	
 	$mail = $_POST[ 'email' ];
-	$nick = $_POST[ 'nick' ];
+	$nickname = $_POST[ 'nick' ];
 	$rang = "admin";
-	$userkey = md5( $nick );
+	$userkey = md5( $nickname );
 	
 	//put new key in db
-	$sql = "INSERT INTO users(userkey, mail, nick, rang) VALUES(UNHEX('" . $userkey . "'), '$mail', '$nick', '$rang')
+	$sql = "INSERT INTO users(userkey, mail, nick, rang) VALUES(UNHEX('" . $userkey . "'), '$mail', '$nickname', '$rang')
                 ON DUPLICATE KEY UPDATE userkey=UNHEX('$userkey'), ts=CURRENT_TIMESTAMP()";
 
 	$result = $mysqli->query( $sql );
