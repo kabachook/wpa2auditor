@@ -7,11 +7,11 @@ include( 'common.php' );
 
 <head>
 	<meta charset="utf-8"/>
-	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
 	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
 
-	<title>Distributed WPA auditor</title>
+	<title>Distributed WPA/WPA2 auditor</title>
 
 	<!--[if IE]>
    		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -51,14 +51,16 @@ include( 'common.php' );
 						<ul class="dropdown-menu">
 							<li><a href="?tasks">Show Tasks</a>
 							</li>
-							<li><a href="#">New Task</a>
+							<li><a href="?new_tasks">New Task</a>
 							</li>
 						</ul>
 					</li>
 					<li><a href="?dicts">Dicts</a>
 					</li>
+					<!-- comment for better days
 					<li><a href="#">Stats</a>
 					</li>
+					-->
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">
@@ -66,8 +68,10 @@ include( 'common.php' );
 					<?php
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
-						echo '<p class="navbar-text">Signed in as ' . $nick . '</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
+						//If true logout button with nickname
+						echo '<p class="navbar-text">Signed in as ' . getNickname() . '</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
 					} else {
+						//If false login and signup button
 						echo '<form class="navbar-form navbar-left" action="" method="post">
 								  <div class="form-group">
 									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
