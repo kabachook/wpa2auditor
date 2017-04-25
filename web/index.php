@@ -1,74 +1,21 @@
 <?php
-require('conf.php');
-
-//validate 32 char key
-function valid_key($key) {
-    //
-    return preg_match('/^[a-f0-9]{32}$/', strtolower($key));
-}
-
-//Set key
-if (isset($_POST['key'])) {
-    if (valid_key($_POST['key'])) {
-        require_once('db.php');
-        $sql = 'SELECT HEX(userkey) FROM users WHERE userkey=UNHEX(?)';
-        $stmt = $mysql->stmt_init();
-        $stmt->prepare($sql);
-        $stmt->bind_param('s', $_POST['key']);
-        $stmt->execute();
-        $stmt->store_result();
-        
-        if ($stmt->num_rows == 1) {
-            setcookie('key', $_POST['key'], 2147483647, '', '', false, true);
-            $_COOKIE['key'] = $_POST['key'];
-        } else
-            $_POST['remkey'] = '1';
-        $stmt->close();
-    }
-}
-
-//Get nick
-if(isset($_COOKIE['key'])) {
-	require_once('db.php');
-	$sql = "SELECT nick FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
-	$mysqli = new mysqli($cfg_db_host, $cfg_db_user, $cfg_db_pass, $cfg_db_name);
-	$result = $mysqli->query($sql);
-	$obj = $result->fetch_object();
-	$nick = $obj->nick;	
-}
-
-//Remove key
-if ( isset( $_POST[ 'remkey' ] ) ) {
-	setcookie( 'key', '', 1, '', '', false, true );
-	unset( $_COOKIE[ 'key' ] );
-}
-
-//CMS
-$content = 'content/';
-$keys = array('home', 'tasks', 'dicts');
-$keys_if = array('get_work', 'put_work');
-
-list($key) = each($_GET);
-if (!in_array($key,$keys))
-	$key = 'home';
-
-if (in_array($key, $keys_if)) {
-    require($content.$key.'.php');
-    exit;
-}
-
-$cont = $content.$key.'.php';
+include( 'common.php' );
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html>
 
 <head>
-	<meta http-equiv="Content-type" content="text/html; charset=UTF-8"/>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width">
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
 	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
 
 	<title>Distributed WPA auditor</title>
+
+	<!--[if IE]>
+   		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  	<![endif]-->
 
 	<!-- BOOTSTRAP CSS START -->
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
@@ -81,7 +28,7 @@ $cont = $content.$key.'.php';
 </head>
 
 <body>
-	<nav class="navbar navbar-default">
+	<nav class="navbar navbar-default mb0">
 		<div class="container-fluid">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
@@ -92,6 +39,7 @@ $cont = $content.$key.'.php';
          		<span class="icon-bar"></span>
        		</button>
 			
+
 				<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 			</div>
 
@@ -118,15 +66,18 @@ $cont = $content.$key.'.php';
 					<?php
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
-						echo '<p class="navbar-text">Signed in as ' . $nick .'</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button>';
+						echo '<p class="navbar-text">Signed in as ' . $nick . '</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
 					} else {
-						echo '<form class="navbar-form navbar-left" action="" method="post"><div class="form-group">
+						echo '<form class="navbar-form navbar-left" action="" method="post">
+								  <div class="form-group">
 									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
+									<button type="submit" class="btn btn-default">Log in</button> or <a href="?get_key" class="btn btn-default">Sign up</a>
 								  </div>
-								  <button type="submit" class="btn btn-default">Log in</button> or <button type="submit" class="btn btn-default">Sign up</button>';
+							  </form>
+							  ';
 					}
 					?>
-					</form>
+
 					<!-- LOGIN BUTTON END -->
 				</ul>
 			</div>
@@ -135,9 +86,9 @@ $cont = $content.$key.'.php';
 		<!-- /.container-fluid -->
 	</nav>
 	<!-- nav bar end -->
-	
+
 	<?php @include($cont) ?>
-	
+
 	<!-- FOOTER -->
 	<hr>
 	<div class="container">
@@ -146,7 +97,7 @@ $cont = $content.$key.'.php';
 		</footer>
 	</div>
 	<!-- FOOTER END -->
-	
+
 </body>
 
 </html>
