@@ -97,7 +97,7 @@ include( 'common.php' );
 	<hr>
 	<div class="container">
 		<footer>
-			Copyright Nick Gant and Atomnijchelovek
+			Copyright Nick Gant and AtomnijPchelovek
 		</footer>
 	</div>
 	<!-- FOOTER END -->
