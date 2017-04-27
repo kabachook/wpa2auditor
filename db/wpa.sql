@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 27 2017 г., 14:01
+-- Время создания: Апр 27 2017 г., 17:47
 -- Версия сервера: 5.7.14
 -- Версия PHP: 5.6.25
 
@@ -45,6 +45,36 @@ INSERT INTO `dicts` (`d_id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `tasks`
+--
+
+CREATE TABLE `tasks` (
+  `id` bigint(20) NOT NULL,
+  `net_name` varchar(65) NOT NULL,
+  `type` int(11) NOT NULL,
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `hash` binary(16) NOT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `agents` int(11) NOT NULL,
+  `status` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `tasks_dicts`
+--
+
+CREATE TABLE `tasks_dicts` (
+  `id` bigint(20) NOT NULL,
+  `net_id` bigint(20) NOT NULL,
+  `dict_id` int(11) NOT NULL,
+  `status` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `users`
 --
 
@@ -76,6 +106,18 @@ ALTER TABLE `dicts`
   ADD PRIMARY KEY (`d_id`);
 
 --
+-- Индексы таблицы `tasks`
+--
+ALTER TABLE `tasks`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Индексы таблицы `tasks_dicts`
+--
+ALTER TABLE `tasks_dicts`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Индексы таблицы `users`
 --
 ALTER TABLE `users`
@@ -92,6 +134,16 @@ ALTER TABLE `users`
 --
 ALTER TABLE `dicts`
   MODIFY `d_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+--
+-- AUTO_INCREMENT для таблицы `tasks`
+--
+ALTER TABLE `tasks`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT для таблицы `tasks_dicts`
+--
+ALTER TABLE `tasks_dicts`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
