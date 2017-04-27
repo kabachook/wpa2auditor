@@ -5,12 +5,12 @@ $uploadCode = 1;
 $uploadFileType = pathinfo( $target_file, PATHINFO_EXTENSION );
 $status_file_uploading;
 
-function addDictToDB( $dServerPath, $dname, $dfilename ) {
+function addDictToDB( $dServerPath, $dname, $dfilename, $dFileSize ) {
 	global $mysqli;
 	global $cfg_site_url;
 	$dpath = $cfg_site_url . $dfilename;
 	$dhash = md5_file( $dServerPath );
-	$sql = "INSERT INTO dicts(dpath, dhash, dname) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "')";
+	$sql = "INSERT INTO dicts(dpath, dhash, dname, size) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "', '" . $dFileSize . "')";
 	$result = $mysqli->query( $sql );
 }
 
@@ -48,7 +48,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	} else {
 		if ( move_uploaded_file( $_FILES[ "upfile" ][ "tmp_name" ], $target_file ) ) {
 			//Only if file uploaded without error, we add it to db
-			addDictToDB( $target_file, $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ] );
+			addDictToDB( $target_file, $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ], $_FILES["upfile"]["size"] );
 			$status_file_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> File uploaded sucefully!</div></td>';
 		} else {
 			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
@@ -67,6 +67,18 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						<th>Size</th>
 						<th>Download</th>
 					</tr>
+					<?php
+					//Show dicts from DB
+					global $mysqli;
+					$sql = "SELECT dname, dpath, size FROM dicts WHERE 1";
+					$result = $mysqli->query($sql);
+					$result = $result->fetch_all(MYSQLI_ASSOC);
+					
+					foreach($result as $row) {
+						$str = '<tr><td><strong>' . $row['dname'] . '</strong></td><td>' . $row['size'] . '</td><td><a href="' . $row['dpath'] . '" class="btn btn-default">DOWNLOAD</a></tr>';
+						echo $str;
+					}
+					?>
 				</tbody>
 			</table>
 		</div>
