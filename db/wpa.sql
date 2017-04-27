@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 25 2017 г., 20:05
+-- Время создания: Апр 27 2017 г., 14:01
 -- Версия сервера: 5.7.14
 -- Версия PHP: 5.6.25
 
@@ -28,12 +28,19 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `dicts` (
   `d_id` bigint(20) UNSIGNED NOT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dpath` varchar(256) NOT NULL,
   `dhash` binary(16) DEFAULT NULL,
   `dname` varchar(128) NOT NULL,
-  `wcount` int(10) UNSIGNED NOT NULL,
-  `hits` int(10) UNSIGNED NOT NULL DEFAULT '0'
+  `size` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `dicts`
+--
+
+INSERT INTO `dicts` (`d_id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
+(6, '2017-04-27 13:15:13', 'http://localhost/wpa2auditor/web/dicts/cow.txt.gz', 0xa6d75d09082cb4e9080e3d2cb68dc43a, 'cow', 3073584);
 
 -- --------------------------------------------------------
 
@@ -84,12 +91,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `dicts`
 --
 ALTER TABLE `dicts`
-  MODIFY `d_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `d_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `u_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `u_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 DELIMITER $$
 --
 -- События
