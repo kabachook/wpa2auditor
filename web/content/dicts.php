@@ -10,7 +10,6 @@ function addDictToDB( $dServerPath, $dname, $dfilename ) {
 	global $cfg_site_url;
 	$dpath = $cfg_site_url . $dfilename;
 	$dhash = md5_file( $dServerPath );
-	var_dump($dpath);
 	$sql = "INSERT INTO dicts(dpath, dhash, dname) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "')";
 	$result = $mysqli->query( $sql );
 }
@@ -65,8 +64,8 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 				<tbody>
 					<tr>
 						<th>Name</th>
-						<th>Word count</th>
 						<th>Size</th>
+						<th>Download</th>
 					</tr>
 				</tbody>
 			</table>
