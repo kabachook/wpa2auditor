@@ -5,8 +5,12 @@ $cfg_db_user='wpa';
 $cfg_db_pass='wpapass';
 $cfg_db_name='wpa';
 
-//Master-key
-//md5(master)
-$master_key = 'eb0a191797624dd3a48fa681d3061212';
+//Dicts settings
+//Change to folder where we need to upload dicts
+$cfg_dicts_targetFolder = "C:\wamp64\www\wpa2auditor\web\dicts\\";
+$cfg_dicts_maxFileSize = 1e+8;
+
+//Site
+$cfg_site_url = 'http://localhost/wpa2auditor/web/dicts/';
 
 ?>

@@ -1,263 +1,159 @@
+-- phpMyAdmin SQL Dump
+-- version 4.6.4
+-- https://www.phpmyadmin.net/
+--
+-- Хост: 127.0.0.1
+-- Время создания: Апр 27 2017 г., 17:47
+-- Версия сервера: 5.7.14
+-- Версия PHP: 5.6.25
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `wpa`
+-- База данных: `wpa`
 --
-
-DELIMITER ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `dicts`
+-- Структура таблицы `dicts`
 --
 
-CREATE TABLE IF NOT EXISTS `dicts` (
-  `d_id` bigint(20) unsigned NOT NULL,
+CREATE TABLE `dicts` (
+  `d_id` bigint(20) UNSIGNED NOT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dpath` varchar(256) NOT NULL,
   `dhash` binary(16) DEFAULT NULL,
   `dname` varchar(128) NOT NULL,
-  `wcount` int(10) unsigned NOT NULL,
-  `hits` int(10) unsigned NOT NULL DEFAULT '0'
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `get_dict`
---
-CREATE TABLE IF NOT EXISTS `get_dict` (
-  `d_id` bigint(20) unsigned,
-  `dpath` varchar(256),
-  `dhash` varchar(32)
-);
--- --------------------------------------------------------
-
---
--- Table structure for table `n2d`
---
-
-CREATE TABLE IF NOT EXISTS `n2d` (
-  `net_id` bigint(15) NOT NULL,
-  `d_id` int(11) NOT NULL,
-  `hits` int(11) NOT NULL DEFAULT '1',
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `size` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Triggers `n2d`
+-- Дамп данных таблицы `dicts`
 --
-DELIMITER //
-CREATE TRIGGER `TRG_n2d` BEFORE INSERT ON `n2d`
- FOR EACH ROW BEGIN
-    UPDATE nets SET hits=hits+1 WHERE nets.net_id=NEW.net_id;
-    UPDATE dicts SET hits=hits+1 WHERE dicts.d_id=NEW.d_id;
-END
-//
-DELIMITER ;
+
+INSERT INTO `dicts` (`d_id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
+(6, '2017-04-27 13:15:13', 'http://localhost/wpa2auditor/web/dicts/cow.txt.gz', 0xa6d75d09082cb4e9080e3d2cb68dc43a, 'cow', 3073584);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `n2u`
+-- Структура таблицы `tasks`
 --
 
-CREATE TABLE IF NOT EXISTS `n2u` (
-  `net_id` bigint(20) NOT NULL,
-  `u_id` bigint(20) NOT NULL,
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='nets2users relation';
-
--- --------------------------------------------------------
-
---
--- Table structure for table `nets`
---
-
-CREATE TABLE IF NOT EXISTS `nets` (
-`net_id` bigint(15) NOT NULL,
-  `bssid` bigint(15) unsigned NOT NULL,
-  `ssid` varchar(32) NOT NULL,
-  `pass` varchar(64) DEFAULT NULL,
-  `sip` int(10) unsigned DEFAULT NULL,
-  `mic` binary(16) NOT NULL,
-  `cap` varbinary(32768) NOT NULL,
-  `hccap` varbinary(512) NOT NULL,
+CREATE TABLE `tasks` (
+  `id` bigint(20) NOT NULL,
+  `net_name` varchar(65) NOT NULL,
+  `type` int(11) NOT NULL,
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `hash` binary(16) NOT NULL,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `sts` timestamp NULL DEFAULT NULL,
-  `n_state` tinyint(1) unsigned NOT NULL,
-  `u_id` bigint(20) DEFAULT NULL,
-  `hits` int(11) unsigned NOT NULL DEFAULT '0'
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+  `agents` int(11) NOT NULL,
+  `status` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `onets`
+-- Структура таблицы `tasks_dicts`
 --
-CREATE TABLE IF NOT EXISTS `onets` (
-  `net_id` bigint(15),
-  `mic` varchar(32),
-  `cap` varbinary(32768),
-  `hccap` varbinary(512),
-  `bssid` bigint(15) unsigned
-);
+
+CREATE TABLE `tasks_dicts` (
+  `id` bigint(20) NOT NULL,
+  `net_id` bigint(20) NOT NULL,
+  `dict_id` int(11) NOT NULL,
+  `status` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `onets_dicts`
---
-CREATE TABLE IF NOT EXISTS `onets_dicts` (
-  `net_id` bigint(15),
-  `d_id` int(11),
-  `hits` int(11)
-);
--- --------------------------------------------------------
-
---
--- Table structure for table `stats`
+-- Структура таблицы `users`
 --
 
-CREATE TABLE IF NOT EXISTS `stats` (
-  `pname` varchar(20) NOT NULL,
-  `pvalue` varchar(20) DEFAULT NULL
+CREATE TABLE `users` (
+  `u_id` bigint(20) NOT NULL,
+  `rang` text NOT NULL,
+  `nick` text NOT NULL,
+  `email` varchar(500) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
+  `userkey` binary(16) NOT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `submissions`
+-- Дамп данных таблицы `users`
 --
 
-CREATE TABLE IF NOT EXISTS `submissions` (
-  `s_id` bigint(15) NOT NULL,
-  `s_name` binary(16) NOT NULL,
-  `userhash` binary(16) NOT NULL,
-  `info` text,
-  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0 - processing 1 - processed',
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Capture file submissions';
-
--- --------------------------------------------------------
+INSERT INTO `users` (`u_id`, `rang`, `nick`, `email`, `userkey`, `ts`) VALUES
+(2, 'admin', 'AtomnijPchelovek', 'admin@admin.ru', 0xb9d17e7dd4c28bf17ff87a8fea3213fb, '2017-04-13 20:00:16'),
+(3, 'admin', 'nickgant', 'admin_2@admin.ru', 0x2d536641fb64ac6ba11865e55406af30, '2017-04-24 19:35:43');
 
 --
--- Table structure for table `users`
---
-
-CREATE TABLE IF NOT EXISTS `users` (
-`u_id` bigint(20) NOT NULL,
-  `userkey` binary(16) NOT NULL,
-  `mail` varchar(500) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Structure for view `get_dict`
---
-DROP TABLE IF EXISTS `get_dict`;
-
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `get_dict` AS select `d`.`d_id` AS `d_id`,`d`.`dpath` AS `dpath`,hex(`d`.`dhash`) AS `dhash` from (`dicts` `d` left join `onets_dicts` `od` on((`d`.`d_id` = `od`.`d_id`))) order by ifnull(`od`.`hits`,0),`d`.`wcount`;
-
--- --------------------------------------------------------
-
---
--- Structure for view `onets`
---
-DROP TABLE IF EXISTS `onets`;
-
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `onets` AS select `nets`.`net_id` AS `net_id`,hex(`nets`.`mic`) AS `mic`,`nets`.`cap` AS `cap`,`nets`.`hccap` AS `hccap`,`nets`.`bssid` AS `bssid` from `nets` where (`nets`.`n_state` = 0) order by `nets`.`hits`,`nets`.`ts` limit 1;
-
--- --------------------------------------------------------
-
---
--- Structure for view `onets_dicts`
---
-DROP TABLE IF EXISTS `onets_dicts`;
-
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `onets_dicts` AS select `n2d`.`net_id` AS `net_id`,`n2d`.`d_id` AS `d_id`,`n2d`.`hits` AS `hits` from (`n2d` join `onets` `o`) where (`n2d`.`net_id` = `o`.`net_id`);
-
---
--- Indexes for dumped tables
+-- Индексы сохранённых таблиц
 --
 
 --
--- Indexes for table `dicts`
+-- Индексы таблицы `dicts`
 --
 ALTER TABLE `dicts`
- ADD PRIMARY KEY (`d_id`);
+  ADD PRIMARY KEY (`d_id`);
 
 --
--- Indexes for table `n2d`
+-- Индексы таблицы `tasks`
 --
-ALTER TABLE `n2d`
- ADD PRIMARY KEY (`net_id`,`d_id`), ADD KEY `IDX_n2d_ts` (`ts`), ADD KEY `IDX_n2d_net_id` (`net_id`);
+ALTER TABLE `tasks`
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `n2u`
+-- Индексы таблицы `tasks_dicts`
 --
-ALTER TABLE `n2u`
- ADD UNIQUE KEY `UNC_n2u_net_id_u_id` (`net_id`,`u_id`), ADD KEY `IDX_n2u_u_id` (`u_id`);
+ALTER TABLE `tasks_dicts`
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `nets`
---
-ALTER TABLE `nets`
- ADD PRIMARY KEY (`net_id`), ADD UNIQUE KEY `IDX_net_mic` (`mic`), ADD KEY `u_id` (`u_id`), ADD KEY `IDX_nets_bssid` (`bssid`);
-
---
--- Indexes for table `stats`
---
-ALTER TABLE `stats`
- ADD PRIMARY KEY (`pname`);
-
---
--- Indexes for table `submissions`
---
-ALTER TABLE `submissions`
- ADD PRIMARY KEY (`s_id`), ADD UNIQUE KEY `IDX_submissions_userhash` (`userhash`);
-
---
--- Indexes for table `users`
+-- Индексы таблицы `users`
 --
 ALTER TABLE `users`
- ADD PRIMARY KEY (`u_id`), ADD UNIQUE KEY `IDX_users_userkey` (`userkey`), ADD UNIQUE KEY `IDX_users_mail` (`mail`);
+  ADD PRIMARY KEY (`u_id`),
+  ADD UNIQUE KEY `IDX_users_userkey` (`userkey`),
+  ADD UNIQUE KEY `IDX_users_mail` (`email`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT для сохранённых таблиц
 --
 
 --
--- AUTO_INCREMENT for table `dicts`
+-- AUTO_INCREMENT для таблицы `dicts`
 --
 ALTER TABLE `dicts`
-MODIFY `d_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `d_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 --
--- AUTO_INCREMENT for table `nets`
+-- AUTO_INCREMENT для таблицы `tasks`
 --
-ALTER TABLE `nets`
-MODIFY `net_id` bigint(15) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tasks`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `submissions`
+-- AUTO_INCREMENT для таблицы `tasks_dicts`
 --
-ALTER TABLE `submissions`
-MODIFY `s_id` bigint(15) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tasks_dicts`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 --
--- AUTO_INCREMENT for table `users`
+-- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-MODIFY `u_id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `u_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 DELIMITER $$
 --
--- Events
+-- События
 --
-CREATE EVENT `e_stats` ON SCHEDULE EVERY '0 2' DAY_HOUR STARTS '2011-09-18 17:31:07' ON COMPLETION NOT PRESERVE ENABLE COMMENT 'Computes last day stats every 1h am' DO BEGIN
+CREATE DEFINER=`root`@`localhost` EVENT `e_stats` ON SCHEDULE EVERY '0 2' DAY_HOUR STARTS '2011-09-18 17:31:07' ON COMPLETION NOT PRESERVE ENABLE COMMENT 'Computes last day stats every 1h am' DO BEGIN
         UPDATE stats SET pvalue=(SELECT count(*) FROM n2d WHERE date(ts) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)) WHERE pname='24getwork';
         UPDATE stats SET pvalue=(SELECT sum(wcount) FROM n2d, dicts WHERE date(ts) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND n2d.d_id=dicts.d_id) WHERE pname='24psk';
         UPDATE stats SET pvalue=(SELECT count(*) FROM nets WHERE date( ts ) = DATE_SUB( CURDATE() , INTERVAL 1 DAY)) WHERE pname='24sub';
