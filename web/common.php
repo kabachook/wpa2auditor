@@ -48,7 +48,7 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 
 //CMS
 $content = 'content/';
-$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'new_tasks', 'dicts.php' );
+$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'dicts.php' );
 $keys_if = array( 'get_work', 'put_work' );
 
 list( $key ) = each( $_GET );
