@@ -5,7 +5,7 @@ $uploadCode = 1;
 $uploadFileType = pathinfo( $target_file, PATHINFO_EXTENSION );
 $status_file_uploading;
 
-function addDictToDB( $name, $filename ) {
+function addTaskToDB( $name, $filename ) {
 	global $mysqli;
 	global $cfg_site_url;
 	$sql = "INSERT INTO tasks(name, type, priority, filename) VALUES('" . $name . "', '0', '0', '" . $filename . "')";
@@ -44,7 +44,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	} else {
 		if ( move_uploaded_file( $_FILES[ "upfile" ][ "tmp_name" ], $target_file ) ) {
 			//Only if file uploaded without error, we add it to db
-			addDictToDB( $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ] );
+			addTaskToDB( $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ] );
 			$status_file_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> File uploaded sucefully!</div></td>';
 		} else {
 			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
