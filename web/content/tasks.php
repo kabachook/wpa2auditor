@@ -95,9 +95,10 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 			<table class="table table-striped table-bordered table-nonfluid">
 				<tbody>
 					<tr>
-						<th>ID</th>
+						<th>#</th>
 						<th>Name</th>
 						<th>Files</th>
+						<th>Agents</th>
 						<th>Status</th>
 					</tr>
 					<?php
@@ -105,17 +106,21 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						$listOfStatus = [
 							0 => "IN QUEUE",
 							1 => "IN PROGRESS",
+							2 => "SUCCESS",
+							3 => "FAILED",
 						];
 						return $listOfStatus[$status];
 					}
 					//Show dicts from DB
 					global $mysqli;
-					$sql = "SELECT id, name, filename, status FROM tasks WHERE 1";
+					$sql = "SELECT id, name, filename, status, agents FROM tasks WHERE 1";
 					$result = $mysqli->query($sql);
 					$result = $result->fetch_all(MYSQLI_ASSOC);
 					
+					$id = 0;
 					foreach($result as $row) {
-						$str = '<tr><td><strong>' . $row['id'] . '</strong></td><td>' . $row['name'] . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default">DOWNLOAD</a><td>' . getStatus($row['status']) . '</td></tr>';
+						$id++;
+						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['name'] . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default">DOWNLOAD</a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td></tr>';
 						echo $str;
 					}
 					?>
@@ -124,7 +129,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 		</div>
 	</div>
 	<div class="col-md-4">
-		<h3>Add new tasks</h3>
+		<h2>Add new tasks</h2>
 		<form class="" action="" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="source" value="upload">
 			<input type="hidden" name="action" value="addfile">

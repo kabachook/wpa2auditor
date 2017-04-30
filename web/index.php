@@ -27,6 +27,7 @@ include( 'common.php' );
 	<!-- BOOTSTRAP CSS END -->
 
 	<link rel="stylesheet" href="css/style.css">
+	<script src="js/tasks.js" async=""></script>
 </head>
 
 <body><nav class="navbar navbar-default mb0">
