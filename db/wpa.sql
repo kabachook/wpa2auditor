@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 27 2017 г., 17:47
+-- Время создания: Апр 30 2017 г., 14:10
 -- Версия сервера: 5.7.14
 -- Версия PHP: 5.6.25
 
@@ -40,7 +40,10 @@ CREATE TABLE `dicts` (
 --
 
 INSERT INTO `dicts` (`d_id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
-(6, '2017-04-27 13:15:13', 'http://localhost/wpa2auditor/web/dicts/cow.txt.gz', 0xa6d75d09082cb4e9080e3d2cb68dc43a, 'cow', 3073584);
+(6, '2017-04-27 13:15:13', 'http://localhost/wpa2auditor/web/dicts/cow.txt.gz', 0xa6d75d09082cb4e9080e3d2cb68dc43a, 'cow', 3073584),
+(7, '2017-04-28 07:37:57', 'http://localhost/wpa2auditor/web/dicts/old_gold.txt.gz', 0xd4fdfe9e14af2c3884dfdc79ebbbff40, 'SOME NAME', 7489767),
+(8, '2017-04-28 08:17:23', 'http://localhost/wpa2auditor/web/dicts/cracked.txt.gz', 0x95fb70f5b3d0f68828c6967fe8b01d26, 'OLOLOL', 122545),
+(12, '2017-04-30 14:09:34', 'http://localhost/wpa2auditor/web/dicts/wp_fr.txt.gz', 0xa9d92bd24a7ca0aaf58e2460e4588eb9, 'sdfsdfsdfsfdsdfsdf', 5968469);
 
 -- --------------------------------------------------------
 
@@ -50,14 +53,22 @@ INSERT INTO `dicts` (`d_id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
 
 CREATE TABLE `tasks` (
   `id` bigint(20) NOT NULL,
-  `net_name` varchar(65) NOT NULL,
+  `name` varchar(65) NOT NULL,
+  `filename` varchar(60) DEFAULT NULL,
   `type` int(11) NOT NULL,
   `priority` int(11) NOT NULL DEFAULT '0',
-  `hash` binary(16) NOT NULL,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `agents` int(11) NOT NULL,
-  `status` int(11) NOT NULL
+  `agents` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Дамп данных таблицы `tasks`
+--
+
+INSERT INTO `tasks` (`id`, `name`, `filename`, `type`, `priority`, `ts`, `agents`, `status`) VALUES
+(1, 'kek', 'DIR-300NRU.hccap', 0, 0, '2017-04-30 14:00:08', 0, 0),
+(2, 'dtyt', 'ASUS8888.hccap', 0, 0, '2017-04-30 14:00:50', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -133,12 +144,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `dicts`
 --
 ALTER TABLE `dicts`
-  MODIFY `d_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `d_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 --
 -- AUTO_INCREMENT для таблицы `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT для таблицы `tasks_dicts`
 --
