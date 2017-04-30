@@ -97,6 +97,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					<tr>
 						<th>#</th>
 						<th>Name</th>
+						<th>Key</th>
 						<th>Files</th>
 						<th>Agents</th>
 						<th>Status</th>
@@ -113,14 +114,19 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					}
 					//Show dicts from DB
 					global $mysqli;
-					$sql = "SELECT id, name, filename, status, agents FROM tasks WHERE 1";
+					$sql = "SELECT id, name, filename, status, agents, net_key FROM tasks WHERE 1";
 					$result = $mysqli->query($sql);
 					$result = $result->fetch_all(MYSQLI_ASSOC);
 					
+					if ($row['net_key'] == 0) {
+						$key = "NOT FOUND";
+					} else {
+						$key = $row['net_key'];
+					}
 					$id = 0;
 					foreach($result as $row) {
 						$id++;
-						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['name'] . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default">DOWNLOAD</a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td></tr>';
+						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['name'] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default">DOWNLOAD</a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td></tr>';
 						echo $str;
 					}
 					?>
