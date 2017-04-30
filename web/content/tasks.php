@@ -8,8 +8,28 @@ $status_file_uploading;
 function addTaskToDB( $name, $filename ) {
 	global $mysqli;
 	global $cfg_site_url;
+	//Add task to db
 	$sql = "INSERT INTO tasks(name, type, priority, filename) VALUES('" . $name . "', '0', '0', '" . $filename . "')";
+	$mysqli->query( $sql );
+	
+	//Get all dicts id
+	$sql = "SELECT id FROM dicts";
+	$result = $mysqli->query($sql);
+	$result = $result->fetch_all(MYSQLI_ASSOC);
+	//Insert into tasks_dicts for last (current) task all dicts
+	foreach ($result as $row) {
+		$dict_curr_id = $row['id'];
+		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getNetId() . "', '" . $dict_curr_id . "', '0')";
+		$mysqli->query($sql);
+	}
+}
+
+function getNetId() {
+	global $mysqli;
+	$sql = "SELECT MAX(id) FROM tasks";
 	$result = $mysqli->query( $sql );
+	$result = $result->fetch_assoc();
+	return $result['MAX(id)'];
 }
 
 //List of errors
