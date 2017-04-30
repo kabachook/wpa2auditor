@@ -10,7 +10,7 @@ function getCountAgents($task_id) {
 	return $result['agents'];
 }
 
-$status = $_POST['job'];
+$status = $_POST['job_status'];
 $task_id = $_POST['task_id'];
 $dict_id = $_POST['dict_id'];
 if ($status == "start") {
@@ -28,6 +28,13 @@ if ($status == "finish") {
 	
 	$task_status = $_POST['task_status'];
 	$dict_status = $_POST['dict_status'];
+	
+	if($task_status == 2) {
+		//Password found
+		$net_key = $_POST['net_key'];
+		$sql = "UPDATE tasks SET net_key='" . $net_key . "' WHERE id='" . $task_id . "'";
+		$mysqli->query($sql);
+	}
 	
 	//Change task status
 	$sql = "UPDATE tasks SET status='" . $task_status . "' WHERE id='" . $task_id . "'";
