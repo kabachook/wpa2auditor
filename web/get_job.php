@@ -10,6 +10,7 @@ $sql = "SELECT id, name, filename FROM tasks WHERE status=0 ORDER BY id DESC LIM
 $result = $mysqli->query( $sql );
 $result = $result->fetch_all(MYSQLI_ASSOC);
 $task_id = $result[0]['id'];
+$json['id'] = $task_id;
 $json['name'] = $result[0]['name'];
 $json['url'] = $cfg_site_url . "tasks//" . $result[0]['filename'];
 
@@ -23,14 +24,15 @@ foreach ($result as $row) {
 	array_push($dicts_id, $row['dict_id']);
 }
 //For all dicts_id get it's filename to generate url to download
-$dicts_url = array();
+$dicts_idWithUrl = array();
 foreach ($dicts_id as $id) {
 	$sql = "SELECT dpath FROM dicts WHERE id='" . $id . "'";
 	$result = $mysqli->query($sql);
 	$result = $result->fetch_all(MYSQLI_ASSOC);
-	array_push($dicts_url, $result[0]['dpath']);
+	$dicts_idWithUrl[$id] = $result[0]['dpath'];
 }
-$json['dicts_url'] = $dicts_url;
+
+$json['dicts_idWithUrl'] = $dicts_idWithUrl;
 
 //Send json
 echo json_encode($json);
