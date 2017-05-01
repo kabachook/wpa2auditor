@@ -9,7 +9,7 @@ function addDictToDB( $dServerPath, $dname, $dfilename, $dFileSize ) {
 	global $mysqli;
 	global $cfg_site_url;
 	$dpath = $cfg_site_url . 'dicts/' . $dfilename;
-	$dhash = md5_file( $dServerPath );
+	$dhash = hash_file("sha256", $dServerPath);
 	$sql = "INSERT INTO dicts(dpath, dhash, dname, size) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "', '" . $dFileSize . "')";
 	$result = $mysqli->query( $sql );
 }
