@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //DB Configuration
 $cfg_db_host='127.0.0.1';
 $cfg_db_user='wpa';

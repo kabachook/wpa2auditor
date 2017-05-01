@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 //Connect to db
 require('db.php');

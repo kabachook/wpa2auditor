@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //There we want to upload file
 $target_file = $cfg_tasks_targetFolder . basename( $_FILES[ "upfile" ][ "name" ] );
 $uploadCode = 1;
