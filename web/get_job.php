@@ -30,7 +30,11 @@ foreach ($dicts_id as $id) {
 	$sql = "SELECT dpath, dhash FROM dicts WHERE id='" . $id . "'";
 	$result = $mysqli->query($sql);
 	$result = $result->fetch_all(MYSQLI_ASSOC);
-	array_push($dicts, array($id, $result[0]['dpath'], bin2hex($result[0]['dhash'])));
+	array_push($dicts, array(
+		"dict_id" => $id, 
+		"dict_url" => $result[0]['dpath'], 
+		"dict_hash" => bin2hex($result[0]['dhash']),
+	));
 }
 
 $json['dicts'] = $dicts;
