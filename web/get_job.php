@@ -23,16 +23,17 @@ $dicts_id = array();
 foreach ($result as $row) {
 	array_push($dicts_id, $row['dict_id']);
 }
+
 //For all dicts_id get it's filename to generate url to download
-$dicts_idWithUrl = array();
+$dicts = array();
 foreach ($dicts_id as $id) {
-	$sql = "SELECT dpath FROM dicts WHERE id='" . $id . "'";
+	$sql = "SELECT dpath, dhash FROM dicts WHERE id='" . $id . "'";
 	$result = $mysqli->query($sql);
 	$result = $result->fetch_all(MYSQLI_ASSOC);
-	$dicts_idWithUrl[$id] = $result[0]['dpath'];
+	array_push($dicts, array($id, $result[0]['dpath'], bin2hex($result[0]['dhash'])));
 }
 
-$json['dicts_idWithUrl'] = $dicts_idWithUrl;
+$json['dicts'] = $dicts;
 
 //Send json
 echo json_encode($json);
