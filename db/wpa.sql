@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 30 2017 г., 19:50
+-- Время создания: Май 01 2017 г., 10:44
 -- Версия сервера: 5.7.14
 -- Версия PHP: 5.6.25
 
@@ -30,7 +30,7 @@ CREATE TABLE `dicts` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dpath` varchar(256) NOT NULL,
-  `dhash` binary(16) DEFAULT NULL,
+  `dhash` binary(32) DEFAULT NULL,
   `dname` varchar(128) NOT NULL,
   `size` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -40,10 +40,7 @@ CREATE TABLE `dicts` (
 --
 
 INSERT INTO `dicts` (`id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
-(6, '2017-04-27 13:15:13', 'http://localhost/wpa2auditor/web/dicts/cow.txt.gz', 0xa6d75d09082cb4e9080e3d2cb68dc43a, 'cow', 3073584),
-(7, '2017-04-28 07:37:57', 'http://localhost/wpa2auditor/web/dicts/old_gold.txt.gz', 0xd4fdfe9e14af2c3884dfdc79ebbbff40, 'SOME NAME', 7489767),
-(8, '2017-04-28 08:17:23', 'http://localhost/wpa2auditor/web/dicts/cracked.txt.gz', 0x95fb70f5b3d0f68828c6967fe8b01d26, 'OLOLOL', 122545),
-(12, '2017-04-30 14:09:34', 'http://localhost/wpa2auditor/web/dicts/wp_fr.txt.gz', 0xa9d92bd24a7ca0aaf58e2460e4588eb9, 'sdfsdfsdfsfdsdfsdf', 5968469);
+(14, '2017-05-01 10:40:37', 'http://localhost/wpa2auditor/web/dicts/old_gold.txt.gz', 0xf0bd087bf8235b62159123e9b8ba3e16dd6b590db5ec39b643d1fbc7c8c9a683, 'old_good', 7489767);
 
 -- --------------------------------------------------------
 
@@ -78,7 +75,8 @@ INSERT INTO `tasks` (`id`, `name`, `filename`, `type`, `net_key`, `priority`, `t
 (8, 'sdgfhgfh', 'MTSRouter-036012.hccap', 0, '0', 0, '2017-04-30 14:44:11', 0, 0),
 (9, 'gdhfgh', 'MTSRouter-CF0405.hccap', 0, '0', 0, '2017-04-30 14:45:27', 0, 0),
 (10, 'erwretert', 'MTSRouter-004121.hccap', 0, '0', 0, '2017-04-30 14:46:18', 0, 0),
-(11, 'werwerwerewrwe', 'DIR320NRU.hccap', 0, '0', 0, '2017-04-30 14:46:42', 0, 0);
+(11, 'werwerwerewrwe', 'DIR320NRU.hccap', 0, '0', 0, '2017-04-30 14:46:42', 0, 0),
+(12, 'Task', 'DIR-300.hccap', 0, '0', 0, '2017-04-30 19:53:49', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -101,7 +99,11 @@ INSERT INTO `tasks_dicts` (`id`, `net_id`, `dict_id`, `status`) VALUES
 (1, 11, 6, 0),
 (2, 11, 7, 0),
 (3, 11, 8, 0),
-(4, 11, 12, 0);
+(4, 11, 12, 0),
+(5, 12, 6, 0),
+(6, 12, 7, 0),
+(7, 12, 8, 0),
+(8, 12, 12, 0);
 
 -- --------------------------------------------------------
 
@@ -164,29 +166,22 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `dicts`
 --
 ALTER TABLE `dicts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 --
 -- AUTO_INCREMENT для таблицы `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 --
 -- AUTO_INCREMENT для таблицы `tasks_dicts`
 --
 ALTER TABLE `tasks_dicts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
   MODIFY `u_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-DELIMITER $$
---
--- События
---
-
-DELIMITER ;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
