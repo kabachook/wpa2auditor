@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 27 2017 г., 17:47
+-- Время создания: Апр 30 2017 г., 19:50
 -- Версия сервера: 5.7.14
 -- Версия PHP: 5.6.25
 
@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `dicts` (
-  `d_id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dpath` varchar(256) NOT NULL,
   `dhash` binary(16) DEFAULT NULL,
@@ -39,8 +39,11 @@ CREATE TABLE `dicts` (
 -- Дамп данных таблицы `dicts`
 --
 
-INSERT INTO `dicts` (`d_id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
-(6, '2017-04-27 13:15:13', 'http://localhost/wpa2auditor/web/dicts/cow.txt.gz', 0xa6d75d09082cb4e9080e3d2cb68dc43a, 'cow', 3073584);
+INSERT INTO `dicts` (`id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
+(6, '2017-04-27 13:15:13', 'http://localhost/wpa2auditor/web/dicts/cow.txt.gz', 0xa6d75d09082cb4e9080e3d2cb68dc43a, 'cow', 3073584),
+(7, '2017-04-28 07:37:57', 'http://localhost/wpa2auditor/web/dicts/old_gold.txt.gz', 0xd4fdfe9e14af2c3884dfdc79ebbbff40, 'SOME NAME', 7489767),
+(8, '2017-04-28 08:17:23', 'http://localhost/wpa2auditor/web/dicts/cracked.txt.gz', 0x95fb70f5b3d0f68828c6967fe8b01d26, 'OLOLOL', 122545),
+(12, '2017-04-30 14:09:34', 'http://localhost/wpa2auditor/web/dicts/wp_fr.txt.gz', 0xa9d92bd24a7ca0aaf58e2460e4588eb9, 'sdfsdfsdfsfdsdfsdf', 5968469);
 
 -- --------------------------------------------------------
 
@@ -50,14 +53,32 @@ INSERT INTO `dicts` (`d_id`, `ts`, `dpath`, `dhash`, `dname`, `size`) VALUES
 
 CREATE TABLE `tasks` (
   `id` bigint(20) NOT NULL,
-  `net_name` varchar(65) NOT NULL,
+  `name` varchar(65) NOT NULL,
+  `filename` varchar(60) DEFAULT NULL,
   `type` int(11) NOT NULL,
+  `net_key` varchar(64) DEFAULT '0',
   `priority` int(11) NOT NULL DEFAULT '0',
-  `hash` binary(16) NOT NULL,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `agents` int(11) NOT NULL,
-  `status` int(11) NOT NULL
+  `agents` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Дамп данных таблицы `tasks`
+--
+
+INSERT INTO `tasks` (`id`, `name`, `filename`, `type`, `net_key`, `priority`, `ts`, `agents`, `status`) VALUES
+(1, 'kek', 'DIR-300NRU.hccap', 0, '0', 0, '2017-04-30 14:00:08', 5, 0),
+(2, 'dtyt', 'ASUS8888.hccap', 0, '0', 0, '2017-04-30 14:00:50', 0, 1),
+(3, 'gfhfgh', 'TP-LINK_3362EE.hccap', 0, '0', 0, '2017-04-30 14:39:17', 0, 2),
+(4, 'sdfsdfsdf', 'TP-LINK_5CB1E0.hccap', 0, '0', 0, '2017-04-30 14:40:49', 0, 3),
+(5, 'dgxhgdhgf', 'TP-LINK_878CBA.hccap', 0, '0', 0, '2017-04-30 14:41:50', 0, 0),
+(6, 'shfghfgh', 'TP-LINK_C48632.hccap', 0, '0', 0, '2017-04-30 14:42:36', 0, 0),
+(7, 'sdfsfsdf', 'TP-LINK_7D8358.hccap', 0, '0', 0, '2017-04-30 14:43:21', 0, 0),
+(8, 'sdgfhgfh', 'MTSRouter-036012.hccap', 0, '0', 0, '2017-04-30 14:44:11', 0, 0),
+(9, 'gdhfgh', 'MTSRouter-CF0405.hccap', 0, '0', 0, '2017-04-30 14:45:27', 0, 0),
+(10, 'erwretert', 'MTSRouter-004121.hccap', 0, '0', 0, '2017-04-30 14:46:18', 0, 0),
+(11, 'werwerwerewrwe', 'DIR320NRU.hccap', 0, '0', 0, '2017-04-30 14:46:42', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -71,6 +92,16 @@ CREATE TABLE `tasks_dicts` (
   `dict_id` int(11) NOT NULL,
   `status` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Дамп данных таблицы `tasks_dicts`
+--
+
+INSERT INTO `tasks_dicts` (`id`, `net_id`, `dict_id`, `status`) VALUES
+(1, 11, 6, 0),
+(2, 11, 7, 0),
+(3, 11, 8, 0),
+(4, 11, 12, 0);
 
 -- --------------------------------------------------------
 
@@ -103,7 +134,7 @@ INSERT INTO `users` (`u_id`, `rang`, `nick`, `email`, `userkey`, `ts`) VALUES
 -- Индексы таблицы `dicts`
 --
 ALTER TABLE `dicts`
-  ADD PRIMARY KEY (`d_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Индексы таблицы `tasks`
@@ -133,17 +164,17 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `dicts`
 --
 ALTER TABLE `dicts`
-  MODIFY `d_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 --
 -- AUTO_INCREMENT для таблицы `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT для таблицы `tasks_dicts`
 --
 ALTER TABLE `tasks_dicts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT для таблицы `users`
 --

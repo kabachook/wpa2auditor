@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require('conf.php');
 //connect to db
 $mysqli = new mysqli($cfg_db_host, $cfg_db_user, $cfg_db_pass, $cfg_db_name);

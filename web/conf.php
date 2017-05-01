@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //DB Configuration
 $cfg_db_host='127.0.0.1';
 $cfg_db_user='wpa';
@@ -11,6 +11,10 @@ $cfg_dicts_targetFolder = "C:\wamp64\www\wpa2auditor\web\dicts\\";
 $cfg_dicts_maxFileSize = 1e+8;
 
 //Site
-$cfg_site_url = 'http://localhost/wpa2auditor/web/dicts/';
+$cfg_site_url = 'http://localhost/wpa2auditor/web/';
+
+//Tasks
+$cfg_tasks_targetFolder = "C:\wamp64\www\wpa2auditor\web\\tasks\\";
+$cfg_tasks_maxFileSize = 1e+3;
 
 ?>

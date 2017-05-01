@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 //There we want to upload file
 $target_file = $cfg_dicts_targetFolder . basename( $_FILES[ "upfile" ][ "name" ] );
 $uploadCode = 1;
@@ -8,7 +8,7 @@ $status_file_uploading;
 function addDictToDB( $dServerPath, $dname, $dfilename, $dFileSize ) {
 	global $mysqli;
 	global $cfg_site_url;
-	$dpath = $cfg_site_url . $dfilename;
+	$dpath = $cfg_site_url . 'dicts/' . $dfilename;
 	$dhash = md5_file( $dServerPath );
 	$sql = "INSERT INTO dicts(dpath, dhash, dname, size) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "', '" . $dFileSize . "')";
 	$result = $mysqli->query( $sql );
