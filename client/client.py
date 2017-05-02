@@ -135,7 +135,7 @@ while True:
                     print("Unpacking {}".format(filename))
                     ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
                     filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
-                dict_queue.append((filename, i['dict_id']))
+            dict_queue.append((filename, i['dict_id']))
 
     # run hashcat for every dict
     while len(dict_queue):
