@@ -124,7 +124,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					
 					$id = 0;
 					foreach($result as $row) {
-						if ($row['net_key'] == 0) {
+						if ($row['net_key'] == '0') {
 							$key = "NOT FOUND";
 						} else {
 							$key = $row['net_key'];
