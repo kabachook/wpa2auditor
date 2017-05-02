@@ -6,13 +6,14 @@ require('db.php');
 $json = array();
 
 //Get last job from queue
-$sql = "SELECT id, name, filename FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
+$sql = "SELECT id, name, filename, thash FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
 $result = $mysqli->query( $sql );
 $result = $result->fetch_all(MYSQLI_ASSOC);
 $task_id = $result[0]['id'];
 $json['id'] = $task_id;
 $json['name'] = $result[0]['name'];
 $json['url'] = $cfg_site_url . "tasks//" . $result[0]['filename'];
+$json['hash'] = bin2hex($result[0]['thash']);
 
 //Get dicts for this task
 //Get all dicts which not used 
