@@ -121,13 +121,14 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					$result = $mysqli->query($sql);
 					$result = $result->fetch_all(MYSQLI_ASSOC);
 					
-					if ($row['net_key'] == 0) {
-						$key = "NOT FOUND";
-					} else {
-						$key = $row['net_key'];
-					}
+					
 					$id = 0;
 					foreach($result as $row) {
+						if ($row['net_key'] == 0) {
+							$key = "NOT FOUND";
+						} else {
+							$key = $row['net_key'];
+						}
 						$id++;
 						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['name'] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default">DOWNLOAD</a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td></tr>';
 						echo $str;
