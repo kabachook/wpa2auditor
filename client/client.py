@@ -30,17 +30,19 @@ outfile = 'pass.key'
             3 in other cases
 """
 
-
 # TODO: add checks and exeptions cather
 def download_file(url=None, filename=None):
     if url == None or filename == None:
         return 1
     try:
         r = requests.get(url, stream=True)
-        r.raw.decode_content = True
+        total_size = int(r.headers.get('content-length'))
         if r.status_code == 200:
             with open(filename, 'wb')as f:
-                shutil.copyfileobj(r.raw, f)
+                #shutil.copyfileobj(r.raw, f)
+                for chunk in r.iter_content(chunk_size=1024):
+                    if chunk:  # filter out keep-alive new chunks
+                        f.write(chunk)
             f.close()
             r.close()
             return 0
@@ -99,6 +101,7 @@ job = {}
 
 while True:
     dict_queue = queue.deque()  # Queue for dictionaries
+    handshake = ""
 
     # prepare job
     if len(job) == 0:
@@ -108,9 +111,9 @@ while True:
         # Download handshake and check hashsum
         handshake = job['name'] + ".hccap"
         download_file(job['url'], job['name'] + ".hccap")
-        if not check_hash(job['name']+".hccap",job['hash']):
+        '''if not check_hash(job['name']+".hccap",job['hash']):
             print("[ERROR] Checksums do not match")
-            exit(1)
+            exit(1)'''
 
         # Downaload all dicts and check hashsums
         for i in job['dicts']:
@@ -118,27 +121,29 @@ while True:
             if not os.path.exists(filename):
                 print('Downloading {}'.format(filename))
                 download_file(i['dict_url'], filename)
-                if not check_hash(filename, i['dict_hash']):
+                '''if not check_hash(filename, i['dict_hash']):
                     print("[ERROR] Checksums do not match. Exiting...")
-                    exit(1)
-            else:
+                    exit(1)'''
+            '''else:
                 if not check_hash(filename, i['dict_hash']):
                     print('Downloading {}'.format(filename))
                     download_file(i['dict_url'], filename)
                     if not check_hash(filename, i['dict_hash']):
                         print("[ERROR] Checksums do not match. Exiting...")
-                        exit(1)
+                        exit(1)'''
 
             # Unpack dictionaries if necessary
             if filename[-3:] == '.gz':
                 print("Unpacking {}".format(filename))
                 ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
                 filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
-            dict_queue.append(filename)
+            dict_queue.append((filename, i['dict_id']))
 
     # run hashcat for every dict
     while len(dict_queue):
         i = dict_queue.popleft()  # i = current dictionary
+        filename = i[0]
+        dict_id = i[1]
 
         try:
             cracker = '{0} -session={1} -m2500 --potfile-disable --outfile-format=2 {2} -o {3} {4} {5}'.format(hashcat,
@@ -146,13 +151,13 @@ while True:
                                                                                                                performance,
                                                                                                                outfile,
                                                                                                                handshake,
-                                                                                                               i)
+                                                                                                               filename)
             #Run hashcat with arguments
             subprocess.check_call(shlex.split(cracker))
             #Send status to api
-            'put_job({"status_job":"started",
-                     "task_id":job['id'],
-                     "dict_id":i['dict_id']})
+            put_job({ "status_job": "started",
+                      "task_id": job['id'],
+                      "dict_id": dict_id})
         #Catch exceptions
         except subprocess.CalledProcessError as ex:
             if ex.returncode == -2:
@@ -163,22 +168,22 @@ while True:
                 continue
             if ex.returncode == -1:
                 print('Internal error')
-                # exit(1)
+                exit(1)
             if ex.returncode == 1:
-                print('Exausted')
+                print('[INFO] Exausted. Hash was not found in {}'.format(filename))
             if ex.returncode == 2:
                 print('User abort')
-                # exit(1)
+                exit(1)
             if ex.returncode not in [-2, -1, 1, 2]:
                 print('Cracker {0} died with code {1}'.format(hashcat, ex.returncode))
                 print('Check you have CUDA/OpenCL support')
-                # exit(1)
+                exit(1)
         except KeyboardInterrupt as ex:
             print('\nKeyboard interrupt')
             #Cleanup
             if os.path.exists(outfile):
                 os.unlink(outfile)
-                #exit(1)
+                exit(1)
 
 
         if os.path.exists(outfile): #If bruted
@@ -188,9 +193,9 @@ while True:
             key = key.rstrip('\n')
             if len(key) >= 8:
                 print('Key found for job {0}:{1}'.format(job['name'], key))
-                while not put_job({'status_job':  'finished', #Send key to server
+                while not put_job({'status_job':  'finish', #Send key to server
                                    'task_id':      job['id'],
-                                   'dict_id':   i['dict_id'],
+                                   'dict_id':   dict_id,
                                    'task_status':       '2' ,
                                    'dict_status':        '1',
                                    'net_key':            key}):
@@ -200,12 +205,12 @@ while True:
             os.unlink(outfile)
         else:
             print("Key for task {0} not found :(".format(job['name']))
-            while not put_job({'status_job':  'finished', #Send fail status
+            while not put_job({'status_job':     'finish', #Send fail status
                                'task_id':      job['id'],
-                               'dict_id':   i['dict_id'],
+                               'dict_id':        dict_id,
                                'task_status':        '3',
                                'dict_status':        '1',
-                               'net_key':           key}):
+                               'net_key':           ""}):
                 print("Can't data to server")
 
         # cleanup
