@@ -2,6 +2,8 @@
 //Connect to db
 require('db.php');
 
+$json = json_decode(file_get_contents('php://input'));
+
 function getCountAgents($task_id) {
 	global $mysqli;
 	$sql = "SELECT agents FROM tasks WHERE id='" . $task_id . "'";
@@ -9,10 +11,10 @@ function getCountAgents($task_id) {
 	$result = $result->fetch_array(MYSQLI_ASSOC);
 	return $result['agents'];
 }
-
-$status = $_POST['job_status'];
-$task_id = $_POST['task_id'];
-$dict_id = $_POST['dict_id'];
+	
+$status = $json['job_status'];
+$task_id = $json['task_id'];
+$dict_id = $json['dict_id'];
 if ($status == "start") {
 	
 	//Change task status
@@ -26,12 +28,12 @@ if ($status == "start") {
 }
 if ($status == "finish") {
 	
-	$task_status = $_POST['task_status'];
-	$dict_status = $_POST['dict_status'];
+	$task_status = $json['task_status'];
+	$dict_status = $json['dict_status'];
 	
 	if($task_status == 2) {
 		//Password found
-		$net_key = $_POST['net_key'];
+		$net_key = $json['net_key'];
 		$sql = "UPDATE tasks SET net_key='" . $net_key . "' WHERE id='" . $task_id . "'";
 		$mysqli->query($sql);
 	}

@@ -8,8 +8,11 @@ $status_file_uploading;
 function addTaskToDB( $name, $filename ) {
 	global $mysqli;
 	global $cfg_site_url;
+	global $cfg_tasks_targetFolder;
+	
 	//Add task to db
-	$sql = "INSERT INTO tasks(name, type, priority, filename) VALUES('" . $name . "', '0', '0', '" . $filename . "')";
+	$thash = hash_file("sha256", $cfg_tasks_targetFolder . $filename);
+	$sql = "INSERT INTO tasks(name, type, priority, filename, thash) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'))";
 	$mysqli->query( $sql );
 	
 	//Get all dicts id
