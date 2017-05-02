@@ -2,7 +2,7 @@
 //Connect to db
 require('db.php');
 
-$json = json_decode(file_get_contents('php://input'));
+$json = json_decode(file_get_contents('php://input'), true);  
 
 function getCountAgents($task_id) {
 	global $mysqli;
@@ -15,7 +15,7 @@ function getCountAgents($task_id) {
 $status = $json['job_status'];
 $task_id = $json['task_id'];
 $dict_id = $json['dict_id'];
-if ($status == "start") {
+if ($status == "started") {
 	
 	//Change task status
 	$sql = "UPDATE tasks SET status='1', agents='" . (getCountAgents($task_id) + 1) . "' WHERE id='" . $task_id . "'";
@@ -26,7 +26,7 @@ if ($status == "start") {
 	$mysqli->query($sql);
 
 }
-if ($status == "finish") {
+if ($status == "finished") {
 	
 	$task_status = $json['task_status'];
 	$dict_status = $json['dict_status'];
