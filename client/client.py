@@ -20,6 +20,8 @@ performance = '-w 3'
 outfile = 'pass.key'
 
 #TODO:Folders
+dict_folder = 'dicts/'
+hccap_folder = 'hccap/'
 
 """
     download_file will download file with given [url] and [filename]
@@ -96,9 +98,18 @@ def put_job(content):
 
 job = {}
 
+#Check folders
+if not os.path.exists(dict_folder):
+    os.makedirs(dict_folder)
+if not os.path.exists(hccap_folder):
+    os.makedirs(hccap_folder)
+
+
 while True:
     dict_queue = queue.deque()  # Queue for dictionaries
     handshake = ""
+
+
 
     # prepare job
     if len(job) == 0:
@@ -106,15 +117,15 @@ while True:
         print(job)
 
         # Download handshake and check hashsum
-        handshake = job['name'] + ".hccap"
-        download_file(job['url'], job['name'] + ".hccap")
+        handshake = hccap_folder + job['name'] + ".hccap"
+        download_file(job['url'], handshake)
         '''if not check_hash(job['name']+".hccap",job['hash']):
             print("[ERROR] Checksums do not match")
             exit(1)'''
 
         # Downaload all dicts and check hashsums
         for i in job['dicts']:
-            filename = i['dict_url'].split('/')[-1]
+            filename = dict_folder + i['dict_url'].split('/')[-1]
             if not os.path.exists(filename):
                 print('Downloading {}'.format(filename))
                 download_file(i['dict_url'], filename)
@@ -135,7 +146,9 @@ while True:
                     print("Unpacking {}".format(filename))
                     ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
                     filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
-            dict_queue.append((filename, i['dict_id']))
+                dict_queue.append((filename[:-3], i['dict_id']))
+            else:
+                dict_queue.append((filename, i['dict_id']))
 
     # run hashcat for every dict
     while len(dict_queue):
@@ -177,7 +190,7 @@ while True:
                 print('Check you have CUDA/OpenCL support')
                 exit(1)
         except KeyboardInterrupt as ex:
-            print('\nKeyboard interrupt')
+            print('\nKeyboard interrupt. Quiting...')
             #Cleanup
             if os.path.exists(outfile):
                 os.unlink(outfile)
@@ -191,7 +204,7 @@ while True:
             key = key.rstrip('\n')
             if len(key) >= 8:
                 print('Key found for job {0}:{1}'.format(job['name'], key))
-                while not put_job({'status_job':  'finished', #Send key to server
+                while not put_job({'job_status':  'finished', #Send key to server
                                    'task_id':      job['id'],
                                    'dict_id':        dict_id,
                                    'task_status':        '2',
@@ -199,11 +212,18 @@ while True:
                                    'net_key':            key}):
                     print("Can't submit key")
                     time.sleep(20)
-
-            os.unlink(outfile)
+            else:
+                print("Key for task {0} not found :(".format(job['name']))
+                while not put_job({'job_status': 'finished',  # Send fail status
+                                   'task_id': job['id'],
+                                   'dict_id': dict_id,
+                                   'task_status': '3',
+                                   'dict_status': '1',
+                                   'net_key': ""}):
+                    print("Can't data to server")
         else:
             print("Key for task {0} not found :(".format(job['name']))
-            while not put_job({'status_job':     'finished', #Send fail status
+            while not put_job({'job_status':     'finished', #Send fail status
                                'task_id':      job['id'],
                                'dict_id':        dict_id,
                                'task_status':        '3',
@@ -215,4 +235,6 @@ while True:
         if os.path.exists(outfile):
             os.unlink(outfile)
     #reset job
+    print("Going to next job")
     job = {}
+    time.sleep(5)
