@@ -6,13 +6,14 @@ require('db.php');
 $json = array();
 
 //Get last job from queue
-$sql = "SELECT id, name, filename FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
+$sql = "SELECT id, name, filename, thash FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
 $result = $mysqli->query( $sql );
 $result = $result->fetch_all(MYSQLI_ASSOC);
 $task_id = $result[0]['id'];
 $json['id'] = $task_id;
 $json['name'] = $result[0]['name'];
 $json['url'] = $cfg_site_url . "tasks//" . $result[0]['filename'];
+$json['hash'] = bin2hex($result[0]['thash']);
 
 //Get dicts for this task
 //Get all dicts which not used 
@@ -23,16 +24,21 @@ $dicts_id = array();
 foreach ($result as $row) {
 	array_push($dicts_id, $row['dict_id']);
 }
+
 //For all dicts_id get it's filename to generate url to download
-$dicts_idWithUrl = array();
+$dicts = array();
 foreach ($dicts_id as $id) {
-	$sql = "SELECT dpath FROM dicts WHERE id='" . $id . "'";
+	$sql = "SELECT dpath, dhash FROM dicts WHERE id='" . $id . "'";
 	$result = $mysqli->query($sql);
 	$result = $result->fetch_all(MYSQLI_ASSOC);
-	$dicts_idWithUrl[$id] = $result[0]['dpath'];
+	array_push($dicts, array(
+		"dict_id" => $id, 
+		"dict_url" => $result[0]['dpath'], 
+		"dict_hash" => bin2hex($result[0]['dhash']),
+	));
 }
 
-$json['dicts_idWithUrl'] = $dicts_idWithUrl;
+$json['dicts'] = $dicts;
 
 //Send json
 echo json_encode($json);
