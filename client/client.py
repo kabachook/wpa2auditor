@@ -19,6 +19,8 @@ hashcat = 'hashcat64.exe'
 performance = '-w 3'
 outfile = 'pass.key'
 
+#TODO:Folders
+
 """
     download_file will download file with given [url] and [filename]
     -
@@ -52,13 +54,11 @@ def download_file(url=None, filename=None):
         print("Exeption: {}".format(e))
         return 3
 
-
 # Ungzip [input] to [output]
 def ungzip(input, output):
     with gzip.open(input, 'rb') as f_in:
         with open(output, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
-
 
 # Returns sha256(filename)
 def calc_sha256(filename, block_size=256 * 128):
@@ -68,14 +68,12 @@ def calc_sha256(filename, block_size=256 * 128):
             h.update(chunk)
     return h.hexdigest()
 
-
 # Returns 1 if hash(filename) == [hashsum], 0 if not
 def check_hash(filename, hashsum):
     if calc_sha256(filename) == hashsum:
         return 1
     else:
         return 0
-
 
 # Get job from server: request ot get_work_url and return content in json format
 def get_job():
@@ -86,7 +84,6 @@ def get_job():
     except Exception as e:
         print("Failed to get job")
         exit(1)
-
 
 # Send [content] to put_work_url
 def put_job(content):
@@ -134,10 +131,11 @@ while True:
 
             # Unpack dictionaries if necessary
             if filename[-3:] == '.gz':
-                print("Unpacking {}".format(filename))
-                ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
-                filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
-            dict_queue.append((filename, i['dict_id']))
+                if not os.path.exists(''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]):
+                    print("Unpacking {}".format(filename))
+                    ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
+                    filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
+                dict_queue.append((filename, i['dict_id']))
 
     # run hashcat for every dict
     while len(dict_queue):
@@ -193,10 +191,10 @@ while True:
             key = key.rstrip('\n')
             if len(key) >= 8:
                 print('Key found for job {0}:{1}'.format(job['name'], key))
-                while not put_job({'status_job':  'finish', #Send key to server
+                while not put_job({'status_job':  'finished', #Send key to server
                                    'task_id':      job['id'],
-                                   'dict_id':   dict_id,
-                                   'task_status':       '2' ,
+                                   'dict_id':        dict_id,
+                                   'task_status':        '2',
                                    'dict_status':        '1',
                                    'net_key':            key}):
                     print("Can't submit key")
@@ -205,7 +203,7 @@ while True:
             os.unlink(outfile)
         else:
             print("Key for task {0} not found :(".format(job['name']))
-            while not put_job({'status_job':     'finish', #Send fail status
+            while not put_job({'status_job':     'finished', #Send fail status
                                'task_id':      job['id'],
                                'dict_id':        dict_id,
                                'task_status':        '3',
