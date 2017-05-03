@@ -33,22 +33,23 @@ function checkNick( $nick ) {
 	global $mysqli;
 	$sql = "SELECT * FROM users WHERE nick='$nick'";
 	$result = $mysqli->query( $sql );
-	if ( $result->num_rows == 1 ) {
+
+	if ( $result->num_rows == 1 )
 		return true;
-	} else {
-		return false;
-	}
+
+	return false;
 }
+
 //Check if this email is uniq
 function checkEmail( $email ) {
 	global $mysqli;
 	$sql = "SELECT * FROM users WHERE email='$email'";
 	$result = $mysqli->query( $sql );
-	if ( $result->num_rows == 1 ) {
+
+	if ( $result->num_rows == 1 )
 		return true;
-	} else {
-		return false;
-	}
+
+	return false;
 }
 
 if ( isset( $_COOKIE[ 'key' ] ) ) {
@@ -59,7 +60,7 @@ if ( isset( $_COOKIE[ 'key' ] ) ) {
 		<div class="modal-dialog" style="margin-bottom:0">
 			<div class="modal-content">
 				<div class="panel-heading">
-					<h3 class="panel-title">Sign Up</h3>
+					<h3 class="panel-title"><strong>Sign Up</strong></h3>
 				</div>
 				<div class="panel-body">
 					<form role="form" method="post" action="">

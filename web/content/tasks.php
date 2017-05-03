@@ -1,4 +1,5 @@
 <?php
+
 //There we want to upload file
 $target_file = $cfg_tasks_targetFolder . basename( $_FILES[ "upfile" ][ "name" ] );
 $uploadCode = 1;
@@ -9,30 +10,30 @@ function addTaskToDB( $name, $filename ) {
 	global $mysqli;
 	global $cfg_site_url;
 	global $cfg_tasks_targetFolder;
-	
+
 	//Clean db
 	//get all complete tasks id 
 	$sql = "SELECT id FROM tasks WHERE status IN('2')";
-	$task_id = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
-	foreach ($task_id as $tid) {
-		$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $tid['id'] . "'";
-		$mysqli->query($sql);
+	$task_id = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
+	foreach ( $task_id as $tid ) {
+		$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $tid[ 'id' ] . "'";
+		$mysqli->query( $sql );
 	}
-	
+
 	//Add task to db
-	$thash = hash_file("sha256", $cfg_tasks_targetFolder . $filename);
+	$thash = hash_file( "sha256", $cfg_tasks_targetFolder . $filename );
 	$sql = "INSERT INTO tasks(name, type, priority, filename, thash) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'))";
 	$mysqli->query( $sql );
-	
+
 	//Get all dicts id
 	$sql = "SELECT id FROM dicts";
-	$result = $mysqli->query($sql);
-	$result = $result->fetch_all(MYSQLI_ASSOC);
+	$result = $mysqli->query( $sql );
+	$result = $result->fetch_all( MYSQLI_ASSOC );
 	//Insert into tasks_dicts for last (current) task all dicts
-	foreach ($result as $row) {
-		$dict_curr_id = $row['id'];
+	foreach ( $result as $row ) {
+		$dict_curr_id = $row[ 'id' ];
 		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getNetId() . "', '" . $dict_curr_id . "', '0')";
-		$mysqli->query($sql);
+		$mysqli->query( $sql );
 	}
 }
 
@@ -41,7 +42,7 @@ function getNetId() {
 	$sql = "SELECT MAX(id) FROM tasks";
 	$result = $mysqli->query( $sql );
 	$result = $result->fetch_assoc();
-	return $result['MAX(id)'];
+	return $result[ 'MAX(id)' ];
 }
 
 //List of errors
@@ -87,8 +88,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 <div class="container">
 	<div class="col-md-8">
 		<h2>Tasks</h2>
-		<!--
-		<div style="overflow: auto;">
+		<?php if($admin) echo '<div style="overflow: auto;">
 		    <form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 			       <input type="hidden" name="action" value="finishedtasksdelete">
 			          <input type="submit" value="Delete finished" class="btn btn-default">
@@ -103,7 +103,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 
       </div>
 	       <br>
-      </div>-->
+      </div>'; ?>
 		<div class="panel panel-default">
 			<table class="table table-striped table-bordered table-nonfluid">
 				<tbody>
@@ -117,34 +117,35 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						<?php if($admin)echo "<th>Admin</th>"; ?>
 					</tr>
 					<?php
-					function getStatus($status) {
+
+					function getStatus( $status ) {
 						$listOfStatus = [
 							0 => "IN QUEUE",
 							1 => "IN PROGRESS",
 							2 => "SUCCESS",
 							3 => "FAILED",
 						];
-						return $listOfStatus[$status];
+						return $listOfStatus[ $status ];
 					}
 					//Show dicts from DB
 					global $mysqli;
 					$sql = "SELECT id, name, filename, status, agents, net_key FROM tasks WHERE 1";
-					$result = $mysqli->query($sql);
-					$result = $result->fetch_all(MYSQLI_ASSOC);
-					
-					
+					$result = $mysqli->query( $sql );
+					$result = $result->fetch_all( MYSQLI_ASSOC );
+
+
 					$id = 0;
-					foreach($result as $row) {
-						if ($row['net_key'] == '0') {
+					foreach ( $result as $row ) {
+						if ( $row[ 'net_key' ] == '0' ) {
 							$key = "NOT FOUND";
 						} else {
-							$key = "<strong>" . $row['net_key'] . "</strong>";
+							$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
 						}
 						$id++;
-						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['name'] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download</a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td>';
+						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'name' ] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row[ 'filename' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download</a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
 						$admin_pan_str = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span> Delete</a></td></tr>';
 						echo $str;
-						if($admin)
+						if ( $admin )
 							echo $admin_pan_str;
 					}
 					?>
@@ -168,10 +169,10 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 								<input type="text" class="form-control" name="filename" required="" placeholder="Enter filename">
 							</td>
 						</tr>
-						
+
 						<tr>
 							<td>
-								<input type="file" class="form-control" name="upfile">
+								<input type="file" class="form-control" name="upfile" required="">
 							</td>
 						</tr>
 						<tr>
@@ -187,5 +188,4 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 			</div>
 		</form>
 	</div>
-
 </div>

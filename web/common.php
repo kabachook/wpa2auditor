@@ -1,7 +1,7 @@
 <?php
 
 //Connect to db
-require('db.php');
+require( 'db.php' );
 
 //validate 32 char key (simple check for md5 format)
 function valid_key( $key ) {
@@ -22,18 +22,15 @@ if ( isset( $_POST[ 'key' ] ) ) {
 			$_COOKIE[ 'key' ] = $_POST[ 'key' ];
 		} else
 			$_POST[ 'remkey' ] = '1';
-
 	}
 }
 
 //Get nickname
-function getNickname () {
+function getNickname() {
 	global $mysqli;
-	if(isset($_COOKIE['key'])) {
+	if ( isset( $_COOKIE[ 'key' ] ) && valid_key( $_COOKIE[ 'key' ] ) ) {
 		$sql = "SELECT nick FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
-		$result = $mysqli->query( $sql );
-		$obj = $result->fetch_object();
-		$nick = $obj->nick;
+		$nick = $mysqli->query( $sql )->fetch_object()->nick;
 		return $nick;
 	}
 }

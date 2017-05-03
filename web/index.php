@@ -17,22 +17,23 @@ include( 'common.php' );
    		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   	<![endif]-->
 
-	<!-- BOOTSTRAP CSS START -->
+	<!-- BOOTSTRAP START -->
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-	<!-- BOOTSTRAP CSS END -->
+	<!-- BOOTSTRAP END-->
 
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
 </head>
 
-<body><nav class="navbar navbar-default mb0">
+<body>
+	<nav class="navbar navbar-default mb0">
 		<div class="container-fluid">
-			<!-- Brand and toggle get grouped for better mobile display -->
+			<!-- Toggle get grouped for better mobile display -->
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
          		<span class="sr-only">Toggle navigation</span>
@@ -41,36 +42,34 @@ include( 'common.php' );
          		<span class="icon-bar"></span>
        		</button>
 			
-
 				<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav">
-					<li><a href="?tasks">Tasks</a></li>
+					<li><a href="?tasks">Tasks</a>
+					</li>
 					<li><a href="?dicts">Dicts</a>
 					</li>
-					<!-- comment for better days
-					<li><a href="#">Stats</a>
-					</li>
-					-->
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">
 					<!-- LOGIN BUTTON -->
 					<?php
-					global $mysqli;
+
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
+						
 						//Check user rang
-						$sql = "SELECT rang FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
-						$result = $mysqli->query($sql)->fetch_all(MYSQLI_ASSOC);
-						if ($result[0]['rang'] == "admin")
+						$sql = "SELECT rang FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
+						$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
+						if ( $result[ 0 ][ 'rang' ] == "admin" )
 							$admin = true;
+						
 						//If true logout button with nickname
 						echo '<p class="navbar-text">Signed in as <strong>' . getNickname() . '</strong></p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
-					} else {
+					} else
 						//If false login and signup button
 						echo '<form class="navbar-form navbar-left" action="" method="post">
 								  <div class="form-group">
@@ -79,7 +78,6 @@ include( 'common.php' );
 								  </div>
 							  </form>
 							  ';
-					}
 					?>
 
 					<!-- LOGIN BUTTON END -->

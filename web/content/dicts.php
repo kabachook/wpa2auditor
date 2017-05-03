@@ -8,17 +8,24 @@ $status_file_uploading;
 function addDictToDB( $dServerPath, $dname, $dfilename, $dFileSize ) {
 	global $mysqli;
 	global $cfg_site_url;
+
+	//Path to download
 	$dpath = $cfg_site_url . 'dicts/' . $dfilename;
-	$dhash = hash_file("sha256", $dServerPath);
+
+	//Sha256 of file
+	$dhash = hash_file( "sha256", $dServerPath );
+
 	$sql = "INSERT INTO dicts(dpath, dhash, dname, size) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "', '" . $dFileSize . "')";
 	$mysqli->query( $sql );
+
+	//For all tasks add this dict to tasks_dicts
 	$sql = "SELECT id FROM dicts WHERE dhash=UNHEX('" . $dhash . "')";
-	$dict_id = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC)[0]['id'];
+	$dict_id = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC )[ 0 ][ 'id' ];
 	$sql = "SELECT id FROM tasks WHERE status NOT IN ('2')";
-	$tasks_id = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
-	foreach ($tasks_id as $tid) {
-		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $tid['id'] . "', '" . $dict_id . "', '0')";
-		$mysqli->query($sql);
+	$tasks_id = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
+	foreach ( $tasks_id as $tid ) {
+		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $tid[ 'id' ] . "', '" . $dict_id . "', '0')";
+		$mysqli->query( $sql );
 	}
 }
 
@@ -56,13 +63,14 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	} else {
 		if ( move_uploaded_file( $_FILES[ "upfile" ][ "tmp_name" ], $target_file ) ) {
 			//Only if file uploaded without error, we add it to db
-			addDictToDB( $target_file, $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ], $_FILES["upfile"]["size"] );
+			addDictToDB( $target_file, $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ], $_FILES[ "upfile" ][ "size" ] );
 			$status_file_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> File uploaded sucefully!</div></td>';
 		} else {
 			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
 		}
 	}
-	
+
+	//TODO delete task
 	/*if ($admin && isset($_POST['deleteDictButton'])) {
 		$sql = "SELECT dpath FROM dicts WHERE id='" . $id . "'";
 		$path = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC)[0]['dpath'];
@@ -78,7 +86,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 		<h2>Wordlist</h2>
 		<div class="panel panel-default">
 			<table class="table table-striped table-bordered table-nonfluid">
-				<tbody>
+				<tbody align="center">
 					<tr>
 						<th>Name</th>
 						<th>Size</th>
@@ -90,14 +98,14 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					global $mysqli;
 					//$sql = $cfg_dicts_targetFolder . 
 					$sql = "SELECT dname, dpath, size FROM dicts WHERE 1";
-					$result = $mysqli->query($sql);
-					$result = $result->fetch_all(MYSQLI_ASSOC);
-					
-					foreach($result as $row) {
-						$str = '<tr><td><strong>' . $row['dname'] . '</strong></td><td>' . $row['size'] . '</td><td><a href="' . $row['dpath'] . '" class="btn btn-default">DOWNLOAD</a>';
-						$adm_str = '<td><form action=""><input class="btn btn-default" type="button"><span class="glyphicon glyphicon-trash"></span> Delete</input></form></td></tr>';
+					$result = $mysqli->query( $sql );
+					$result = $result->fetch_all( MYSQLI_ASSOC );
+
+					foreach ( $result as $row ) {
+						$str = '<tr><td><strong>' . $row[ 'dname' ] . '</strong></td><td>' . $row[ 'size' ] . '</td><td><a href="' . $row[ 'dpath' ] . '" class="btn btn-default">DOWNLOAD</a>';
+						$adm_str = '<td><form action=""><button class="btn btn-default" type="button"><span class="glyphicon glyphicon-trash"></span> Delete</input></form></td></tr>';
 						echo $str;
-						if($admin) echo $adm_str;
+						if ( $admin )echo $adm_str;
 					}
 					?>
 				</tbody>
