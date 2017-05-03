@@ -11,7 +11,15 @@ function addDictToDB( $dServerPath, $dname, $dfilename, $dFileSize ) {
 	$dpath = $cfg_site_url . 'dicts/' . $dfilename;
 	$dhash = hash_file("sha256", $dServerPath);
 	$sql = "INSERT INTO dicts(dpath, dhash, dname, size) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "', '" . $dFileSize . "')";
-	$result = $mysqli->query( $sql );
+	$mysqli->query( $sql );
+	$sql = "SELECT id FROM dicts WHERE dhash=UNHEX('" . $dhash . "')";
+	$dict_id = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC)[0]['id'];
+	$sql = "SELECT id FROM tasks WHERE status NOT IN ('2')";
+	$tasks_id = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
+	foreach ($tasks_id as $tid) {
+		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $tid['id'] . "', '" . $dict_id . "', '0')";
+		$mysqli->query($sql);
+	}
 }
 
 //List of errors
@@ -54,6 +62,15 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
 		}
 	}
+	
+	/*if ($admin && isset($_POST['deleteDictButton'])) {
+		$sql = "SELECT dpath FROM dicts WHERE id='" . $id . "'";
+		$path = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC)[0]['dpath'];
+		$id = $_POST['deleteDictID'];
+		$sql = "DELETE FROM dicts WHERE id='" . $id . "'";
+		$mysqli->query($sql);
+		unlink();
+	}*/
 }
 ?>
 <div class="container">
@@ -71,13 +88,14 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					<?php
 					//Show dicts from DB
 					global $mysqli;
+					//$sql = $cfg_dicts_targetFolder . 
 					$sql = "SELECT dname, dpath, size FROM dicts WHERE 1";
 					$result = $mysqli->query($sql);
 					$result = $result->fetch_all(MYSQLI_ASSOC);
 					
 					foreach($result as $row) {
 						$str = '<tr><td><strong>' . $row['dname'] . '</strong></td><td>' . $row['size'] . '</td><td><a href="' . $row['dpath'] . '" class="btn btn-default">DOWNLOAD</a>';
-						$adm_str = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span> Delete</a></td></tr>';
+						$adm_str = '<td><form action=""><input class="btn btn-default" type="button"><span class="glyphicon glyphicon-trash"></span> Delete</input></form></td></tr>';
 						echo $str;
 						if($admin) echo $adm_str;
 					}
@@ -104,7 +122,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						</tr>
 						<tr>
 							<td>
-								<input type="file" class="form-control" name="upfile">
+								<input type="file" class="form-control" name="upfile" required="">
 							</td>
 						</tr>
 						<tr>

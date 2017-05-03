@@ -69,7 +69,7 @@ include( 'common.php' );
 						if ($result[0]['rang'] == "admin")
 							$admin = true;
 						//If true logout button with nickname
-						echo '<p class="navbar-text">Signed in as ' . getNickname() . '</p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
+						echo '<p class="navbar-text">Signed in as <strong>' . getNickname() . '</strong></p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
 					} else {
 						//If false login and signup button
 						echo '<form class="navbar-form navbar-left" action="" method="post">
