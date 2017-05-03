@@ -10,6 +10,15 @@ function addTaskToDB( $name, $filename ) {
 	global $cfg_site_url;
 	global $cfg_tasks_targetFolder;
 	
+	//Clean db
+	//get all complete tasks id 
+	$sql = "SELECT id FROM tasks WHERE status IN('2')";
+	$task_id = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
+	foreach ($task_id as $tid) {
+		$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $tid['id'] . "'";
+		$mysqli->query($sql);
+	}
+	
 	//Add task to db
 	$thash = hash_file("sha256", $cfg_tasks_targetFolder . $filename);
 	$sql = "INSERT INTO tasks(name, type, priority, filename, thash) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'))";

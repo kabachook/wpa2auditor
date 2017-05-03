@@ -35,7 +35,7 @@ if ($status == "finished") {
 		//Password found
 		$net_key = $json['net_key'];
 		$sql = "UPDATE tasks SET net_key='" . $net_key . "' WHERE id='" . $task_id . "'";
-		$mysqli->query($sql);
+		$mysqli->query($sql);		
 	}
 	
 	//Change task status
