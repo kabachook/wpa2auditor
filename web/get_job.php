@@ -2,7 +2,25 @@
 //Connect to db
 require('db.php');
 
-//JSON Ответ
+//Crutch detected
+//Find all uncomplete tasks
+$sql = "SELECT id FROM tasks WHERE status NOT IN('2')";
+$task_list = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
+$failed_list = array();
+foreach ($task_list as $task_id) {
+	//Find all tasks which doesn't have dict with status 0
+	$sql = "SELECT * FROM tasks_dicts WHERE net_id='" . $task_id['id'] . "' AND status NOT IN('1')";
+	$nr = $mysqli->query($sql)->num_rows;
+	if ($nr == 0)
+		array_push($failed_list, $task_id['id']);
+}
+foreach (array_unique($failed_list) as $f_id) {
+	$sql = "UPDATE tasks SET status='3' WHERE id='" . $f_id . "'";
+	//Change status to FAILED
+	$mysqli->query($sql);
+}
+
+//JSON answer
 $json = array();
 
 //Get last job from queue

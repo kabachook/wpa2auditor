@@ -2,6 +2,7 @@
 //Connect to db
 require('db.php');
 
+//Obtain json from client
 $json = json_decode(file_get_contents('php://input'), true);  
 
 function getCountAgents($task_id) {
