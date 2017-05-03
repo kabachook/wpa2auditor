@@ -12,7 +12,7 @@ if ( isset( $_POST[ 'rec_valid' ] ) ) {
 	if ( checkNick( $nickname ) || checkEmail( $email ) ) {
 		$error_reg_message = '<div class="alert alert-danger form-group" role="alert"><strong>Duplicate nick or email</strong></div>';
 	} else {
-		$rang = "admin";
+		$rang = "user";
 		$userkey = md5( md5( $nickname ) . md5( $email ) );
 
 		//put new key in db

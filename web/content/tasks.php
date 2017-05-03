@@ -77,7 +77,8 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 ?>
 <div class="container">
 	<div class="col-md-8">
-		<h2>Tasks</h2><!--
+		<h2>Tasks</h2>
+		<!--
 		<div style="overflow: auto;">
 		    <form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 			       <input type="hidden" name="action" value="finishedtasksdelete">
@@ -104,6 +105,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						<th>Files</th>
 						<th>Agents</th>
 						<th>Status</th>
+						<?php if($admin)echo "<th>Admin</th>"; ?>
 					</tr>
 					<?php
 					function getStatus($status) {
@@ -127,11 +129,14 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						if ($row['net_key'] == '0') {
 							$key = "NOT FOUND";
 						} else {
-							$key = $row['net_key'];
+							$key = "<strong>" . $row['net_key'] . "</strong>";
 						}
 						$id++;
-						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['name'] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default">DOWNLOAD</a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td></tr>';
+						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['name'] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row['filename'] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download</a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td>';
+						$admin_pan_str = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span> Delete</a></td></tr>';
 						echo $str;
+						if($admin)
+							echo $admin_pan_str;
 					}
 					?>
 				</tbody>

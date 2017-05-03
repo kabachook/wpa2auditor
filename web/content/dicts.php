@@ -66,6 +66,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						<th>Name</th>
 						<th>Size</th>
 						<th>Download</th>
+						<?php if($admin) echo "<th>admin</th>"; ?>
 					</tr>
 					<?php
 					//Show dicts from DB
@@ -75,8 +76,10 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					$result = $result->fetch_all(MYSQLI_ASSOC);
 					
 					foreach($result as $row) {
-						$str = '<tr><td><strong>' . $row['dname'] . '</strong></td><td>' . $row['size'] . '</td><td><a href="' . $row['dpath'] . '" class="btn btn-default">DOWNLOAD</a></tr>';
+						$str = '<tr><td><strong>' . $row['dname'] . '</strong></td><td>' . $row['size'] . '</td><td><a href="' . $row['dpath'] . '" class="btn btn-default">DOWNLOAD</a>';
+						$adm_str = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span> Delete</a></td></tr>';
 						echo $str;
+						if($admin) echo $adm_str;
 					}
 					?>
 				</tbody>
