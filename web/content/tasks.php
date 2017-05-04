@@ -37,6 +37,7 @@ function inf( $hccap ) {
 	$ahccap['nonce2'] = bin2hex($ahccap['nonce2']);
 	$ahccap['eapol'] = bin2hex($ahccap['eapol']);
 	$ahccap['keymic'] = bin2hex($ahccap['keymic']);
+	var_dump($ahccap);
 	return $ahccap;
 }
 
@@ -49,10 +50,11 @@ function getHandshakeInfo( $file, $extension ) {
 	$hccap['name'] = $file['name'];
 	
 	//var_dump($hccap);
-
+	var_dump($extension);
 	if ( $extension == "cap" ) {
 		//cap to hccap
-		exec( $cfg_tools_cap2hccap . " " . $file[ 'name' ] . " " . $cfg_tools_cap2hccap_tempFilename );
+		//var_dump($cfg_tools_cap2hccap . " " . $hccap[ 'path' ] . " " . $cfg_tasks_targetFolder . $cfg_tools_cap2hccap_tempFilename);
+		exec( $cfg_tools_cap2hccap . " " . $hccap[ 'path' ] . " " . $cfg_tasks_targetFolder . $cfg_tools_cap2hccap_tempFilename );
 		$hccap[ 'name' ] = $cfg_tools_cap2hccap_tempFilename;
 		$hccap['path'] = $cfg_tasks_targetFolder . $hccap['name'];
 		
@@ -60,6 +62,7 @@ function getHandshakeInfo( $file, $extension ) {
 	$hccap[ 'size' ] = filesize( $hccap[ 'path' ] );
 	//var_dump($hccap);
 	//Check hccap size (392 byte = 1 handshake)
+	var_dump($hccap);
 	if ( $hccap[ 'size' ] == 392 ) {
 		return array(inf(file_get_contents($hccap['path'])));
 	}
@@ -76,12 +79,13 @@ function getHandshakeInfo( $file, $extension ) {
 	}*/
 }
 
-function addTaskToDB( $name, $filename, $file, $ext ) {
+function addTaskToDB( $name, $filename, $ext ) {
 	global $mysqli;
 	global $cfg_site_url;
 	global $cfg_tasks_targetFolder;
 	
 	//Get info from handshake
+	var_dump($ext);
 	$handshake_info = getHandshakeInfo($_FILES['upfile'], $ext)[0];
 	//var_dump($handshake_info[0]);
 	
@@ -153,6 +157,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	} else {
 		if ( move_uploaded_file( $_FILES[ "upfile" ][ "tmp_name" ], $target_file ) ) {
 			//Only if file uploaded without error, we add it to db
+			//var_dump($uploadFileType);
 			addTaskToDB( $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ], $uploadFileType );
 			$status_file_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> File uploaded sucefully!</div></td>';
 		} else {
@@ -162,7 +167,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 }
 ?>
 <div class="container">
-	<div class="col-md-8">
+	<div class="col-lg-8">
 		<h2>Tasks</h2>
 		<?php if($admin) echo '<div style="overflow: auto;">
 		    <form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
@@ -231,7 +236,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 			</table>
 		</div>
 	</div>
-	<div class="col-md-4">
+	<div class="col-lg-4">
 		<h2>Add new tasks</h2>
 		<form class="" action="" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="source" value="upload">

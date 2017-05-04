@@ -15,7 +15,7 @@ $cfg_site_url = 'http://localhost/wpa2auditor/web/';
 
 //Tasks
 $cfg_tasks_targetFolder = "C:\wamp64\www\wpa2auditor\web\\tasks\\";
-$cfg_tasks_maxFileSize = 1e+3;
+$cfg_tasks_maxFileSize = 1e+8;
 
 //Tools
 $cfg_tools_cap2hccap = "C:\wamp64\www\wpa2auditor\web\\cap2hccap\\cap2hccap.bin";
