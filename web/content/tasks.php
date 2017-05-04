@@ -37,7 +37,7 @@ function inf( $hccap ) {
 	$ahccap['nonce2'] = bin2hex($ahccap['nonce2']);
 	$ahccap['eapol'] = bin2hex($ahccap['eapol']);
 	$ahccap['keymic'] = bin2hex($ahccap['keymic']);
-	var_dump($ahccap);
+	//var_dump($ahccap);
 	return $ahccap;
 }
 
@@ -50,7 +50,7 @@ function getHandshakeInfo( $file, $extension ) {
 	$hccap['name'] = $file['name'];
 	
 	//var_dump($hccap);
-	var_dump($extension);
+	//var_dump($extension);
 	if ( $extension == "cap" ) {
 		//cap to hccap
 		//var_dump($cfg_tools_cap2hccap . " " . $hccap[ 'path' ] . " " . $cfg_tasks_targetFolder . $cfg_tools_cap2hccap_tempFilename);
@@ -62,7 +62,7 @@ function getHandshakeInfo( $file, $extension ) {
 	$hccap[ 'size' ] = filesize( $hccap[ 'path' ] );
 	//var_dump($hccap);
 	//Check hccap size (392 byte = 1 handshake)
-	var_dump($hccap);
+	//var_dump($hccap);
 	if ( $hccap[ 'size' ] == 392 ) {
 		return array(inf(file_get_contents($hccap['path'])));
 	}
@@ -85,7 +85,7 @@ function addTaskToDB( $name, $filename, $ext ) {
 	global $cfg_tasks_targetFolder;
 	
 	//Get info from handshake
-	var_dump($ext);
+	//var_dump($ext);
 	$handshake_info = getHandshakeInfo($_FILES['upfile'], $ext)[0];
 	//var_dump($handshake_info[0]);
 	
