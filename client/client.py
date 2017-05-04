@@ -11,15 +11,15 @@ import queue
 
 #API conf
 base_url = 'http://inlovewith.space/dev/web'
-get_work_url = base_url + '/get_job.php'
-put_work_url = base_url + '/put_job.php'
+get_work_url = base_url + '?get_job'
+put_work_url = base_url + '?put_job'
 
 #Hashcat conf
 hashcat = 'hashcat64.exe'
 performance = '-w 3'
 outfile = 'pass.key'
 
-#TODO:Folders
+#Folders
 dict_folder = 'dicts/'
 hccap_folder = 'hccap/'
 
@@ -115,13 +115,16 @@ while True:
     if len(job) == 0:
         job = get_job()
         print(job)
+        if job['id'] == -1:
+            print("No tasks. Nothing to do.")
+            exit(1)
 
         # Download handshake and check hashsum
-        handshake = hccap_folder + job['name'] + ".hccap"
+        handshake = "".join((hccap_folder + job['name'] + ".hccap").split(' '))
         download_file(job['url'], handshake)
-        '''if not check_hash(job['name']+".hccap",job['hash']):
+        if not check_hash(handshake, job['hash']):
             print("[ERROR] Checksums do not match")
-            exit(1)'''
+            exit(1)
 
         # Downaload all dicts and check hashsums
         for i in job['dicts']:
@@ -129,16 +132,16 @@ while True:
             if not os.path.exists(filename):
                 print('Downloading {}'.format(filename))
                 download_file(i['dict_url'], filename)
-                '''if not check_hash(filename, i['dict_hash']):
+                if not check_hash(filename, i['dict_hash']):
                     print("[ERROR] Checksums do not match. Exiting...")
-                    exit(1)'''
-            '''else:
+                    exit(1)
+            else:
                 if not check_hash(filename, i['dict_hash']):
                     print('Downloading {}'.format(filename))
                     download_file(i['dict_url'], filename)
                     if not check_hash(filename, i['dict_hash']):
                         print("[ERROR] Checksums do not match. Exiting...")
-                        exit(1)'''
+                        exit(1)
 
             # Unpack dictionaries if necessary
             if filename[-3:] == '.gz':
@@ -157,18 +160,19 @@ while True:
         dict_id = i[1]
 
         try:
-            cracker = '{0} -session={1} -m2500 --potfile-disable --outfile-format=2 {2} -o {3} {4} {5}'.format(hashcat,
-                                                                                                               job['name'],
-                                                                                                               performance,
-                                                                                                               outfile,
-                                                                                                               handshake,
-                                                                                                               filename)
+            cracker = '{0} -m2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}'.format(hashcat,
+                                                                                                  performance,
+                                                                                                  outfile,
+                                                                                                  handshake,
+                                                                                                  filename)
+
+            # Send status to api
+            put_job({"status_job": "started",
+                     "task_id": job['id'],
+                     "dict_id": dict_id})
             #Run hashcat with arguments
             subprocess.check_call(shlex.split(cracker))
-            #Send status to api
-            put_job({ "status_job": "started",
-                      "task_id": job['id'],
-                      "dict_id": dict_id})
+
         #Catch exceptions
         except subprocess.CalledProcessError as ex:
             if ex.returncode == -2:
@@ -181,7 +185,7 @@ while True:
                 print('Internal error')
                 exit(1)
             if ex.returncode == 1:
-                print('[INFO] Exausted. Hash was not found in {}'.format(filename))
+                print('[INFO] Exausted.')
             if ex.returncode == 2:
                 print('User abort')
                 exit(1)
@@ -212,8 +216,9 @@ while True:
                                    'net_key':            key}):
                     print("Can't submit key")
                     time.sleep(20)
+                break
             else:
-                print("Key for task {0} not found :(".format(job['name']))
+                print("Key for task {0} not found in {1} :(".format(job['name'], filename))
                 while not put_job({'job_status': 'finished',  # Send fail status
                                    'task_id': job['id'],
                                    'dict_id': dict_id,
@@ -222,7 +227,7 @@ while True:
                                    'net_key': ""}):
                     print("Can't data to server")
         else:
-            print("Key for task {0} not found :(".format(job['name']))
+            print("Key for task {0} not found in {1} :(".format(job['name'], filename))
             while not put_job({'job_status':     'finished', #Send fail status
                                'task_id':      job['id'],
                                'dict_id':        dict_id,
