@@ -6,11 +6,85 @@ $uploadCode = 1;
 $uploadFileType = pathinfo( $target_file, PATHINFO_EXTENSION );
 $status_file_uploading;
 
-function addTaskToDB( $name, $filename ) {
+function inf( $hccap ) {
+	$ahccap = array();
+	if ( version_compare( PHP_VERSION, '5.5.0' ) >= 0 ) {
+		$ahccap[ 'essid' ] = unpack( 'Z36', substr( $hccap, 0x000, 36 ) );
+	} else {
+		$ahccap[ 'essid' ] = unpack( 'a36', substr( $hccap, 0x000, 36 ) );
+	}
+	$ahccap[ 'mac1' ] = substr( $hccap, 0x024, 6 );
+	$ahccap[ 'mac2' ] = substr( $hccap, 0x02a, 6 );
+	$ahccap[ 'nonce1' ] = substr( $hccap, 0x030, 32 );
+	$ahccap[ 'nonce2' ] = substr( $hccap, 0x050, 32 );
+	$ahccap[ 'eapol' ] = substr( $hccap, 0x070, 256 );
+	$ahccap[ 'eapol_size' ] = unpack( 'i', substr( $hccap, 0x170, 4 ) );
+	$ahccap[ 'keyver' ] = unpack( 'i', substr( $hccap, 0x174, 4 ) );
+	$ahccap[ 'keymic' ] = substr( $hccap, 0x178, 16 );
+
+	// fixup unpack
+	$ahccap[ 'essid' ] = $ahccap[ 'essid' ][ 1 ];
+	$ahccap[ 'eapol_size' ] = $ahccap[ 'eapol_size' ][ 1 ];
+	$ahccap[ 'keyver' ] = $ahccap[ 'keyver' ][ 1 ];
+
+	// cut eapol to right size
+	$ahccap[ 'eapol' ] = substr( $ahccap[ 'eapol' ], 0, $ahccap[ 'eapol_size' ] );
+	//var_dump($ahccap);
+	//
+	$ahccap['mac1'] = bin2hex($ahccap['mac1']);
+	$ahccap['mac2'] = bin2hex($ahccap['mac2']);
+	$ahccap['nonce1'] = bin2hex($ahccap['nonce1']);
+	$ahccap['nonce2'] = bin2hex($ahccap['nonce2']);
+	$ahccap['eapol'] = bin2hex($ahccap['eapol']);
+	$ahccap['keymic'] = bin2hex($ahccap['keymic']);
+	return $ahccap;
+}
+
+function getHandshakeInfo( $file, $extension ) {
+	global $cfg_tools_cap2hccap;
+	global $cfg_tools_cap2hccap_tempFilename;
+	global $cfg_tasks_targetFolder;
+
+	$hccap['path'] = $cfg_tasks_targetFolder . $file['name'];
+	$hccap['name'] = $file['name'];
+	
+	//var_dump($hccap);
+
+	if ( $extension == "cap" ) {
+		//cap to hccap
+		exec( $cfg_tools_cap2hccap . " " . $file[ 'name' ] . " " . $cfg_tools_cap2hccap_tempFilename );
+		$hccap[ 'name' ] = $cfg_tools_cap2hccap_tempFilename;
+		$hccap['path'] = $cfg_tasks_targetFolder . $hccap['name'];
+		
+	}
+	$hccap[ 'size' ] = filesize( $hccap[ 'path' ] );
+	//var_dump($hccap);
+	//Check hccap size (392 byte = 1 handshake)
+	if ( $hccap[ 'size' ] == 392 ) {
+		return array(inf(file_get_contents($hccap['path'])));
+	}
+	/*} elseif ( $hccap[ 'size' ] % 392 == 0 ) {
+		//Делим файл по 392 байта
+		$count = $hccap['size'] / 392;
+		$temp_array = array();
+		for ($i = 0; i < $count; $i++) {
+			
+		}
+		
+		$hccap_array = array();
+		array_push($hccap_array, inf())
+	}*/
+}
+
+function addTaskToDB( $name, $filename, $file, $ext ) {
 	global $mysqli;
 	global $cfg_site_url;
 	global $cfg_tasks_targetFolder;
-
+	
+	//Get info from handshake
+	$handshake_info = getHandshakeInfo($_FILES['upfile'], $ext)[0];
+	//var_dump($handshake_info[0]);
+	
 	//Clean db
 	//get all complete tasks id 
 	$sql = "SELECT id FROM tasks WHERE status IN('2')";
@@ -22,7 +96,8 @@ function addTaskToDB( $name, $filename ) {
 
 	//Add task to db
 	$thash = hash_file( "sha256", $cfg_tasks_targetFolder . $filename );
-	$sql = "INSERT INTO tasks(name, type, priority, filename, thash) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'))";
+	$sql = "INSERT INTO tasks(name, type, priority, filename, thash, essid, station_mac) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'), '" . $handshake_info['essid'] . "', '" . $handshake_info['mac1'] . "')";
+	//var_dump($sql);
 	$mysqli->query( $sql );
 
 	//Get all dicts id
@@ -66,7 +141,8 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	}
 
 	//Allow .hccap file format only
-	if ( $uploadFileType != "hccap" ) {
+	$allow_fromat = array("hccap", "cap");
+	if ( !in_array($uploadFileType, $allow_fromat)) {
 		$uploadCode = 4;
 	}
 
@@ -77,7 +153,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	} else {
 		if ( move_uploaded_file( $_FILES[ "upfile" ][ "tmp_name" ], $target_file ) ) {
 			//Only if file uploaded without error, we add it to db
-			addTaskToDB( $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ] );
+			addTaskToDB( $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ], $uploadFileType );
 			$status_file_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> File uploaded sucefully!</div></td>';
 		} else {
 			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
@@ -109,7 +185,9 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 				<tbody>
 					<tr>
 						<th>#</th>
-						<th>Name</th>
+						<th>MAC</th>
+						<th>Task name</th>
+						<th>Net name</th>
 						<th>Key</th>
 						<th>Files</th>
 						<th>Agents</th>
@@ -129,7 +207,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 					}
 					//Show dicts from DB
 					global $mysqli;
-					$sql = "SELECT id, name, filename, status, agents, net_key FROM tasks WHERE 1";
+					$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac FROM tasks WHERE 1";
 					$result = $mysqli->query( $sql );
 					$result = $result->fetch_all( MYSQLI_ASSOC );
 
@@ -142,8 +220,8 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 							$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
 						}
 						$id++;
-						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'name' ] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row[ 'filename' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Download</a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
-						$admin_pan_str = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span> Delete</a></td></tr>';
+						$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['station_mac'] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row['essid'] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row[ 'filename' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
+						$admin_pan_str = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></a></td></tr>';
 						echo $str;
 						if ( $admin )
 							echo $admin_pan_str;
