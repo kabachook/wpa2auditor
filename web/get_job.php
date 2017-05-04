@@ -26,14 +26,36 @@ foreach ( array_unique( $failed_list ) as $f_id ) {
 $json = array();
 
 //Get last job from queue
-$sql = "SELECT id, name, filename, thash FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
+$sql = "SELECT * FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
 $result = $mysqli->query( $sql );
+
+if ($result->num_rows == 0) {
+	//There is no tasks or all done
+	$json['id'] = -1;
+	echo json_encode($json);
+	die(0);
+}
+
 $result = $result->fetch_all( MYSQLI_ASSOC );
 $task_id = $result[ 0 ][ 'id' ];
+$type = $result[0]['type'];
+
+$ntlm = false;
+if($type == 1)
+	$ntlm = true;
+
 $json[ 'id' ] = $task_id;
 $json[ 'name' ] = $result[ 0 ][ 'name' ];
-$json[ 'url' ] = $cfg_site_url . "tasks//" . $result[ 0 ][ 'filename' ];
-$json[ 'hash' ] = bin2hex( $result[ 0 ][ 'thash' ] );
+$json['type'] = $type;
+
+if(!$ntlm) {
+	$json[ 'url' ] = $cfg_site_url . "tasks//" . $result[ 0 ][ 'filename' ];
+	$json[ 'hash' ] = bin2hex( $result[ 0 ][ 'thash' ] );
+} else {
+	$json['username'] = $result[0]['username'];
+	$json['challenge'] = $result[0]['challenge'];
+	$json['respone'] = $result[0]['respone'];
+}
 
 //Get dicts for this task
 //Get all dicts which not used 

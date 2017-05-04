@@ -165,6 +165,32 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 		}
 	}
 }
+
+//NTLM
+if (isset($_POST['buttonUploadHash'])) {
+	$task_name = $_POST['taskname'];
+	$username = $_POST['username'];
+	$challenge = $_POST['challenge'];
+	$respone = $_POST['respone'];
+	$sql = "INSERT INTO tasks(name, type, username, challenge, respone) VALUES('" . $task_name . "', '1', '" . $username . "', '" . $challenge . "', '" . $respone . "')";
+	$ans = $mysqli->query($sql);
+	
+	if ($ans) {
+		$status_hash_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> Hash uploaded sucefully!</div></td>';
+	} else {
+		$status_hash_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Failed.</strong></div></td>';
+	}
+	//Get all dicts id
+	$sql = "SELECT id FROM dicts";
+	$result = $mysqli->query( $sql );
+	$result = $result->fetch_all( MYSQLI_ASSOC );
+	//Insert into tasks_dicts for last (current) task all dicts
+	foreach ( $result as $row ) {
+		$dict_curr_id = $row[ 'id' ];
+		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getNetId() . "', '" . $dict_curr_id . "', '0')";
+		$mysqli->query( $sql );
+	}
+}
 ?>
 <div class="container">
 	<div class="col-lg-8">
@@ -265,6 +291,52 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						</tr>
 						<tr>
 							<?php echo $status_file_uploading; ?>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</form>
+		<h2>NTLM Hash</h2>
+		<form class="" action="" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="source" value="upload">
+			<input type="hidden" name="action" value="addfile">
+			<div class="panel panel-default">
+				<table class="table table-bordered table-nonfluid">
+					<tbody>
+						<tr>
+							<th>Set username, challenge, respone</th>
+						</tr>
+						<tr>
+							<td>
+								<input type="text" class="form-control" name="taskname" required="" placeholder="Enter taskname">
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<input type="text" class="form-control" name="username" required="" placeholder="Username">
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<input type="text" class="form-control" name="challenge" required="" placeholder="Challenge">
+							</td>
+						</tr>
+						
+						<tr>
+							<td>
+								<input type="text" class="form-control" name="respone" required="" placeholder="Respone">
+							</td>
+						</tr>
+
+						<tr>
+							<td>
+								<input type="submit" class="btn btn-default" value="Upload hash" name="buttonUploadHash">
+							</td>
+						</tr>
+						<tr>
+							<?php echo $status_hash_uploading; ?>
 						</tr>
 					</tbody>
 				</table>
