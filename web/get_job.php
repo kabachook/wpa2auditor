@@ -28,6 +28,14 @@ $json = array();
 //Get last job from queue
 $sql = "SELECT id, name, filename, thash FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
 $result = $mysqli->query( $sql );
+
+if ($result->num_rows == 0) {
+	//There is no tasks or all done
+	$json['id'] = -1;
+	echo json_encode($json);
+	die(0);
+}
+
 $result = $result->fetch_all( MYSQLI_ASSOC );
 $task_id = $result[ 0 ][ 'id' ];
 $json[ 'id' ] = $task_id;
