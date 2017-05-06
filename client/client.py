@@ -22,12 +22,12 @@ outfile = 'pass.key'
 # Folders
 dict_folder = 'dicts/'
 hccap_folder = 'hccap/'
-hash_folder = 'hashes'
+hash_folder = 'hashes/'
 
 # Cracker arguments
 params = {
-    0: '{} -m 2500 --potfile-disable --outfile-format=2 {} -o {} {} {}',
-    1: '{} -m 5500 --potfile-disable --outfile-format=2 {} -o {} {} {}'
+    '0': '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',
+    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}'
 }
 
 """
@@ -45,7 +45,7 @@ params = {
 def download_file(url, filename):
     try:
         r = requests.get(url, stream=True)
-        #total_size = int(r.headers.get('content-length'))
+        # total_size = int(r.headers.get('content-length'))
         if r.status_code == 200:
             with open(filename, 'wb')as f:
                 # shutil.copyfileobj(r.raw, f)
@@ -106,17 +106,6 @@ def put_job(content):
         return 0
 
 
-def parse_cracker(job, name):
-    if job['type'] == '0':
-        return '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}'.format(hashcat,
-                                                                                            performance,
-                                                                                            outfile,
-                                                                                            brutefile,
-                                                                                            filename)
-    if job['type'] == '1':
-        return '{} -m 5500 --potfile-disable --outfile-format=2 {} -o {} {} {}'.format(hashcat, performance, outfile, )
-
-
 job = {}
 
 # Check folders
@@ -156,7 +145,7 @@ while True:
         if job_type == '1':
             brutefile = hash_folder + taskname + '.txt'
             with open(brutefile, 'w') as f:
-                f.write('{}::::{}:{}'.format(job['username'], job['respone'], job['challenge']))
+                f.write('{}::::{}:{}'.format(job['username'], job['response'], job['challenge']))
             f.close()
 
         # Downaload all dicts and check hashsums
@@ -194,18 +183,14 @@ while True:
 
         try:
             cracker = params[job_type]
-            if job_type == '0':
-                cracker.format(hashcat,
-                               performance,
-                               outfile,
-                               brutefile,
-                               dict_file)
-            if job_type == '1':
-                cracker.format(hashcat,
-                               performance,
-                               outfile,
-                               brutefile,
-                               dict_file)
+            if job_type in ['0', '1']:
+                cracker = cracker.format(hashcat,
+                                         performance,
+                                         outfile,
+                                         brutefile,
+                                         dict_file)
+            else:
+                exit(1)
 
             # Send status to api
             put_job({"status_job": "started",
@@ -268,7 +253,7 @@ while True:
                                    'dict_status': '1',
                                    'net_key': ""}):
                     print("Can't data to server")
-        else:
+        '''else:
             print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_file))
             while not put_job({'job_status': 'finished',  # Send fail status
                                'task_id': job['id'],
@@ -276,7 +261,7 @@ while True:
                                'task_status': '3',
                                'dict_status': '1',
                                'net_key': ""}):
-                print("Can't data to server")
+                print("Can't data to server")'''
 
         # cleanup
         if os.path.exists(outfile):
