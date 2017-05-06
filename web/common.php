@@ -8,8 +8,6 @@ function valid_key( $key ) {
 	return preg_match( '/^[a-f0-9]{32}$/', strtolower( $key ) );
 }
 
-//------------------- Actions with user --------------------
-
 //Set key
 if ( isset( $_POST[ 'key' ] ) ) {
 	if ( valid_key( $_POST[ 'key' ] ) ) {
@@ -41,11 +39,9 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 	unset( $_COOKIE[ 'key' ] );
 }
 
-//------------------- Actions with user end --------------------
-
 //CMS
 $content = 'content/';
-$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'dicts', 'get_job', 'put_job' );
+$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'dicts', 'get_job', 'put_job', 'stat', 'search' );
 $keys_if = array( 'get_job', 'put_job' );
 
 list( $key ) = each( $_GET );
