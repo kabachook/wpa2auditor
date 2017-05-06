@@ -22,7 +22,7 @@ outfile = 'pass.key'
 # Folders
 dict_folder = 'dicts/'
 hccap_folder = 'hccap/'
-hash_folder = 'hashes'
+hash_folder = 'hashes/'
 
 # Cracker arguments
 params = {
