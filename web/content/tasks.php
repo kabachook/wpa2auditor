@@ -6,15 +6,33 @@ $uploadCode = 1;
 $uploadFileType = pathinfo( $target_file, PATHINFO_EXTENSION );
 $status_file_uploading;
 
+//DB cleaner
+function cleanDB() {
+	global $mysqli;
 
+	//Clean db
+	//get all complete tasks id and delete from tasks_dicts
+	$sql = "SELECT id FROM tasks WHERE status IN('2')";
+	$task_id = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
+	foreach ( $task_id as $tid ) {
+		$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $tid[ 'id' ] . "'";
+		$mysqli->query( $sql );
+	}
+}
 
-function inf( $hccap ) {
+//Get all info from handshake in bin and convert it to hex if raw=false
+function getHandshakeInfo( $path, $raw ) {
+
+	$hccap = file_get_contents( $path );
+
 	$ahccap = array();
+
 	if ( version_compare( PHP_VERSION, '5.5.0' ) >= 0 ) {
 		$ahccap[ 'essid' ] = unpack( 'Z36', substr( $hccap, 0x000, 36 ) );
 	} else {
 		$ahccap[ 'essid' ] = unpack( 'a36', substr( $hccap, 0x000, 36 ) );
 	}
+
 	$ahccap[ 'mac1' ] = substr( $hccap, 0x024, 6 );
 	$ahccap[ 'mac2' ] = substr( $hccap, 0x02a, 6 );
 	$ahccap[ 'nonce1' ] = substr( $hccap, 0x030, 32 );
@@ -30,164 +48,120 @@ function inf( $hccap ) {
 	$ahccap[ 'keyver' ] = $ahccap[ 'keyver' ][ 1 ];
 
 	// cut eapol to right size
-    $ahccap['eapol'] = substr($ahccap['eapol'], 0, $ahccap['eapol_size']);
+	$ahccap[ 'eapol' ] = substr( $ahccap[ 'eapol' ], 0, $ahccap[ 'eapol_size' ] );
 
-    // fix order
-    if (strncmp($ahccap['mac1'], $ahccap['mac2'], 6) < 0)
-        $m = $ahccap['mac1'].$ahccap['mac2'];
-    else
-        $m = $ahccap['mac2'].$ahccap['mac1'];
+	// fix order
+	if ( strncmp( $ahccap[ 'mac1' ], $ahccap[ 'mac2' ], 6 ) < 0 )
+		$m = $ahccap[ 'mac1' ] . $ahccap[ 'mac2' ];
+	else
+		$m = $ahccap[ 'mac2' ] . $ahccap[ 'mac1' ];
 
-    if (strncmp($ahccap['nonce1'], $ahccap['nonce2'], 6) < 0)
-        $n = $ahccap['nonce1'].$ahccap['nonce2'];
-    else
-        $n = $ahccap['nonce2'].$ahccap['nonce1'];
-	
-	$ahccap['m'] = $m;
-	$ahccap['n'] = $n;
+	if ( strncmp( $ahccap[ 'nonce1' ], $ahccap[ 'nonce2' ], 6 ) < 0 )
+		$n = $ahccap[ 'nonce1' ] . $ahccap[ 'nonce2' ];
+	else
+		$n = $ahccap[ 'nonce2' ] . $ahccap[ 'nonce1' ];
 
-    
-	//var_dump($ahccap);
-	//
-	/*$ahccap[ 'mac1' ] = bin2hex( $ahccap[ 'mac1' ] );
-	$ahccap[ 'mac2' ] = bin2hex( $ahccap[ 'mac2' ] );
-	$ahccap[ 'nonce1' ] = bin2hex( $ahccap[ 'nonce1' ] );
-	$ahccap[ 'nonce2' ] = bin2hex( $ahccap[ 'nonce2' ] );
-	$ahccap[ 'eapol' ] = bin2hex( $ahccap[ 'eapol' ] );
-	$ahccap[ 'keymic' ] = bin2hex( $ahccap[ 'keymic' ] );*/
-	//var_dump($ahccap);
+	$ahccap[ 'm' ] = $m;
+	$ahccap[ 'n' ] = $n;
+
+	//return result in hex, else return in bin
+	if ( !$raw ) {
+		$ahccap[ 'mac1' ] = bin2hex( $ahccap[ 'mac1' ] );
+		$ahccap[ 'mac2' ] = bin2hex( $ahccap[ 'mac2' ] );
+		$ahccap[ 'nonce1' ] = bin2hex( $ahccap[ 'nonce1' ] );
+		$ahccap[ 'nonce2' ] = bin2hex( $ahccap[ 'nonce2' ] );
+		$ahccap[ 'eapol' ] = bin2hex( $ahccap[ 'eapol' ] );
+		$ahccap[ 'keymic' ] = bin2hex( $ahccap[ 'keymic' ] );
+	}
+
 	return $ahccap;
 }
 
+//Check if key is a valid key for handshake
 function check_key( $id, $key ) {
-	global $cfg_tasks_targetFolder;
 	global $mysqli;
-	
-	$sql = "SELECT filename FROM tasks WHERE id='" . $id . "'";
-	$filename = $mysqli->query( $sql )->fetch_object()->filename;
-	//var_dump($cfg_tasks_targetFolder . $filename);
-	$ahccap = inf( file_get_contents( $cfg_tasks_targetFolder . $filename ) );
-	//var_dump( $ahccap );
-	
-	$block = "Pairwise key expansion\0".$ahccap['m'].$ahccap['n']."\0";
-	
-	//var_dump($key);
-        $kl = strlen($key);
-        //if (($kl < 8) || ($kl > 64))
-         //   return "LOL";
-	//
-        $pmk = hash_pbkdf2('sha1', $key, $ahccap['essid'], 4096, 32, True);
-	//var_dump($pmk);
-        $ptk = hash_hmac('sha1', $block, $pmk, True);
-	//var_dump($ptk);
-        if ($ahccap['keyver'] == 1)
-            $testmic = hash_hmac('md5',  $ahccap['eapol'], substr($ptk, 0, 16), True);
-        else
-            $testmic = hash_hmac('sha1', $ahccap['eapol'], substr($ptk, 0, 16), True);
-	//var_dump(bin2hex($testmic), bin2hex($ahccap['keymic']));
-        if (strncmp($testmic, $ahccap['keymic'], 16) == 0)
-            return $key;
-    
-    return "NOT A KEY";
+
+	//Get filename for task
+	$sql = "SELECT server_path FROM tasks WHERE id='" . $id . "'";
+	$server_path = $mysqli->query( $sql )->fetch_object()->server_path;
+
+	//Get handshake info in raw
+	$ahccap = getHandshakeInfo( $server_path, true );
+	$block = "Pairwise key expansion\0" . $ahccap[ 'm' ] . $ahccap[ 'n' ] . "\0";
+
+	$pmk = hash_pbkdf2( 'sha1', $key, $ahccap[ 'essid' ], 4096, 32, True );
+	$ptk = hash_hmac( 'sha1', $block, $pmk, True );
+	if ( $ahccap[ 'keyver' ] == 1 )
+		$testmic = hash_hmac( 'md5', $ahccap[ 'eapol' ], substr( $ptk, 0, 16 ), True );
+	else
+		$testmic = hash_hmac( 'sha1', $ahccap[ 'eapol' ], substr( $ptk, 0, 16 ), True );
+
+	if ( strncmp( $testmic, $ahccap[ 'keymic' ], 16 ) == 0 )
+		return $key;
+
+	return NULL;
 }
 
-function getHandshakeInfo( $file, $extension ) {
+//Convert handshake to hccap
+function handshakeConverter( $file ) {
 	global $cfg_tools_cap2hccap;
-	global $cfg_tools_cap2hccap_tempFilename;
-	global $cfg_tasks_targetFolder;
 
-	$hccap[ 'path' ] = $cfg_tasks_targetFolder . $file[ 'name' ];
-	$hccap[ 'name' ] = $file[ 'name' ];
+	$name = $file[ 'taskName' ];
+	$path = $file[ 'server_path' ];
+	$extension = $file[ 'ext' ];
+	$output = $path;
 
-	//var_dump($hccap);
-	//var_dump($extension);
+	//Convert cap to hccap
 	if ( $extension == "cap" ) {
-		//cap to hccap
-		//var_dump($cfg_tools_cap2hccap . " " . $hccap[ 'path' ] . " " . $cfg_tasks_targetFolder . $cfg_tools_cap2hccap_tempFilename);
-		exec( $cfg_tools_cap2hccap . " " . $hccap[ 'path' ] . " " . $cfg_tasks_targetFolder . $cfg_tools_cap2hccap_tempFilename );
-		$hccap[ 'name' ] = $cfg_tools_cap2hccap_tempFilename;
-		$hccap[ 'path' ] = $cfg_tasks_targetFolder . $hccap[ 'name' ];
 
+		//Execute hccap
+		exec( $cfg_tools_cap2hccap . " " . $path . " " . $output );
 	}
-	$hccap[ 'size' ] = filesize( $hccap[ 'path' ] );
-	//var_dump($hccap);
-	//Check hccap size (392 byte = 1 handshake)
-	//var_dump($hccap);
-	if ( $hccap[ 'size' ] == 392 ) {
-		/*$ahccap[ 'mac1' ] = bin2hex( $ahccap[ 'mac1' ] );
-	$ahccap[ 'mac2' ] = bin2hex( $ahccap[ 'mac2' ] );
-	$ahccap[ 'nonce1' ] = bin2hex( $ahccap[ 'nonce1' ] );
-	$ahccap[ 'nonce2' ] = bin2hex( $ahccap[ 'nonce2' ] );
-	$ahccap[ 'eapol' ] = bin2hex( $ahccap[ 'eapol' ] );
-	$ahccap[ 'keymic' ] = bin2hex( $ahccap[ 'keymic' ] );*/
-		$final = inf( file_get_contents( $hccap[ 'path' ] ) ) ;
-		$final[ 'mac1' ] = bin2hex( $final[ 'mac1' ] );
-		$final[ 'mac2' ] = bin2hex( $final[ 'mac2' ] );
-		$final[ 'nonce1' ] = bin2hex( $final[ 'nonce1' ] );
-		$final[ 'nonce2' ] = bin2hex( $final[ 'nonce2' ] );
-		$final[ 'eapol' ] = bin2hex( $final[ 'eapol' ] );
-		$final[ 'keymic' ] = bin2hex( $final[ 'keymic' ] );
-		//var_dump($final);
-		return array( $final );
+
+	$size = filesize( $path );
+	if ( $size == 392 ) {
+		return array( $path );
+	} elseif ( $size % 392 == 0 ) {
+		//Slice file
+	} else {
+		return NULL;
 	}
-	/*} elseif ( $hccap[ 'size' ] % 392 == 0 ) {
-		//Делим файл по 392 байта
-		$count = $hccap['size'] / 392;
-		$temp_array = array();
-		for ($i = 0; i < $count; $i++) {
-			
-		}
-		
-		$hccap_array = array();
-		array_push($hccap_array, inf())
-	}*/
+
 }
 
-function addTaskToDB( $name, $filename, $ext ) {
+function addTaskToDB( $file, $info ) {
 	global $mysqli;
-	global $cfg_site_url;
-	global $cfg_tasks_targetFolder;
 
-	//Get info from handshake
-	//var_dump($ext);
-	$handshake_info = getHandshakeInfo( $_FILES[ 'upfile' ], $ext )[ 0 ];
-	//var_dump($handshake_info);
-
-	//Clean db
-	//get all complete tasks id 
-	$sql = "SELECT id FROM tasks WHERE status IN('2')";
-	$task_id = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
-	foreach ( $task_id as $tid ) {
-		$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $tid[ 'id' ] . "'";
-		$mysqli->query( $sql );
-	}
+	$server_path = $file[ 'server_path' ];
+	$name = $file[ 'taskName' ];
+	$filename = $file[ 'fileName' ];
+	$site_path = $file[ 'site_path' ] . $filename;
 
 	//Add task to db
-	$thash = hash_file( "sha256", $cfg_tasks_targetFolder . $filename );
-	$sql = "INSERT INTO tasks(name, type, priority, filename, thash, essid, station_mac) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'), '" . $handshake_info[ 'essid' ] . "', '" . $handshake_info[ 'mac1' ] . "')";
-	//var_dump($sql);
+	$thash = hash_file( "sha256", $server_path );
+	$sql = "INSERT INTO tasks(name, type, priority, filename, thash, essid, station_mac, server_path, site_path) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'), '" . $info[ 'essid' ] . "', '" . $info[ 'mac1' ] . "', '" . $server_path . "', '" . $site_path . "')";
 	$mysqli->query( $sql );
 
 	//Get all dicts id
 	$sql = "SELECT id FROM dicts";
-	$result = $mysqli->query( $sql );
-	$result = $result->fetch_all( MYSQLI_ASSOC );
+	$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
+
 	//Insert into tasks_dicts for last (current) task all dicts
 	foreach ( $result as $row ) {
 		$dict_curr_id = $row[ 'id' ];
-		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getNetId() . "', '" . $dict_curr_id . "', '0')";
+		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getLastNetID() . "', '" . $dict_curr_id . "', '0')";
 		$mysqli->query( $sql );
 	}
 }
 
-function getNetId() {
+function getLastNetID() {
 	global $mysqli;
 	$sql = "SELECT MAX(id) FROM tasks";
 	$result = $mysqli->query( $sql );
 	$result = $result->fetch_assoc();
 	return $result[ 'MAX(id)' ];
 }
-
+//Upoad file to server, check it, move it, add to DB
 //List of errors
 $errors = [
 	1 => "ALL IS OK",
@@ -208,7 +182,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 		$uploadCode = 3;
 	}
 
-	//Allow .hccap file format only
+	//Allow hccap and cap file format only
 	$allow_fromat = array( "hccap", "cap" );
 	if ( !in_array( $uploadFileType, $allow_fromat ) ) {
 		$uploadCode = 4;
@@ -217,26 +191,46 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	//If uploadCode != 1 => that's an error
 	if ( $uploadCode != 1 ) {
 		$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>' . $errors[ $uploadCode ] . '</strong></div></td>';
-		// if everything is ok, try to upload file
+
 	} else {
+		// if everything is ok, try to move file
 		if ( move_uploaded_file( $_FILES[ "upfile" ][ "tmp_name" ], $target_file ) ) {
-			//Only if file uploaded without error, we add it to db
-			//var_dump($uploadFileType);
-			addTaskToDB( $_POST[ 'filename' ], $_FILES[ "upfile" ][ "name" ], $uploadFileType );
+
 			$status_file_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> File uploaded sucefully!</div></td>';
+
+			//Only if file uploaded without error, we add it to db
+			$path = $cfg_tasks_targetFolder . $_FILES[ "upfile" ][ "name" ];
+			$file = [
+				"taskName" => $_POST[ 'task_name' ],
+				"fileName" => $_FILES[ "upfile" ][ "name" ],
+				"server_path" => $path,
+				"site_path" => $cfg_site_url . "tasks/",
+				"ext" => $uploadFileType,
+			];
+
+			$conv = handshakeConverter( $file );
+			if ( $conv != NULL ) {
+				foreach ( $conv as $handshake ) {
+					$info = getHandshakeInfo( $file[ 'server_path' ], false );
+					addTaskToDB( $file, $info );
+				}
+			}
+
 		} else {
 			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
 		}
 	}
+	//Clean DB
+	cleanDB();
 }
 
-//NTLM
+//NTLM Hashes
 if ( isset( $_POST[ 'buttonUploadHash' ] ) ) {
 	$task_name = $_POST[ 'taskname' ];
 	$username = $_POST[ 'username' ];
 	$challenge = $_POST[ 'challenge' ];
-	$respone = $_POST[ 'respone' ];
-	$sql = "INSERT INTO tasks(name, type, username, challenge, respone) VALUES('" . $task_name . "', '1', '" . $username . "', '" . $challenge . "', '" . $respone . "')";
+	$response = $_POST[ 'response' ];
+	$sql = "INSERT INTO tasks(name, type, username, challenge, response) VALUES('" . $task_name . "', '1', '" . $username . "', '" . $challenge . "', '" . $response . "')";
 	$ans = $mysqli->query( $sql );
 
 	if ( $ans ) {
@@ -244,59 +238,64 @@ if ( isset( $_POST[ 'buttonUploadHash' ] ) ) {
 	} else {
 		$status_hash_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Failed.</strong></div></td>';
 	}
+
 	//Get all dicts id
 	$sql = "SELECT id FROM dicts";
-	$result = $mysqli->query( $sql );
-	$result = $result->fetch_all( MYSQLI_ASSOC );
+	$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
+
 	//Insert into tasks_dicts for last (current) task all dicts
 	foreach ( $result as $row ) {
 		$dict_curr_id = $row[ 'id' ];
-		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getNetId() . "', '" . $dict_curr_id . "', '0')";
+		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getLastNetID() . "', '" . $dict_curr_id . "', '0')";
 		$mysqli->query( $sql );
 	}
 }
 
-//Wpa key
+//WPA key
 if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
-	//var_dump($_POST);
-	foreach ( $_POST as $task_id => $wpa_key ) {
-		//check keys
-		//var_dump(strlen($wpa_key));
-		
-		if (strlen($wpa_key) < 8 || strlen($wpa_key) > 63 || $wpa_key == "Send WPA keys" )
-			continue;
-		//var_dump($wpa_key);
-		$result = check_key( $task_id, $wpa_key );
-		//var_dump($result);
-		if ($result == $wpa_key) {
-			//var_dump($wpa_key);
-			$sql = "UPDATE tasks SET status='2', net_key='" . $wpa_key . "' WHERE id='" . $task_id . "'";
-			$mysqli->query($sql);
-		}
-		
-	}
 
+	foreach ( $_POST as $task_id => $wpa_key ) {
+
+		//WPA Key must be from 8 to 64 symbols
+		//Ignoring POST value of submit button
+		if ( strlen( $wpa_key ) < 8 || strlen( $wpa_key ) > 64 || $wpa_key == "Send WPA keys" )
+			continue;
+
+		$result = check_key( $task_id, $wpa_key );
+
+		if ( $result == $wpa_key ) {
+			//If password is valid, update key and status in db
+			$sql = "UPDATE tasks SET status='2', net_key='" . $wpa_key . "' WHERE id='" . $task_id . "'";
+			$mysqli->query( $sql );
+		}
+	}
 }
 ?>
-<div class="container">
+<div class="container-fluid">
 	<div class="col-lg-9 col-lg-offset-1">
 		<h2>Tasks</h2>
-		<?php if($admin) echo '<div style="overflow: auto;">
-		    <form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
-			       <input type="hidden" name="action" value="finishedtasksdelete">
-			          <input type="submit" value="Delete finished" class="btn btn-default">
-		    </form>
+		<?php
+		if ( $admin ) {
+			?>
+		<div style="overflow: auto;">
+			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
+				<input type="hidden" name="action" value="finishedtasksdelete">
+				<input type="submit" value="Delete finished" class="btn btn-default">
+			</form>
 
-	  <div style="overflow: auto;">
-           <form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
-              <input type="hidden" name="toggleautorefresh" value="On">
-              <input type="submit" value="Turn on auto-reload" class="btn btn-success">
-            </form>
-        <br>
+			<div style="overflow: auto;">
+				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
+					<input type="hidden" name="toggleautorefresh" value="On">
+					<input type="submit" value="Turn on auto-reload" class="btn btn-success">
+				</form>
+				<br>
 
-      </div>
-	       <br>
-      </div>'; ?>
+			</div>
+			<br>
+		</div>
+		<?php
+		}
+		?>
 		<form action="" method="post" enctype="multipart/form-data">
 			<div class="panel panel-default">
 				<table class="table table-striped table-bordered table-nonfluid">
@@ -314,6 +313,7 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 						</tr>
 						<?php
 
+						//List of status codes for tasks
 						function getStatus( $status ) {
 							$listOfStatus = [
 								0 => "IN QUEUE",
@@ -323,12 +323,10 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 							];
 							return $listOfStatus[ $status ];
 						}
-						//Show dicts from DB
-						global $mysqli;
-						$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac FROM tasks WHERE 1";
-						$result = $mysqli->query( $sql );
-						$result = $result->fetch_all( MYSQLI_ASSOC );
 
+						//Show tasks from DB
+						$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE 1";
+						$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
 
 						$id = 0;
 						foreach ( $result as $row ) {
@@ -338,11 +336,12 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 								$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
 							}
 							$id++;
-							$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $cfg_site_url . "tasks\\" . $row[ 'filename' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
-							$admin_pan_str = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></a></td></tr>';
+							$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
+							$tasks_admin_panel = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></a></td>';
 							echo $str;
 							if ( $admin )
-								echo $admin_pan_str;
+								echo $tasks_admin_panel;
+							echo "</tr>";
 						}
 						?>
 					</tbody>
@@ -361,11 +360,11 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 				<table class="table table-bordered table-nonfluid">
 					<tbody>
 						<tr>
-							<th>Upload handshake file (.hccap only)</th>
+							<th>Upload handshake file (cap, hccap only)</th>
 						</tr>
 						<tr>
 							<td>
-								<input type="text" class="form-control" name="filename" required="" placeholder="Enter filename">
+								<input type="text" class="form-control" name="task_name" required="" placeholder="Enter task name">
 							</td>
 						</tr>
 
@@ -394,7 +393,7 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 				<table class="table table-bordered table-nonfluid">
 					<tbody>
 						<tr>
-							<th>Set username, challenge, respone</th>
+							<th>Set username, challenge, response</th>
 						</tr>
 						<tr>
 							<td>
@@ -416,7 +415,7 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 
 						<tr>
 							<td>
-								<input type="text" class="form-control" name="respone" required="" placeholder="Respone">
+								<input type="text" class="form-control" name="response" required="" placeholder="Response">
 							</td>
 						</tr>
 
@@ -433,5 +432,4 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 			</div>
 		</form>
 	</div>
-
 </div>
