@@ -26,8 +26,8 @@ hash_folder = 'hashes'
 
 # Cracker arguments
 params = {
-    0: '{} -m 2500 --potfile-disable --outfile-format=2 {} -o {} {} {}',
-    1: '{} -m 5500 --potfile-disable --outfile-format=2 {} -o {} {} {}'
+    '0': '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',
+    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}'
 }
 
 """
@@ -104,6 +104,7 @@ def put_job(content):
         return 1
     else:
         return 0
+
 
 job = {}
 
@@ -183,11 +184,11 @@ while True:
         try:
             cracker = params[job_type]
             if job_type in ['0', '1']:
-                cracker.format(hashcat,
-                               performance,
-                               outfile,
-                               brutefile,
-                               dict_file)
+                cracker = cracker.format(hashcat,
+                                         performance,
+                                         outfile,
+                                         brutefile,
+                                         dict_file)
             else:
                 exit(1)
 
