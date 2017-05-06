@@ -1,8 +1,6 @@
 <?php
 require( 'db.php' );
 
-global $mysqli;
-
 $error_reg_message = "";
 
 if ( isset( $_POST[ 'rec_valid' ] ) ) {
@@ -55,36 +53,38 @@ function checkEmail( $email ) {
 if ( isset( $_COOKIE[ 'key' ] ) ) {
 	echo '<div class="alert alert-danger" role="alert">Key already issued. If you forgot it, your key is <strong>' . $_COOKIE[ 'key' ] . '</strong></div>';
 } else {
-	echo '<div class="container">
-	<div class="col-md-12">
-		<div class="modal-dialog" style="margin-bottom:0">
-			<div class="modal-content">
-				<div class="panel-heading">
-					<h3 class="panel-title"><strong>Sign Up</strong></h3>
-				</div>
-				<div class="panel-body">
-					<form role="form" method="post" action="">
-						<fieldset>
-							<div class="form-group">
-								<input class="form-control" placeholder="Nickname" name="nick" type="text" value="" required="">
-							</div>
-							<div class="form-group">
-								<input class="form-control" placeholder="E-mail" name="email" type="email" autofocus="" required="">
-							</div>
-							<div class="form-group">
-							<input type="hidden" name="rec_valid" value="1" />
-							<button class="btn btn-sm btn-success">Sign up</button>
-							</div>
-							' . $error_reg_message . '
-						</fieldset>
-					</form>
+	?>
+	<div class="container">
+		<div class="col-md-12">
+			<div class="modal-dialog" style="margin-bottom:0">
+				<div class="modal-content">
+					<div class="panel-heading">
+						<h3 class="panel-title"><strong>Sign Up</strong></h3>
+					</div>
+					<div class="panel-body">
+						<form role="form" method="post" action="">
+							<fieldset>
+								<div class="form-group">
+									<input class="form-control" placeholder="Nickname" name="nick" type="text" value="" required="">
+								</div>
+								<div class="form-group">
+									<input class="form-control" placeholder="E-mail" name="email" type="email" autofocus="" required="">
+								</div>
+								<div class="form-group">
+									<input type="hidden" name="rec_valid" value="1"/>
+									<button class="btn btn-sm btn-success">Sign up</button>
+								</div>
+								<?php echo $error_reg_message; ?>
+							</fieldset>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<br/>
-</div>';
+	<br/>
+	</div> <
+	? php
 }
 
 ?>
