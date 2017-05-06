@@ -39,7 +39,7 @@
          		<span class="icon-bar"></span>
          		<span class="icon-bar"></span>
        		</button>
-			
+
 				<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 			</div>
 
@@ -54,17 +54,23 @@
 
 				<ul class="nav navbar-nav navbar-right">
 					<!-- LOGIN BUTTON -->
+					<form class="navbar-form navbar-left" action="?search" method="post">
+								<div class="form-group">
+									<input type="text" class="form-control" placeholder="Search SSID" name="query">
+									<button type="submit" class="btn btn-default">Search</button>
+								</div>
+					</form>
 					<?php
 
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
-						
+
 						//Check user rang
 						$sql = "SELECT rang FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
 						$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
 						if ( $result[ 0 ][ 'rang' ] == "admin" )
 							$admin = true;
-						
+
 						//If true - logout button with nickname
 						echo '<p class="navbar-text">Signed in as <strong>' . getNickname() . '</strong></p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
 					} else
