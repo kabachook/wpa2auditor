@@ -48,7 +48,7 @@ function getHandshakeInfo( $file, $extension ) {
 
 	$hccap['path'] = $cfg_tasks_targetFolder . $file['name'];
 	$hccap['name'] = $file['name'];
-	
+
 	//var_dump($hccap);
 	//var_dump($extension);
 	if ( $extension == "cap" ) {
@@ -57,7 +57,7 @@ function getHandshakeInfo( $file, $extension ) {
 		exec( $cfg_tools_cap2hccap . " " . $hccap[ 'path' ] . " " . $cfg_tasks_targetFolder . $cfg_tools_cap2hccap_tempFilename );
 		$hccap[ 'name' ] = $cfg_tools_cap2hccap_tempFilename;
 		$hccap['path'] = $cfg_tasks_targetFolder . $hccap['name'];
-		
+
 	}
 	$hccap[ 'size' ] = filesize( $hccap[ 'path' ] );
 	//var_dump($hccap);
@@ -71,9 +71,9 @@ function getHandshakeInfo( $file, $extension ) {
 		$count = $hccap['size'] / 392;
 		$temp_array = array();
 		for ($i = 0; i < $count; $i++) {
-			
+
 		}
-		
+
 		$hccap_array = array();
 		array_push($hccap_array, inf())
 	}*/
@@ -83,14 +83,14 @@ function addTaskToDB( $name, $filename, $ext ) {
 	global $mysqli;
 	global $cfg_site_url;
 	global $cfg_tasks_targetFolder;
-	
+
 	//Get info from handshake
 	//var_dump($ext);
 	$handshake_info = getHandshakeInfo($_FILES['upfile'], $ext)[0];
 	//var_dump($handshake_info[0]);
-	
+
 	//Clean db
-	//get all complete tasks id 
+	//get all complete tasks id
 	$sql = "SELECT id FROM tasks WHERE status IN('2')";
 	$task_id = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
 	foreach ( $task_id as $tid ) {
@@ -174,7 +174,7 @@ if (isset($_POST['buttonUploadHash'])) {
 	$respone = $_POST['respone'];
 	$sql = "INSERT INTO tasks(name, type, username, challenge, respone) VALUES('" . $task_name . "', '1', '" . $username . "', '" . $challenge . "', '" . $respone . "')";
 	$ans = $mysqli->query($sql);
-	
+
 	if ($ans) {
 		$status_hash_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> Hash uploaded sucefully!</div></td>';
 	} else {
@@ -193,7 +193,7 @@ if (isset($_POST['buttonUploadHash'])) {
 }
 ?>
 <div class="container">
-	<div class="col-lg-8">
+	<div class="col-lg-9 col-lg-offset-1">
 		<h2>Tasks</h2>
 		<?php if($admin) echo '<div style="overflow: auto;">
 		    <form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
@@ -262,7 +262,7 @@ if (isset($_POST['buttonUploadHash'])) {
 			</table>
 		</div>
 	</div>
-	<div class="col-lg-4">
+	<div class="col-lg-2">
 		<h2>Add new tasks</h2>
 		<form class="" action="" method="post" enctype="multipart/form-data">
 			<input type="hidden" name="source" value="upload">
@@ -311,19 +311,19 @@ if (isset($_POST['buttonUploadHash'])) {
 								<input type="text" class="form-control" name="taskname" required="" placeholder="Enter taskname">
 							</td>
 						</tr>
-						
+
 						<tr>
 							<td>
 								<input type="text" class="form-control" name="username" required="" placeholder="Username">
 							</td>
 						</tr>
-						
+
 						<tr>
 							<td>
 								<input type="text" class="form-control" name="challenge" required="" placeholder="Challenge">
 							</td>
 						</tr>
-						
+
 						<tr>
 							<td>
 								<input type="text" class="form-control" name="respone" required="" placeholder="Respone">
