@@ -9,41 +9,46 @@ import time
 import gzip
 import queue
 
-#API conf
+# API conf
 base_url = 'http://inlovewith.space/dev/web'
 get_work_url = base_url + '?get_job'
 put_work_url = base_url + '?put_job'
 
-#Hashcat conf
+# Hashcat conf
 hashcat = 'hashcat64.exe'
 performance = '-w 3'
 outfile = 'pass.key'
 
-#Folders
+# Folders
 dict_folder = 'dicts/'
 hccap_folder = 'hccap/'
+hash_folder = 'hashes'
+
+# Cracker arguments
+params = {
+    0: '{} -m 2500 --potfile-disable --outfile-format=2 {} -o {} {} {}',
+    1: '{} -m 5500 --potfile-disable --outfile-format=2 {} -o {} {} {}'
+}
 
 """
     download_file will download file with given [url] and [filename]
     -
-    opens stream and if response code == 200 pipe it to shutil.copyfileobj()
+    opens stream and if response code == 200 download file with chunk
     -
     returns 0 when OK
-            1 when url or filename not specified
             2 not 200 response code
             3 in other cases
 """
 
+
 # TODO: add checks and exeptions cather
-def download_file(url=None, filename=None):
-    if url == None or filename == None:
-        return 1
+def download_file(url, filename):
     try:
         r = requests.get(url, stream=True)
-        total_size = int(r.headers.get('content-length'))
+        #total_size = int(r.headers.get('content-length'))
         if r.status_code == 200:
             with open(filename, 'wb')as f:
-                #shutil.copyfileobj(r.raw, f)
+                # shutil.copyfileobj(r.raw, f)
                 for chunk in r.iter_content(chunk_size=1024):
                     if chunk:  # filter out keep-alive new chunks
                         f.write(chunk)
@@ -56,11 +61,13 @@ def download_file(url=None, filename=None):
         print("Exeption: {}".format(e))
         return 3
 
+
 # Ungzip [input] to [output]
 def ungzip(input, output):
     with gzip.open(input, 'rb') as f_in:
         with open(output, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)
+
 
 # Returns sha256(filename)
 def calc_sha256(filename, block_size=256 * 128):
@@ -70,12 +77,14 @@ def calc_sha256(filename, block_size=256 * 128):
             h.update(chunk)
     return h.hexdigest()
 
+
 # Returns 1 if hash(filename) == [hashsum], 0 if not
 def check_hash(filename, hashsum):
     if calc_sha256(filename) == hashsum:
         return 1
     else:
         return 0
+
 
 # Get job from server: request ot get_work_url and return content in json format
 def get_job():
@@ -87,6 +96,7 @@ def get_job():
         print("Failed to get job")
         exit(1)
 
+
 # Send [content] to put_work_url
 def put_job(content):
     r = requests.post(put_work_url, json=content)
@@ -96,35 +106,58 @@ def put_job(content):
         return 0
 
 
+def parse_cracker(job, name):
+    if job['type'] == '0':
+        return '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}'.format(hashcat,
+                                                                                            performance,
+                                                                                            outfile,
+                                                                                            brutefile,
+                                                                                            filename)
+    if job['type'] == '1':
+        return '{} -m 5500 --potfile-disable --outfile-format=2 {} -o {} {} {}'.format(hashcat, performance, outfile, )
+
+
 job = {}
 
-#Check folders
+# Check folders
 if not os.path.exists(dict_folder):
     os.makedirs(dict_folder)
 if not os.path.exists(hccap_folder):
     os.makedirs(hccap_folder)
-
+if not os.path.exists(hash_folder):
+    os.makedirs(hash_folder)
 
 while True:
     dict_queue = queue.deque()  # Queue for dictionaries
-    handshake = ""
-
-
-
-    # prepare job
+    brutefile = ''
+    taskname = ''
+    job_type = -1
+    # if no job
     if len(job) == 0:
         job = get_job()
         print(job)
-        if job['id'] == -1:
+        if job['id'] == '-1':
             print("No tasks. Nothing to do.")
             exit(1)
 
-        # Download handshake and check hashsum
-        handshake = "".join((hccap_folder + job['name'] + ".hccap").split(' '))
-        download_file(job['url'], handshake)
-        if not check_hash(handshake, job['hash']):
-            print("[ERROR] Checksums do not match")
-            exit(1)
+        # Delete spaces in taskname
+        taskname = ''.join(job['name'].split(' '))
+
+        job_type = job['type']
+
+        # Download hashes
+        if job_type == '0':
+            # Download brutefile and check hashsum
+            brutefile = hccap_folder + taskname + ".hccap"
+            download_file(job['url'], brutefile)
+            if not check_hash(brutefile, job['hash']):
+                print("[ERROR] Checksums do not match")
+                exit(1)
+        if job_type == '1':
+            brutefile = hash_folder + taskname + '.txt'
+            with open(brutefile, 'w') as f:
+                f.write('{}::::{}:{}'.format(job['username'], job['respone'], job['challenge']))
+            f.close()
 
         # Downaload all dicts and check hashsums
         for i in job['dicts']:
@@ -156,24 +189,33 @@ while True:
     # run hashcat for every dict
     while len(dict_queue):
         i = dict_queue.popleft()  # i = current dictionary
-        filename = i[0]
+        dict_file = i[0]
         dict_id = i[1]
 
         try:
-            cracker = '{0} -m2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}'.format(hashcat,
-                                                                                                  performance,
-                                                                                                  outfile,
-                                                                                                  handshake,
-                                                                                                  filename)
+            cracker = params[job_type]
+            if job_type == '0':
+                cracker.format(hashcat,
+                               performance,
+                               outfile,
+                               brutefile,
+                               dict_file)
+            if job_type == '1':
+                cracker.format(hashcat,
+                               performance,
+                               outfile,
+                               brutefile,
+                               dict_file)
 
             # Send status to api
             put_job({"status_job": "started",
                      "task_id": job['id'],
                      "dict_id": dict_id})
-            #Run hashcat with arguments
+
+            # Run hashcat with arguments
             subprocess.check_call(shlex.split(cracker))
 
-        #Catch exceptions
+        # Catch exceptions
         except subprocess.CalledProcessError as ex:
             if ex.returncode == -2:
                 print('[WARNING] Thermal watchdog barked')
@@ -191,34 +233,34 @@ while True:
                 exit(1)
             if ex.returncode not in [-2, -1, 1, 2]:
                 print('Cracker {0} died with code {1}'.format(hashcat, ex.returncode))
-                print('Check you have CUDA/OpenCL support')
+                print('Unknown error occured')
                 exit(1)
         except KeyboardInterrupt as ex:
             print('\nKeyboard interrupt. Quiting...')
-            #Cleanup
+            # Cleanup
             if os.path.exists(outfile):
                 os.unlink(outfile)
                 exit(1)
 
-
-        if os.path.exists(outfile): #If bruted
+        if os.path.exists(outfile):  # If bruted
             k = open(outfile, 'r')
             key = k.readline()
             k.close()
             key = key.rstrip('\n')
+            # TODO: It seems that hashcat always create key file so this code can be refactored
             if len(key) >= 8:
                 print('Key found for job {0}:{1}'.format(job['name'], key))
-                while not put_job({'job_status':  'finished', #Send key to server
-                                   'task_id':      job['id'],
-                                   'dict_id':        dict_id,
-                                   'task_status':        '2',
-                                   'dict_status':        '1',
-                                   'net_key':            key}):
+                while not put_job({'job_status': 'finished',  # Send key to server
+                                   'task_id': job['id'],
+                                   'dict_id': dict_id,
+                                   'task_status': '2',
+                                   'dict_status': '1',
+                                   'net_key': key}):
                     print("Can't submit key")
                     time.sleep(20)
                 break
             else:
-                print("Key for task {0} not found in {1} :(".format(job['name'], filename))
+                print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_file))
                 while not put_job({'job_status': 'finished',  # Send fail status
                                    'task_id': job['id'],
                                    'dict_id': dict_id,
@@ -227,19 +269,20 @@ while True:
                                    'net_key': ""}):
                     print("Can't data to server")
         else:
-            print("Key for task {0} not found in {1} :(".format(job['name'], filename))
-            while not put_job({'job_status':     'finished', #Send fail status
-                               'task_id':      job['id'],
-                               'dict_id':        dict_id,
-                               'task_status':        '3',
-                               'dict_status':        '1',
-                               'net_key':           ""}):
+            print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_file))
+            while not put_job({'job_status': 'finished',  # Send fail status
+                               'task_id': job['id'],
+                               'dict_id': dict_id,
+                               'task_status': '3',
+                               'dict_status': '1',
+                               'net_key': ""}):
                 print("Can't data to server")
 
         # cleanup
         if os.path.exists(outfile):
             os.unlink(outfile)
-    #reset job
+
+    # reset job
     print("Going to next job")
     job = {}
     time.sleep(5)
