@@ -384,6 +384,15 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 		}
 	}
 }
+
+//Delete task by admin panel
+if (isset($_POST['deleteTask']) && $admin) {
+	$id = $_POST['deleteTaskID'];
+	$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
+	$mysqli->query($sql);
+	$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $id . "'";
+	$mysqli->query($sql);
+}
 ?>
 <div class="container-fluid">
 	<div class="col-lg-9 col-lg-offset-1">
@@ -392,18 +401,12 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 		if ( $admin ) {
 			?>
 		<div style="overflow: auto;">
-			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
-				<input type="hidden" name="action" value="finishedtasksdelete">
-				<input type="submit" value="Delete finished" class="btn btn-default">
-			</form>
-
 			<div style="overflow: auto;">
 				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 					<input type="hidden" name="toggleautorefresh" value="On">
 					<input type="submit" value="Turn on auto-reload" class="btn btn-success">
 				</form>
 				<br>
-
 			</div>
 			<br>
 		</div>
@@ -451,7 +454,7 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 							}
 							$id++;
 							$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
-							$tasks_admin_panel = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></a></td>';
+							$tasks_admin_panel = '<td><form action="" method="post"><input type="hidden" name="deleteTaskID" value="' . $row['id'] . '"><button type="submit" class="btn btn-default" name="deleteTask"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
 							echo $str;
 							if ( $admin )
 								echo $tasks_admin_panel;
@@ -461,7 +464,6 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 					</tbody>
 				</table>
 			</div>
-
 			<input type="submit" value="Send WPA keys" name="buttonWpaKeys" class="btn btn-default">
 		</form>
 	</div>

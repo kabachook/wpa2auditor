@@ -69,16 +69,14 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
 		}
 	}
-
-	//TODO delete task
-	/*if ($admin && isset($_POST['deleteDictButton'])) {
-		$sql = "SELECT dpath FROM dicts WHERE id='" . $id . "'";
-		$path = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC)[0]['dpath'];
-		$id = $_POST['deleteDictID'];
-		$sql = "DELETE FROM dicts WHERE id='" . $id . "'";
-		$mysqli->query($sql);
-		unlink();
-	}*/
+}
+//Delete task by admin panel
+if ( isset( $_POST[ 'deleteDict' ] ) && $admin ) {
+	$id = $_POST[ 'deleteDictID' ];
+	$sql = "DELETE FROM dicts WHERE id='" . $id . "'";
+	$mysqli->query( $sql );
+	$sql = "DELETE FROM tasks_dicts WHERE dict_id='" . $id . "'";
+	$mysqli->query( $sql );
 }
 ?>
 <div class="container">
@@ -94,18 +92,18 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 						<?php if($admin) echo "<th>admin</th>"; ?>
 					</tr>
 					<?php
-					//Show dicts from DB
-					global $mysqli;
-					//$sql = $cfg_dicts_targetFolder . 
-					$sql = "SELECT dname, dpath, size FROM dicts WHERE 1";
+					//Show dicts from DB 
+					$sql = "SELECT id, dname, dpath, size FROM dicts WHERE 1";
 					$result = $mysqli->query( $sql );
 					$result = $result->fetch_all( MYSQLI_ASSOC );
 
 					foreach ( $result as $row ) {
-						$str = '<tr><td><strong>' . $row[ 'dname' ] . '</strong></td><td>' . $row[ 'size' ] . '</td><td><a href="' . $row[ 'dpath' ] . '" class="btn btn-default">DOWNLOAD</a>';
-						$adm_str = '<td><form action=""><button class="btn btn-default" type="button"><span class="glyphicon glyphicon-trash"></span> Delete</input></form></td></tr>';
+						$str = '<tr><td><strong>' . $row[ 'dname' ] . '</strong></td><td>' . $row[ 'size' ] . '</td><td><a href="' . $row[ 'dpath' ] . '" class="btn btn-default">DOWNLOAD</a></td>';
+						$adm_str = '<td><form action="" method="post"><input type="hidden" name="deleteDictID" value="' . $row[ 'id' ] . '"><button type="submit" class="btn btn-default" name="deleteDict"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
 						echo $str;
-						if ( $admin )echo $adm_str;
+						if ( $admin )
+							echo $adm_str;
+						echo "</tr>";
 					}
 					?>
 				</tbody>
