@@ -213,6 +213,18 @@ function handshakeConverter( $file ) {
 	return $ret;
 }
 
+//Get user id
+function getUserID() {
+	global $mysqli;
+	$sql = "SELECT u_id FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
+	$user_id = $mysqli->query($sql)->fetch_object()->u_id;
+	if ($user_id == null) {
+		//user not loggged in
+		return -1;
+	}
+	return $user_id;
+}
+
 function addTaskToDB( $file, $info ) {
 	global $mysqli;
 	global $status_file_uploading;
@@ -244,10 +256,13 @@ function addTaskToDB( $file, $info ) {
 		} else {
 			$mac = $info[ 'mac_ap' ];
 		}
-
+		
+		//Get user id
+		$user_id = getUserID();
+		
 		//Add task to db
 		$thash = hash_file( "sha256", $server_path );
-		$sql = "INSERT INTO tasks(name, type, priority, filename, thash, essid, station_mac, server_path, site_path, uniq_hash, ext) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'), '" . $info[ 'essid' ] . "', '" . $mac . "', '" . $server_path . "', '" . $site_path . "', UNHEX('" . $curr_hand_hash . "'), '" . $info[ 'ext' ] . "')";
+		$sql = "INSERT INTO tasks(name, type, priority, filename, thash, essid, station_mac, server_path, site_path, uniq_hash, ext, user_id) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'), '" . $info[ 'essid' ] . "', '" . $mac . "', '" . $server_path . "', '" . $site_path . "', UNHEX('" . $curr_hand_hash . "'), '" . $info[ 'ext' ] . "', '" . $user_id . "')";
 		$mysqli->query( $sql );
 
 		//Get all dicts id
@@ -393,6 +408,7 @@ if (isset($_POST['deleteTask']) && $admin) {
 	$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $id . "'";
 	$mysqli->query($sql);
 }
+
 ?>
 <div class="container-fluid">
 	<div class="col-lg-9 col-lg-offset-1">
@@ -401,15 +417,21 @@ if (isset($_POST['deleteTask']) && $admin) {
 		if ( $admin ) {
 			?>
 		<div style="overflow: auto;">
+			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
+				<input type="submit" value="Show only my networks" class="btn btn-default" name="showOnlyMyNetworks">
+			</form>
+
 			<div style="overflow: auto;">
 				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 					<input type="hidden" name="toggleautorefresh" value="On">
 					<input type="submit" value="Turn on auto-reload" class="btn btn-success">
 				</form>
 				<br>
+
 			</div>
 			<br>
 		</div>
+		
 		<?php
 		}
 		?>
@@ -429,7 +451,7 @@ if (isset($_POST['deleteTask']) && $admin) {
 							<?php if($admin)echo "<th>Admin</th>"; ?>
 						</tr>
 						<?php
-
+						
 						//List of status codes for tasks
 						function getStatus( $status ) {
 							$listOfStatus = [
@@ -440,9 +462,17 @@ if (isset($_POST['deleteTask']) && $admin) {
 							];
 							return $listOfStatus[ $status ];
 						}
-
+						
+						$user_id = getUserID();
+						
+						//showOnlyMyNetworks
+						if (isset($_POST['showOnlyMyNetworks']) && $user_id != -1) {
+							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE user_id='" . $user_id . "'";
+						} else {
+							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE 1";
+						}
+						
 						//Show tasks from DB
-						$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE 1";
 						$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
 
 						$id = 0;
