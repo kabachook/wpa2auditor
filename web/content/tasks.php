@@ -174,7 +174,7 @@ function handshakeConverter( $file ) {
 
 	if ( $extension == "hccap" ) {
 		if ( $size == 392 ) {
-			array_push( $ret, array( "ext" => "hccap", "path" => $output, "name" => $file[ 'fileName' ] . ".hccap" ) );
+			array_push( $ret, array( "ext" => "hccap", "path" => $output, "name" => $file[ 'fileName' ]) );
 		} elseif ( $size % 392 == 0 ) {
 			//Slice file
 			$original = file_get_contents( $output );
