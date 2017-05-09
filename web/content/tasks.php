@@ -20,6 +20,31 @@ function cleanDB() {
 	}
 }
 
+//HCCAP TO HCCAPX CONVERTER
+function hccap2hccapx($path_in, $path_out) {
+
+	$hccap = getHandshakeInfo($path_in, true, "hccap");
+
+	//Write hccapx
+	$hccapx = array();
+	
+		$hccapx['signature'] = pack("L", 0x58504348);
+		$hccapx['version'] = pack("L", 4);
+		$hccapx['message_pair'] = pack("C", 0);
+		$hccapx['essid_len'] = pack("C", 0x10);
+		$hccapx['essid'] = pack("Z32", $hccap['essid']);
+		$hccapx['keyver'] = pack("C", $hccap['keyver']);
+		$hccapx['keymic'] = pack("A16", $hccap['keymic']);
+		$hccapx['mac_ap'] = pack("A6", $hccap['mac1']);
+		$hccapx[ 'nonce_ap' ] = pack("Z32", $hccap['nonce2']);
+		$hccapx[ 'mac_sta' ] = pack("A6", $hccap['mac2']);
+		$hccapx[ 'nonce_sta' ] = pack("Z32", $hccap['nonce1']);
+		$hccapx[ 'eapol_len' ] = pack("S", $hccap['eapol_size']);
+		$hccapx[ 'eapol' ] = pack("Z256", $hccap['eapol']);
+
+	file_put_contents($path_out, $hccapx);
+}
+
 //Get all info from handshake in bin and convert it to hex if raw=false
 function getHandshakeInfo( $path, $raw, $ext ) {
 
@@ -166,6 +191,12 @@ function handshakeConverter( $file ) {
 		$output = $file[ 'server_path' ] . $file[ 'fileName' ] . ".hccapx";
 		//Execute cap2hccapx
 		exec( $cfg_tools_cap2hccap . " " . $path . " " . $output );
+		$extension = "hccapx";
+	}
+	
+	if ($extension == "hccap") {
+		$output .= ".hccapx";
+		hccap2hccapx($path, $output);
 		$extension = "hccapx";
 	}
 
