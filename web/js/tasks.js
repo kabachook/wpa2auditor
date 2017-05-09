@@ -1,3 +1,4 @@
+//AJAX
 /*var temp = $("#ajax").html();
 
 function tasks_ajax_loadPage() {
@@ -6,7 +7,7 @@ function tasks_ajax_loadPage() {
 	});
 }*/
 
-//Chnage class for status
+//Change class for status
 $(".status").each(function () {
 	if ($(this).text() === "SUCCESS") {
 		$(this).addClass("alert");

@@ -7,4 +7,9 @@
 
 <div class="container">
 	<h1>Our features</h1>
+	<ol>
+		<li>
+			Some features list
+		</li>
+	</ol>
 </div>
