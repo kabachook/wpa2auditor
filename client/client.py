@@ -8,16 +8,18 @@ import hashlib
 import time
 import gzip
 import queue
+import json
 
 # API conf
 base_url = 'http://inlovewith.space/dev/web'
-get_work_url = base_url + '?get_job'
-put_work_url = base_url + '?put_job'
+get_work_url = base_url + '/?get_job'
+put_work_url = base_url + '/?put_job'
 
 # Hashcat conf
 hashcat = 'hashcat64.exe'
 performance = '-w 3'
 outfile = 'pass.key'
+benchmark = 'benchmark.txt'
 
 # Folders
 dict_folder = 'dicts/'
@@ -27,7 +29,8 @@ hash_folder = 'hashes/'
 # Cracker arguments
 params = {
     '0': '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',
-    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}'
+    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',
+    'benchmark': '{} -b'
 }
 
 """
@@ -182,25 +185,24 @@ while True:
         dict_id = i[1]
 
         try:
-            cracker = params[job_type]
             if job_type in ['0', '1']:
-                cracker = cracker.format(hashcat,
-                                         performance,
-                                         outfile,
-                                         brutefile,
-                                         dict_file)
+                cracker = params[job_type].format(hashcat,
+                                                  performance,
+                                                  outfile,
+                                                  brutefile,
+                                                  dict_file)
             else:
                 exit(1)
 
             # Send status to api
-            put_job({"status_job": "started",
+            put_job({"job_status": "started",
                      "task_id": job['id'],
                      "dict_id": dict_id})
 
             # Run hashcat with arguments
             subprocess.check_call(shlex.split(cracker))
 
-        # Catch exceptions
+        # Catch exceptions and returncodes
         except subprocess.CalledProcessError as ex:
             if ex.returncode == -2:
                 print('[WARNING] Thermal watchdog barked')
@@ -243,6 +245,7 @@ while True:
                                    'net_key': key}):
                     print("Can't submit key")
                     time.sleep(20)
+                os.unlink(outfile)
                 break
             else:
                 print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_file))
