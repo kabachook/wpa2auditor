@@ -339,7 +339,7 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	}
 
 	//Allow hccap and cap file format only
-	$allow_fromat = array( "hccap", "cap", "hccapx" );
+	$allow_fromat = array( "hccapx", "cap" );
 	if ( !in_array( $uploadFileType, $allow_fromat ) ) {
 		$uploadCode = 4;
 	}
@@ -537,7 +537,7 @@ if (isset($_POST['deleteTask']) && $admin) {
 				<table class="table table-bordered table-nonfluid">
 					<tbody>
 						<tr>
-							<th>Upload handshake file (cap, hccap only)</th>
+							<th>Upload handshake file (cap, hccapx only)</th>
 						</tr>
 						<tr>
 							<td>
