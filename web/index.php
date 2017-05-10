@@ -53,8 +53,8 @@
 					</li>
 					<li><a href="?dicts">Dicts</a>
 					</li>
-					<li><a href="?stat">Stats</a>
-					</li>
+					<!--<li><a href="?stat">Stats</a>
+					</li>-->
 				</ul>
 
 				<ul class="nav navbar-nav navbar-right">

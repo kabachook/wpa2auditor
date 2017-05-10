@@ -471,15 +471,16 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 				<input type="submit" value="Show only my networks" class="btn btn-default" name="showOnlyMyNetworks">
 			</form>
-
+<!--
 			<div style="overflow: auto;">
 				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 					<input type="hidden" name="toggleautorefresh" value="On">
 					<input type="submit" value="Turn on auto-reload" class="btn btn-success">
 				</form>
-				<br>
+				
 
-			</div>
+			</div>-->
+			<br>
 			<br>
 		</div>
 
@@ -492,6 +493,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 					<tbody>
 						<tr>
 							<th>#</th>
+							<th>Type</th>
 							<th>MAC</th>
 							<th>Task name</th>
 							<th>Net name</th>
@@ -543,9 +545,9 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 
 						//showOnlyMyNetworks
 						if ( isset( $_POST[ 'showOnlyMyNetworks' ] ) && $user_id != -1 ) {
-							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE user_id='" . $user_id . "'";
+							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path, type FROM tasks WHERE user_id='" . $user_id . "'";
 						} else {
-							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
+							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path, type FROM tasks ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
 						}
 
 						//Show tasks from DB
@@ -562,9 +564,15 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 								} else {
 									$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
 								}
+								$type;
+								if ($row['type'] != "0") {
+									$type = "ntlm";
+								} else {
+									$type = "handshake";
+								}
 								$id++;
 								//<td>' . $row[ 'agents' ] . '</td>
-								$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
+								$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $type . '</td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
 								$tasks_admin_panel = '<td><form action="" method="post"><input type="hidden" name="deleteTaskID" value="' . $row[ 'id' ] . '"><button type="submit" class="btn btn-default" name="deleteTask"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
 								echo $str;
 								if ( $admin )
