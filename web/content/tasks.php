@@ -447,7 +447,6 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 	$mysqli->query( $sql );
 }
 
-
 ?>
 <div class="container-fluid">
 	<div class="col-lg-9 col-lg-offset-1">

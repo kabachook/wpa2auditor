@@ -7,23 +7,97 @@ if ( isset( $_POST[ 'rec_valid' ] ) ) {
 
 	$email = $_POST[ 'email' ];
 	$nickname = $_POST[ 'nick' ];
-	if ( checkNick( $nickname ) || checkEmail( $email ) ) {
-		$error_reg_message = '<div class="alert alert-danger form-group" role="alert"><strong>Duplicate nick or email</strong></div>';
-	} else {
-		$rang = "user";
-		$userkey = md5( md5( $nickname ) . md5( $email ) );
+	$invite = $_POST[ 'invite' ];
 
-		//put new key in db
-		$sql = "INSERT INTO users(userkey, email, nick, rang) VALUES(UNHEX('" . $userkey . "'), '$email', '$nickname', '$rang')
+
+	if ( checkNick( $nickname ) && checkEmail( $email ) ) {
+
+		if ( $invite != null ) {
+			$res = checkInvite( $invite );
+
+			if ( $res[ 'check' ] ) {
+				
+				$rang = "user";
+				if ($res['admin'])
+					$rang = "admin";
+				
+				//set invited
+				setInvitedCPlusOne($invite);
+				
+				$userkey = md5( md5( $nickname ) . md5( $email ) );
+				$user_invite = substr(md5(rand()), 0, 16);
+				
+				//put new key in db
+				$sql = "INSERT INTO users(userkey, email, nick, rang, invite) VALUES(UNHEX('" . $userkey . "'), '$email', '$nickname', '$rang', UNHEX('" . $user_invite . "'))
                 ON DUPLICATE KEY UPDATE userkey=UNHEX('$userkey'), ts=CURRENT_TIMESTAMP()";
 
-		$result = $mysqli->query( $sql );
+				$result = $mysqli->query( $sql );
 
-		//set cookie
-		setcookie( 'key', $userkey, 2147483647, '', '', false, true );
-		$_COOKIE[ 'key' ] = $userkey;
+				//set cookie
+				setcookie( 'key', $userkey, 2147483647, '', '', false, true );
+				$_COOKIE[ 'key' ] = $userkey;
+			} else {
+				//invite error
+				$error_reg_message = '<div class="alert alert-danger form-group" role="alert">Wrong invite</div>';
+			}
+		} else {
+				$rang = "user";
+				$userkey = md5( md5( $nickname ) . md5( $email ) );
+				$user_invite = substr(md5(rand()), 0, 32);
+				
+				//put new key in db
+				$sql = "INSERT INTO users(userkey, email, nick, rang, invite) VALUES(UNHEX('" . $userkey . "'), '$email', '$nickname', '$rang', UNHEX('" . $user_invite . "'))
+                ON DUPLICATE KEY UPDATE userkey=UNHEX('$userkey'), ts=CURRENT_TIMESTAMP()";
 
+				$result = $mysqli->query( $sql );
+
+				//set cookie
+				setcookie( 'key', $userkey, 2147483647, '', '', false, true );
+				$_COOKIE[ 'key' ] = $userkey;
+		}
+
+
+	} else {
+		$error_reg_message = '<div class="alert alert-danger form-group" role="alert"><strong>Duplicate nick or email</strong></div>';
 	}
+}
+
+function setInvitedCPlusOne ($invite) {
+	global $mysqli;
+	//get invited
+	$sql = "SELECT invited_c FROM users WHERE invite=UNHEX('" . $invite . "') ";
+	$count = $mysqli->query($sql)->fetch_object()->invited_c;
+	//set invited +1
+	$sql = "UPDATE users SET invited_c='" . ($count + 1) . "' WHERE invite=UNHEX('" . $invite . "')";
+	$mysqli->query($sql);
+}
+
+//Check invite
+function checkInvite( $invite ) {
+	global $mysqli;
+	
+	if ( $invite == null ) {
+		return true;
+	}
+	
+	if ( !valid_key( $invite ) )
+		return false;
+
+	$sql = "SELECT * FROM users WHERE invite=UNHEX('" . $invite . "')";
+	var_dump($invite);
+	$result = $mysqli->query( $sql );
+
+	$res = [
+		'check' => false,
+		'admin' => false,
+	];
+	if ( $result->num_rows > 0 ) {
+		$res[ 'check' ] = true;
+	}
+	if ( $result->fetch_object()->rang == 'admin' ) {
+		$res[ 'admin' ] = true;
+	}
+	return $res;
 }
 
 //Check if this nickname is uniq
@@ -33,21 +107,21 @@ function checkNick( $nick ) {
 	$result = $mysqli->query( $sql );
 
 	if ( $result->num_rows == 1 )
-		return true;
+		return false;
 
-	return false;
+	return true;
 }
 
-//Check if this email is uniq
+//Check if this email is not uniq
 function checkEmail( $email ) {
 	global $mysqli;
 	$sql = "SELECT * FROM users WHERE email='$email'";
 	$result = $mysqli->query( $sql );
 
 	if ( $result->num_rows == 1 )
-		return true;
+		return false;
 
-	return false;
+	return true;
 }
 
 if ( isset( $_COOKIE[ 'key' ] ) ) {
@@ -71,6 +145,9 @@ if ( isset( $_COOKIE[ 'key' ] ) ) {
 									<input class="form-control" placeholder="E-mail" name="email" type="email" autofocus="" required="">
 								</div>
 								<div class="form-group">
+									<input class="form-control" placeholder="Invite" name="invite" type="text" autofocus="">
+								</div>
+								<div class="form-group">
 									<input type="hidden" name="rec_valid" value="1"/>
 									<button class="btn btn-sm btn-success">Sign up</button>
 								</div>
@@ -83,8 +160,8 @@ if ( isset( $_COOKIE[ 'key' ] ) ) {
 		</div>
 	</div>
 	<br/>
-	</div> <
-	? php
-}
+	</div> 
 
+<?php
+}
 ?>
