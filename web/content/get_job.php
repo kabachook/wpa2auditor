@@ -24,7 +24,7 @@ foreach ( array_unique( $failed_list ) as $f_id ) {
 
 //CRUTCH 2
 //Find all uncomplete tasks
-$sql = "SELECT * FROM tasks WHERE status NOT IN('2')";
+/*$sql = "SELECT * FROM tasks WHERE status NOT IN('2')";
 $task_list = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
 $sql = "SELECT * FROM dicts";
 $dicts_list = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
@@ -35,7 +35,7 @@ foreach($task_list as $task_id) {
 		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $task_id[ 'id' ] . "', '" . $dict[ 'id' ] . "', 0)";
 		$mysqli->query($sql);
 	}
-}
+}*/
 
 
 //JSON answer

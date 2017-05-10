@@ -497,7 +497,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 							<th>Net name</th>
 							<th>Key</th>
 							<th>Files</th>
-							<th>Agents</th>
+							<!-- <th>Agents</th> for better days -->
 							<th>Status</th>
 							<?php if($admin)echo "<th>Admin</th>"; ?>
 						</tr>
@@ -563,7 +563,8 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 									$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
 								}
 								$id++;
-								$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
+								//<td>' . $row[ 'agents' ] . '</td>
+								$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
 								$tasks_admin_panel = '<td><form action="" method="post"><input type="hidden" name="deleteTaskID" value="' . $row[ 'id' ] . '"><button type="submit" class="btn btn-default" name="deleteTask"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
 								echo $str;
 								if ( $admin )
