@@ -574,17 +574,18 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 
 							$id = 0;
 							foreach ( $result as $row ) {
-								if ( $row[ 'net_key' ] == '0' ) {
-									$key = '<input type="text" class="form-control" placeholder="Enter wpa key" name="' . $row[ 'id' ] . '">';
-								} else {
-									$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
-								}
 								$type;
 								if ( $row[ 'type' ] != "0" ) {
 									$type = "ntlm";
 								} else {
 									$type = "handshake";
 								}
+								if ( $row[ 'net_key' ] == '0' && $type != "ntlm") {
+									$key = '<input type="text" class="form-control" placeholder="Enter wpa key" name="' . $row[ 'id' ] . '">';
+								} else {
+									$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
+								}
+								
 								$id++;
 								//<td>' . $row[ 'agents' ] . '</td>
 								$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $type . '</td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
