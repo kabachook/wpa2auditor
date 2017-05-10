@@ -6,6 +6,19 @@ $uploadCode = 1;
 $uploadFileType = pathinfo( $target_file, PATHINFO_EXTENSION );
 $status_file_uploading;
 
+//CRUTCH
+$sql = "SELECT * FROM tasks WHERE status='3'";
+$tasks_lists = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
+foreach($tasks_lists as $task) {
+	$sql = "SELECT * FROM tasks_dicts WHERE net_id='" . $task['id'] . "' AND status NOT IN('1')";
+	$res = $mysqli->query($sql);
+	if ($res->num_rows > 0) {
+		$sql = "UPDATE tasks SET status='0' WHERE id='" . $task['id'] . "'";
+		$mysqli->query($sql);
+	}
+}
+
+
 //DB cleaner
 function cleanDB() {
 	global $mysqli;
