@@ -574,7 +574,6 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 					// The "forward" link
 					$nextlink = ( $page < $pages ) ? '<li><a href="?tasks&page=' . ($page + 1) . '" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>' : '<li class="disabled"><a href="?tasks&page=1" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
 					echo $nextlink;
-					$element;
 
 					?>
 
