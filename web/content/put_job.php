@@ -47,4 +47,8 @@ if ( $status == "finished" ) {
 	$sql = "UPDATE tasks_dicts SET status='" . $dict_status . "' WHERE net_id='" . $task_id . "'AND dict_id='" . $dict_id . "'";
 	$mysqli->query( $sql );
 }
+
+if ($status != "started" && $status != "finished") {
+	http_response_code(404);
+}
 ?>

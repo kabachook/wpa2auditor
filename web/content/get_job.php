@@ -26,7 +26,7 @@ foreach ( array_unique( $failed_list ) as $f_id ) {
 $json = array();
 
 //Get last job from queue
-$sql = "SELECT * FROM tasks WHERE status=0 ORDER BY id DESC LIMIT 1";
+$sql = "SELECT * FROM tasks WHERE status NOT IN ('3', '4') ORDER BY id DESC LIMIT 1";
 $result = $mysqli->query( $sql );
 
 if ( $result->num_rows == 0 ) {
