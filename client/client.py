@@ -154,7 +154,13 @@ if not os.path.exists(user_key_file):
     answer = input()
     if answer not in ['N', 'n']:
         user_key = answer
-
+        with open(user_key_file,'w') as f:
+            f.write(user_key)
+        f.close()
+else:
+    with open(user_key_file, 'r') as f:
+        user_key = f.readline().rstrip('\n')
+    f.close()
 
 while True:
     dict_queue = queue.deque()  # Queue for dictionaries
