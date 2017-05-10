@@ -31,7 +31,7 @@ function addDictToDB( $dServerPath, $dname, $dfilename, $dFileSize ) {
 	//Sha256 of file
 	$dhash = hash_file( "sha256", $dServerPath );
 
-	$sql = "INSERT INTO dicts(dpath, dhash, dname, size) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "', '" . $dFileSize . "')";
+	$sql = "INSERT INTO dicts(dpath, dhash, dname, size, filename) VALUES('" . $dpath . "', UNHEX('" . $dhash . "'), '" . $dname . "', '" . $dFileSize . "', '" . $dfilename . "')";
 	$mysqli->query( $sql );
 
 	//For all tasks add this dict to tasks_dicts
@@ -89,6 +89,11 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 //Delete task by admin panel
 if ( isset( $_POST[ 'deleteDict' ] ) && $admin ) {
 	$id = $_POST[ 'deleteDictID' ];
+	
+	$sql = "SELECT filename FROM dicts WHERE id = '" . $id . "'";
+	$path = $cfg_dicts_targetFolder . $mysqli->query($sql)->fetch_object()->filename;
+	unlink($path);
+	
 	$sql = "DELETE FROM dicts WHERE id='" . $id . "'";
 	$mysqli->query( $sql );
 	$sql = "DELETE FROM tasks_dicts WHERE dict_id='" . $id . "'";
