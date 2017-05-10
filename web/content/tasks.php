@@ -567,7 +567,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 
 					<?php
 					// The "back" link
-					$prevlink = ( $page > 1 ) ? '<li><a href="?tasks%page=' . ($page - 1) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks%page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+					$prevlink = ( $page > 1 ) ? '<li><a href="?tasks%page=' . ($page - 1) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
 					echo $prevlink;
 					
 					for ( $i = 1; $i <= $pages; $i++ ) {
