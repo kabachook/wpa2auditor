@@ -9,12 +9,12 @@ $status_file_uploading;
 //CRUTCH
 $sql = "SELECT * FROM tasks WHERE status='3'";
 $tasks_lists = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
-foreach($tasks_lists as $task) {
-	$sql = "SELECT * FROM tasks_dicts WHERE net_id='" . $task['id'] . "' AND status NOT IN('1')";
-	$res = $mysqli->query($sql);
-	if ($res->num_rows > 0) {
-		$sql = "UPDATE tasks SET status='0' WHERE id='" . $task['id'] . "'";
-		$mysqli->query($sql);
+foreach ( $tasks_lists as $task ) {
+	$sql = "SELECT * FROM tasks_dicts WHERE net_id='" . $task[ 'id' ] . "' AND status NOT IN('1')";
+	$res = $mysqli->query( $sql );
+	if ( $res->num_rows > 0 ) {
+		$sql = "UPDATE tasks SET status='0' WHERE id='" . $task[ 'id' ] . "'";
+		$mysqli->query( $sql );
 	}
 }
 
@@ -204,7 +204,7 @@ function handshakeConverter( $file ) {
 		$output = $file[ 'server_path' ] . $file[ 'fileName' ] . ".hccapx";
 		//Execute cap2hccapx
 		exec( $cfg_tools_cap2hccap . " " . $path . " " . $output );
-		unlink($path);
+		unlink( $path );
 		$extension = "hccapx";
 	}
 
@@ -250,7 +250,7 @@ function handshakeConverter( $file ) {
 				fwrite( fopen( $out, "w" ), $sliced );
 				array_push( $ret, array( "ext" => "hccapx", "path" => $out, "name" => $file[ 'fileName' ] . ".hccapx" . "_" . ( $i + 1 ) . ".hccapx" ) );
 			}
-			unlink($output);
+			unlink( $output );
 		} else {
 			return NULL;
 		}
@@ -401,28 +401,43 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 
 //NTLM Hashes
 if ( isset( $_POST[ 'buttonUploadHash' ] ) ) {
+	$user_id = getUserID();
 	$task_name = $_POST[ 'taskname' ];
 	$username = $_POST[ 'username' ];
 	$challenge = $_POST[ 'challenge' ];
 	$response = $_POST[ 'response' ];
-	$sql = "INSERT INTO tasks(name, type, username, challenge, response) VALUES('" . $task_name . "', '1', '" . $username . "', '" . $challenge . "', '" . $response . "')";
-	$ans = $mysqli->query( $sql );
+	$site_path = $cfg_site_url . "tasks/" . $task_name . ".ntlm";
+	$server_path = $cfg_tasks_targetFolder . $task_name . ".ntlm";
+	$uniq_hash = md5( $username . $challenge . $response );
 
-	if ( $ans ) {
-		$status_hash_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> Hash uploaded sucefully!</div></td>';
+	$sql = "SELECT * FROM tasks WHERE uniq_hash=UNHEX('" . $uniq_hash . "')";
+	$result = $mysqli->query( $sql );
+	if ( $result->num_rows != 0 ) {
+		//Hash is not uniq
+		$result = $result->fetch_object();
+		$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert">Hash already in DB. Password : ' . $result->net_key . '</div></td>';
 	} else {
-		$status_hash_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Failed.</strong></div></td>';
-	}
+		$sql = "INSERT INTO tasks(name, type, username, challenge, response, user_id, site_path, server_path, ext, uniq_hash) VALUES('" . $task_name . "', '1', '" . $username . "', '" . $challenge . "', '" . $response . "', '" . $user_id . "', '" . $site_path . "', '" . $server_path . "', 'ntlm', UNHEX('" . $uniq_hash . "'))";
+		$ans = $mysqli->query( $sql );
 
-	//Get all dicts id
-	$sql = "SELECT id FROM dicts";
-	$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
+		file_put_contents( $cfg_tasks_targetFolder . $task_name . ".ntlm", $username . "::::" . $response . ":" . $challenge );
 
-	//Insert into tasks_dicts for last (current) task all dicts
-	foreach ( $result as $row ) {
-		$dict_curr_id = $row[ 'id' ];
-		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getLastNetID() . "', '" . $dict_curr_id . "', '0')";
-		$mysqli->query( $sql );
+		if ( $ans ) {
+			$status_hash_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> Hash uploaded sucefully!</div></td>';
+		} else {
+			$status_hash_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Failed.</strong></div></td>';
+		}
+
+		//Get all dicts id
+		$sql = "SELECT id FROM dicts";
+		$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
+
+		//Insert into tasks_dicts for last (current) task all dicts
+		foreach ( $result as $row ) {
+			$dict_curr_id = $row[ 'id' ];
+			$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . getLastNetID() . "', '" . $dict_curr_id . "', '0')";
+			$mysqli->query( $sql );
+		}
 	}
 }
 
@@ -449,10 +464,10 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 //Delete task by admin panel
 if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 	$id = $_POST[ 'deleteTaskID' ];
-	
+
 	$sql = "SELECT server_path FROM tasks WHERE id = '" . $id . "'";
-	$path = $mysqli->query($sql)->fetch_object()->server_path;
-	unlink($path);
+	$path = $mysqli->query( $sql )->fetch_object()->server_path;
+	unlink( $path );
 
 	$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
 	$mysqli->query( $sql );
@@ -471,7 +486,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 				<input type="submit" value="Show only my networks" class="btn btn-default" name="showOnlyMyNetworks">
 			</form>
-<!--
+			<!--
 			<div style="overflow: auto;">
 				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 					<input type="hidden" name="toggleautorefresh" value="On">
@@ -565,7 +580,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 									$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
 								}
 								$type;
-								if ($row['type'] != "0") {
+								if ( $row[ 'type' ] != "0" ) {
 									$type = "ntlm";
 								} else {
 									$type = "handshake";
@@ -589,9 +604,9 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 
 					<?php
 					// The "back" link
-					$prevlink = ( $page > 1 ) ? '<li><a href="?tasks%page=' . ($page - 1) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+					$prevlink = ( $page > 1 ) ? '<li><a href="?tasks%page=' . ( $page - 1 ) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
 					echo $prevlink;
-					
+
 					for ( $i = 1; $i <= $pages; $i++ ) {
 						$element = '<li><a href="?tasks&page=' . $i . '">' . $i . '</a></li>';
 						if ( $i == $page ) {
@@ -599,9 +614,9 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 						}
 						echo $element;
 					}
-					
+
 					// The "forward" link
-					$nextlink = ( $page < $pages ) ? '<li><a href="?tasks&page=' . ($page + 1) . '" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>' : '<li class="disabled"><a href="?tasks&page=1" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+					$nextlink = ( $page < $pages ) ? '<li><a href="?tasks&page=' . ( $page + 1 ) . '" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
 					echo $nextlink;
 
 					?>
