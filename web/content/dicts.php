@@ -5,6 +5,22 @@ $uploadCode = 1;
 $uploadFileType = pathinfo( $target_file, PATHINFO_EXTENSION );
 $status_file_uploading;
 
+function getSizeHum ($size) {
+	//get size in bytes
+	
+	$sizes = [
+		'k', 'M', 'G', 'T'
+	];
+	
+	$res;
+	$i = -1;
+	while ($size > 100) {
+		$size /= 1024;
+		$i++;
+	}
+	return round($size, 2) . " " . $sizes[$i] . "B";
+}
+
 function addDictToDB( $dServerPath, $dname, $dfilename, $dFileSize ) {
 	global $mysqli;
 	global $cfg_site_url;
@@ -98,7 +114,7 @@ if ( isset( $_POST[ 'deleteDict' ] ) && $admin ) {
 					$result = $result->fetch_all( MYSQLI_ASSOC );
 
 					foreach ( $result as $row ) {
-						$str = '<tr><td><strong>' . $row[ 'dname' ] . '</strong></td><td>' . $row[ 'size' ] . '</td><td><a href="' . $row[ 'dpath' ] . '" class="btn btn-default">DOWNLOAD</a></td>';
+						$str = '<tr><td><strong>' . $row[ 'dname' ] . '</strong></td><td>' . getSizeHum($row[ 'size' ]) . '</td><td><a href="' . $row[ 'dpath' ] . '" class="btn btn-default">DOWNLOAD</a></td>';
 						$adm_str = '<td><form action="" method="post"><input type="hidden" name="deleteDictID" value="' . $row[ 'id' ] . '"><button type="submit" class="btn btn-default" name="deleteDict"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
 						echo $str;
 						if ( $admin )
