@@ -21,28 +21,28 @@ function cleanDB() {
 }
 
 //HCCAP TO HCCAPX CONVERTER
-function hccap2hccapx($path_in, $path_out) {
+function hccap2hccapx( $path_in, $path_out ) {
 
-	$hccap = getHandshakeInfo($path_in, true, "hccap");
+	$hccap = getHandshakeInfo( $path_in, true, "hccap" );
 
 	//Write hccapx
 	$hccapx = array();
-	
-		$hccapx['signature'] = pack("L", 0x58504348);
-		$hccapx['version'] = pack("L", 4);
-		$hccapx['message_pair'] = pack("C", 0);
-		$hccapx['essid_len'] = pack("C", 0x10);
-		$hccapx['essid'] = pack("Z32", $hccap['essid']);
-		$hccapx['keyver'] = pack("C", $hccap['keyver']);
-		$hccapx['keymic'] = pack("A16", $hccap['keymic']);
-		$hccapx['mac_ap'] = pack("A6", $hccap['mac1']);
-		$hccapx[ 'nonce_ap' ] = pack("Z32", $hccap['nonce2']);
-		$hccapx[ 'mac_sta' ] = pack("A6", $hccap['mac2']);
-		$hccapx[ 'nonce_sta' ] = pack("Z32", $hccap['nonce1']);
-		$hccapx[ 'eapol_len' ] = pack("S", $hccap['eapol_size']);
-		$hccapx[ 'eapol' ] = pack("Z256", $hccap['eapol']);
 
-	file_put_contents($path_out, $hccapx);
+	$hccapx[ 'signature' ] = pack( "L", 0x58504348 );
+	$hccapx[ 'version' ] = pack( "L", 4 );
+	$hccapx[ 'message_pair' ] = pack( "C", 0 );
+	$hccapx[ 'essid_len' ] = pack( "C", 0x10 );
+	$hccapx[ 'essid' ] = pack( "Z32", $hccap[ 'essid' ] );
+	$hccapx[ 'keyver' ] = pack( "C", $hccap[ 'keyver' ] );
+	$hccapx[ 'keymic' ] = pack( "A16", $hccap[ 'keymic' ] );
+	$hccapx[ 'mac_ap' ] = pack( "A6", $hccap[ 'mac1' ] );
+	$hccapx[ 'nonce_ap' ] = pack( "Z32", $hccap[ 'nonce2' ] );
+	$hccapx[ 'mac_sta' ] = pack( "A6", $hccap[ 'mac2' ] );
+	$hccapx[ 'nonce_sta' ] = pack( "Z32", $hccap[ 'nonce1' ] );
+	$hccapx[ 'eapol_len' ] = pack( "S", $hccap[ 'eapol_size' ] );
+	$hccapx[ 'eapol' ] = pack( "Z256", $hccap[ 'eapol' ] );
+
+	file_put_contents( $path_out, $hccapx );
 }
 
 //Get all info from handshake in bin and convert it to hex if raw=false
@@ -193,10 +193,10 @@ function handshakeConverter( $file ) {
 		exec( $cfg_tools_cap2hccap . " " . $path . " " . $output );
 		$extension = "hccapx";
 	}
-	
-	if ($extension == "hccap") {
+
+	if ( $extension == "hccap" ) {
 		$output .= ".hccapx";
-		hccap2hccapx($path, $output);
+		hccap2hccapx( $path, $output );
 		$extension = "hccapx";
 	}
 
@@ -205,7 +205,7 @@ function handshakeConverter( $file ) {
 
 	if ( $extension == "hccap" ) {
 		if ( $size == 392 ) {
-			array_push( $ret, array( "ext" => "hccap", "path" => $output, "name" => $file[ 'fileName' ]) );
+			array_push( $ret, array( "ext" => "hccap", "path" => $output, "name" => $file[ 'fileName' ] ) );
 		} elseif ( $size % 392 == 0 ) {
 			//Slice file
 			$original = file_get_contents( $output );
@@ -247,9 +247,9 @@ function handshakeConverter( $file ) {
 //Get user id
 function getUserID() {
 	global $mysqli;
-	$sql = "SELECT u_id FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
-	$user_id = $mysqli->query($sql)->fetch_object()->u_id;
-	if ($user_id == null) {
+	$sql = "SELECT u_id FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
+	$user_id = $mysqli->query( $sql )->fetch_object()->u_id;
+	if ( $user_id == null ) {
 		//user not loggged in
 		return -1;
 	}
@@ -287,10 +287,10 @@ function addTaskToDB( $file, $info ) {
 		} else {
 			$mac = $info[ 'mac_ap' ];
 		}
-		
+
 		//Get user id
 		$user_id = getUserID();
-		
+
 		//Add task to db
 		$thash = hash_file( "sha256", $server_path );
 		$sql = "INSERT INTO tasks(name, type, priority, filename, thash, essid, station_mac, server_path, site_path, uniq_hash, ext, user_id) VALUES('" . $name . "', '0', '0', '" . $filename . "', UNHEX('" . $thash . "'), '" . $info[ 'essid' ] . "', '" . $mac . "', '" . $server_path . "', '" . $site_path . "', UNHEX('" . $curr_hand_hash . "'), '" . $info[ 'ext' ] . "', '" . $user_id . "')";
@@ -432,12 +432,12 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 }
 
 //Delete task by admin panel
-if (isset($_POST['deleteTask']) && $admin) {
-	$id = $_POST['deleteTaskID'];
+if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
+	$id = $_POST[ 'deleteTaskID' ];
 	$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
-	$mysqli->query($sql);
+	$mysqli->query( $sql );
 	$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $id . "'";
-	$mysqli->query($sql);
+	$mysqli->query( $sql );
 }
 
 ?>
@@ -462,7 +462,7 @@ if (isset($_POST['deleteTask']) && $admin) {
 			</div>
 			<br>
 		</div>
-		
+
 		<?php
 		}
 		?>
@@ -482,7 +482,32 @@ if (isset($_POST['deleteTask']) && $admin) {
 							<?php if($admin)echo "<th>Admin</th>"; ?>
 						</tr>
 						<?php
-						
+						// Pagger
+						// Find out how many items are in the table
+						$total = $mysqli->query( 'SELECT COUNT(*) as count FROM tasks' )->fetch_object()->count;
+
+						// How many items to list per page
+						$limit = 20;
+
+						// How many pages will there be
+						$pages = ceil( $total / $limit );
+
+						// What page are we currently on?
+						$page = min( $pages, filter_input( INPUT_GET, 'page', FILTER_VALIDATE_INT, array(
+							'options' => array(
+								'default' => 1,
+								'min_range' => 1,
+							),
+						) ) );
+
+						// Calculate the offset for the query
+						$offset = ( $page - 1 ) * $limit;
+
+						// Some information to display to the user
+						$start = $offset + 1;
+						$end = min( ( $offset + $limit ), $total );
+
+						//Pagger end
 						//List of status codes for tasks
 						function getStatus( $status ) {
 							$listOfStatus = [
@@ -493,38 +518,68 @@ if (isset($_POST['deleteTask']) && $admin) {
 							];
 							return $listOfStatus[ $status ];
 						}
-						
+
 						$user_id = getUserID();
-						
+
 						//showOnlyMyNetworks
-						if (isset($_POST['showOnlyMyNetworks']) && $user_id != -1) {
+						if ( isset( $_POST[ 'showOnlyMyNetworks' ] ) && $user_id != -1 ) {
 							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE user_id='" . $user_id . "'";
 						} else {
-							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE 1";
+							$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
 						}
-						
-						//Show tasks from DB
-						$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
 
-						$id = 0;
-						foreach ( $result as $row ) {
-							if ( $row[ 'net_key' ] == '0' ) {
-								$key = '<input type="text" class="form-control" placeholder="Enter wpa key" name="' . $row[ 'id' ] . '">';
-							} else {
-								$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
+						//Show tasks from DB
+						$result = $mysqli->query( $sql );
+
+						if ( $result->num_rows > 0 ) {
+
+							$result = $result->fetch_all( MYSQLI_ASSOC );
+
+							$id = 0;
+							foreach ( $result as $row ) {
+								if ( $row[ 'net_key' ] == '0' ) {
+									$key = '<input type="text" class="form-control" placeholder="Enter wpa key" name="' . $row[ 'id' ] . '">';
+								} else {
+									$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
+								}
+								$id++;
+								$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
+								$tasks_admin_panel = '<td><form action="" method="post"><input type="hidden" name="deleteTaskID" value="' . $row[ 'id' ] . '"><button type="submit" class="btn btn-default" name="deleteTask"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
+								echo $str;
+								if ( $admin )
+									echo $tasks_admin_panel;
+								echo "</tr>";
 							}
-							$id++;
-							$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row[ 'agents' ] . '</td><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
-							$tasks_admin_panel = '<td><form action="" method="post"><input type="hidden" name="deleteTaskID" value="' . $row['id'] . '"><button type="submit" class="btn btn-default" name="deleteTask"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
-							echo $str;
-							if ( $admin )
-								echo $tasks_admin_panel;
-							echo "</tr>";
 						}
 						?>
 					</tbody>
 				</table>
 			</div>
+			<nav aria-label="Page navigation">
+				<ul class="pagination">
+
+					<?php
+					// The "back" link
+					$prevlink = ( $page > 1 ) ? '<li><a href="?tasks%page=' . ($page - 1) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks%page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+					echo $prevlink;
+					
+					for ( $i = 1; $i <= $pages; $i++ ) {
+						$element = '<li><a href="?tasks&page=' . $i . '">' . $i . '</a></li>';
+						if ( $i == $page ) {
+							$element = '<li class="active"><a href="?tasks&page=' . $i . '">' . $i . '</a></li>';
+						}
+						echo $element;
+					}
+					
+					// The "forward" link
+					$nextlink = ( $page < $pages ) ? '<li><a href="?tasks&page=' . ($page + 1) . '" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>' : '<li class="disabled"><a href="?tasks&page=1" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+					echo $nextlink;
+					$element;
+
+					?>
+
+				</ul>
+			</nav>
 			<input type="submit" value="Send WPA keys" name="buttonWpaKeys" class="btn btn-default">
 		</form>
 	</div>
