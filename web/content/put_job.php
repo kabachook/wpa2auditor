@@ -33,6 +33,10 @@ if ( $status == "finished" ) {
 	$dict_status = $json[ 'dict_status' ];
 
 	if ( $task_status == 2 ) {
+		//Delete all dicts_tasks for this job
+		$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $task_id . "'";
+		$mysqli->query($sql);
+		
 		//Password found
 		$net_key = $json[ 'net_key' ];
 		$sql = "UPDATE tasks SET net_key='" . $net_key . "' WHERE id='" . $task_id . "'";
