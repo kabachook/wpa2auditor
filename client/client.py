@@ -9,12 +9,14 @@ import time
 import gzip
 import queue
 import json
+import threading
 
 # API conf
 base_url = 'http://inlovewith.space/dev/web'
 get_work_url = base_url + '/?get_job'
 put_work_url = base_url + '/?put_job'
-benchmark_url = base_url + '/?perf'
+benchmark_url = base_url + '/?agents_api'
+alive_url = base_url + '/?agents_api'
 user_key = ''
 user_key_file = 'user_key.txt'
 
@@ -32,8 +34,8 @@ hash_folder = 'hashes/'
 
 # Cracker arguments
 params = {
-    '0': '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}', # WPA2PSK
-    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}', # WPA2 ENTERPRISE
+    '0': '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',  # WPA2PSK
+    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',  # WPA2 ENTERPRISE
     'benchmark': '{} -b -m 2500'
 }
 
@@ -113,6 +115,12 @@ def put_job(content):
         return 0
 
 
+def put_alive():
+    while True:
+        r = requests.post(alive_url, json={"alive": user_key})
+        time.sleep(60)
+
+
 job = {}
 
 # Check folders
@@ -123,7 +131,7 @@ if not os.path.exists(hccap_folder):
 if not os.path.exists(hash_folder):
     os.makedirs(hash_folder)
 
-#Check benchmark
+# Check benchmark
 if not os.path.exists(benchmark):
     print("Benchmarking...")
     runner = params['benchmark'].format(hashcat)
@@ -131,17 +139,18 @@ if not os.path.exists(benchmark):
         o, e = subprocess.Popen(shlex.split(runner), stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         o = o.decode('utf-8')
         import re
+
         speed = re.search(speed_regex, o)[0].split(' ')
         speed[0] = int(speed[0])
         if speed[1] == 'KH/s':
-            speed[0] = speed[0]*1000
+            speed[0] = speed[0] * 1000
         if speed[1] == 'MH/s':
-            speed[0] = speed[0]*1000000
+            speed[0] = speed[0] * 1000000
         with open(benchmark, 'w') as f:
-            f.write(speed[0])
+            f.write(str(speed[0]))
         f.close()
 
-        r = requests.post(benchmark_url, json={'performance': speed[0]})
+        r = requests.post(benchmark_url, json={'performance': speed[0], 'user_key': user_key})
         if r.status_code != 200:
             print("Unable to send performance")
             exit(1)
@@ -149,18 +158,29 @@ if not os.path.exists(benchmark):
     except Exception as ex:
         print(ex)
 
+# Check user key
 if not os.path.exists(user_key_file):
     print("User key not specified in user_key.txt\nEnter key or type n:\n")
     answer = input()
     if answer not in ['N', 'n']:
         user_key = answer
-        with open(user_key_file,'w') as f:
+        with open(user_key_file, 'w') as f:
+            f.write(user_key)
+        f.close()
+    else:
+        import secrets
+
+        user_key = secrets.token_urlsafe(16)
+        with open(user_key_file, 'w') as f:
             f.write(user_key)
         f.close()
 else:
     with open(user_key_file, 'r') as f:
         user_key = f.readline().rstrip('\n')
     f.close()
+
+t = threading.Thread(target=put_alive, daemon=True)
+t.start()
 
 while True:
     dict_queue = queue.deque()  # Queue for dictionaries
@@ -210,13 +230,13 @@ while True:
                     if not check_hash(filename, i['dict_hash']):
                         print("[ERROR] Checksums do not match. Exiting...")
                         exit(1)
-
+            extension = filename.split('.')[-1]
             # Unpack dictionaries if necessary
-            if filename[-3:] == '.gz':
+            if extension == 'gz':
                 if not os.path.exists(''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]):
                     print("Unpacking {}".format(filename))
                     ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
-                    filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
+                    # filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
                 dict_queue.append((filename[:-3], i['dict_id']))
             else:
                 dict_queue.append((filename, i['dict_id']))
@@ -319,4 +339,4 @@ while True:
     # reset job
     print("Going to next job")
     job = {}
-    time.sleep(5)
+    time.sleep(2)
