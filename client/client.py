@@ -15,6 +15,8 @@ base_url = 'http://inlovewith.space/dev/web'
 get_work_url = base_url + '/?get_job'
 put_work_url = base_url + '/?put_job'
 benchmark_url = base_url + '/?perf'
+user_key = ''
+user_key_file = 'user_key.txt'
 
 # Hashcat conf
 hashcat = 'hashcat64.exe'
@@ -147,6 +149,13 @@ if not os.path.exists(benchmark):
     except Exception as ex:
         print(ex)
 
+if not os.path.exists(user_key_file):
+    print("User key not specified in user_key.txt\nEnter key or type n:\n")
+    answer = input()
+    if answer not in ['N', 'n']:
+        user_key = answer
+
+
 while True:
     dict_queue = queue.deque()  # Queue for dictionaries
     brutefile = ''
@@ -225,7 +234,8 @@ while True:
             # Send status to api
             put_job({"job_status": "started",
                      "task_id": job['id'],
-                     "dict_id": dict_id})
+                     "dict_id": dict_id,
+                     "user_key": user_key})
 
             # Run hashcat with arguments
             subprocess.check_call(shlex.split(cracker))
@@ -270,7 +280,8 @@ while True:
                                    'dict_id': dict_id,
                                    'task_status': '2',
                                    'dict_status': '1',
-                                   'net_key': key}):
+                                   'net_key': key,
+                                   'user_key': user_key}):
                     print("Can't submit key")
                     time.sleep(20)
                 os.unlink(outfile)
@@ -282,7 +293,8 @@ while True:
                                    'dict_id': dict_id,
                                    'task_status': '3',
                                    'dict_status': '1',
-                                   'net_key': ""}):
+                                   'net_key': "",
+                                   'user_key': user_key}):
                     print("Can't data to server")
         '''else:
             print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_file))
