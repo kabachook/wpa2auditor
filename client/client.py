@@ -14,12 +14,14 @@ import json
 base_url = 'http://inlovewith.space/dev/web'
 get_work_url = base_url + '/?get_job'
 put_work_url = base_url + '/?put_job'
+benchmark_url = base_url + '/?perf'
 
 # Hashcat conf
 hashcat = 'hashcat64.exe'
 performance = '-w 3'
 outfile = 'pass.key'
 benchmark = 'benchmark.txt'
+speed_regex = r"[0-9]+ [HKM]+(/s)"
 
 # Folders
 dict_folder = 'dicts/'
@@ -28,9 +30,9 @@ hash_folder = 'hashes/'
 
 # Cracker arguments
 params = {
-    '0': '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',
-    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}',
-    'benchmark': '{} -b'
+    '0': '{0} -m 2500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}', # WPA2PSK
+    '1': '{0} -m 5500 --potfile-disable --outfile-format=2 {1} -o {2} {3} {4}', # WPA2 ENTERPRISE
+    'benchmark': '{} -b -m 2500'
 }
 
 """
@@ -118,6 +120,32 @@ if not os.path.exists(hccap_folder):
     os.makedirs(hccap_folder)
 if not os.path.exists(hash_folder):
     os.makedirs(hash_folder)
+
+#Check benchmark
+if not os.path.exists(benchmark):
+    print("Benchmarking...")
+    runner = params['benchmark'].format(hashcat)
+    try:
+        o, e = subprocess.Popen(shlex.split(runner), stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        o = o.decode('utf-8')
+        import re
+        speed = re.search(speed_regex, o)[0].split(' ')
+        speed[0] = int(speed[0])
+        if speed[1] == 'KH/s':
+            speed[0] = speed[0]*1000
+        if speed[1] == 'MH/s':
+            speed[0] = speed[0]*1000000
+        with open(benchmark, 'w') as f:
+            f.write(speed[0])
+        f.close()
+
+        r = requests.post(benchmark_url, json={'performance': speed[0]})
+        if r.status_code != 200:
+            print("Unable to send performance")
+            exit(1)
+
+    except Exception as ex:
+        print(ex)
 
 while True:
     dict_queue = queue.deque()  # Queue for dictionaries
