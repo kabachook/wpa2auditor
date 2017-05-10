@@ -434,11 +434,17 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 //Delete task by admin panel
 if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 	$id = $_POST[ 'deleteTaskID' ];
+	
+	$sql = "SELECT server_path FROM tasks WHERE id = '" . $id . "'";
+	$path = $mysqli->query($sql)->fetch_object()->server_path;
+	unlink($path);
+
 	$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
 	$mysqli->query( $sql );
 	$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $id . "'";
 	$mysqli->query( $sql );
 }
+
 
 ?>
 <div class="container-fluid">
