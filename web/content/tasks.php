@@ -191,14 +191,15 @@ function handshakeConverter( $file ) {
 		$output = $file[ 'server_path' ] . $file[ 'fileName' ] . ".hccapx";
 		//Execute cap2hccapx
 		exec( $cfg_tools_cap2hccap . " " . $path . " " . $output );
+		unlink($path);
 		$extension = "hccapx";
 	}
 
-	if ( $extension == "hccap" ) {
+	/*if ( $extension == "hccap" ) {
 		$output .= ".hccapx";
 		hccap2hccapx( $path, $output );
 		$extension = "hccapx";
-	}
+	}*/
 
 	$size = filesize( $output );
 	$ret = array();
@@ -236,6 +237,7 @@ function handshakeConverter( $file ) {
 				fwrite( fopen( $out, "w" ), $sliced );
 				array_push( $ret, array( "ext" => "hccapx", "path" => $out, "name" => $file[ 'fileName' ] . ".hccapx" . "_" . ( $i + 1 ) . ".hccapx" ) );
 			}
+			unlink($output);
 		} else {
 			return NULL;
 		}
