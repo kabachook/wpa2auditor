@@ -16,7 +16,7 @@
 					</tr>
 					<?php
 
-					$essid = $_POST[ 'search_query' ];
+					$query = $_POST[ 'search_query' ];
 
 					//List of status codes for tasks
 					function getStatus( $status ) {
@@ -30,8 +30,8 @@
 					}
 
 					//Show tasks from DB
-					//$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE essid='" . $essid . "'"; //match whole essid only
-                    $sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE essid LIKE '%" . $essid . "%'";
+					//$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE essid='" . $query . "'"; //match whole essid only
+                    $sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path FROM tasks WHERE essid LIKE '%" . $query . "%' OR name LIKE '%" . $query . "%'";
 					$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
 
 					$id = 0;
