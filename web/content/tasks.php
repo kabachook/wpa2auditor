@@ -1,10 +1,23 @@
 <?php
 
+//Shut down error reporting
+error_reporting(0);
+
+//Include all we need
+include("../common.php");
+
+/*
+AJAX codes for tasks.php
+- table = return only table with tasks
+- all = return all page
+*/
+
 //There we want to upload file
 $target_file = $cfg_tasks_targetFolder . basename( $_FILES[ "upfile" ][ "name" ] );
 $uploadCode = 1;
 $uploadFileType = pathinfo( $target_file, PATHINFO_EXTENSION );
-$status_file_uploading;
+$status_file_uploading = null;
+$status_hash_uploading = null;
 
 //CRUTCH
 $sql = "SELECT * FROM tasks WHERE status='3'";
@@ -340,7 +353,7 @@ $errors = [
 	3 => "FILE BIGGER THAN MAX FILE SIZE",
 	4 => "FORBIDDEN FILE FORMAT",
 ];
-
+var_dump($_POST);
 if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 
 	// Check if file already exists
@@ -398,14 +411,14 @@ if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 	//Clean DB
 	cleanDB();
 }
-
+$ajax = json_decode( file_get_contents( 'php://input' ), true );
 //NTLM Hashes
-if ( isset( $_POST[ 'buttonUploadHash' ] ) ) {
+if ( isset( $ajax[ 'buttonUploadHash' ] ) && $ajax['buttonUploadHash'] == "true") {
 	$user_id = getUserID();
-	$task_name = $_POST[ 'taskname' ];
-	$username = $_POST[ 'username' ];
-	$challenge = $_POST[ 'challenge' ];
-	$response = $_POST[ 'response' ];
+	$task_name = $ajax[ 'taskname' ];
+	$username = $ajax[ 'username' ];
+	$challenge = $ajax[ 'challenge' ];
+	$response = $ajax[ 'response' ];
 	$site_path = $cfg_site_url . "tasks/" . $task_name . ".ntlm";
 	$server_path = $cfg_tasks_targetFolder . $task_name . ".ntlm";
 	$uniq_hash = md5( $username . $challenge . $response );
@@ -442,10 +455,12 @@ if ( isset( $_POST[ 'buttonUploadHash' ] ) ) {
 }
 
 //WPA key
-if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
+$ajax = json_decode( file_get_contents( 'php://input' ), true );
+if ( !empty($ajax) && $ajax['sendWPAkey'] == 1) {
 
-	foreach ( $_POST as $task_id => $wpa_key ) {
-
+	foreach ( $ajax as $task_id => $wpa_key ) {
+		if ($task_id == "deleteTaskID")
+			continue;
 		//WPA Key must be from 8 to 64 symbols
 		//Ignoring POST value of submit button
 		if ( strlen( $wpa_key ) < 8 || strlen( $wpa_key ) > 64 || $wpa_key == "Send WPA keys" )
@@ -462,8 +477,8 @@ if ( isset( $_POST[ 'buttonWpaKeys' ] ) ) {
 }
 
 //Delete task by admin panel
-if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
-	$id = $_POST[ 'deleteTaskID' ];
+if (!empty($ajax)&& isset($ajax['deleteTask']) && $ajax['deleteTask'] == "true" && $admin ) {
+	$id = $ajax[ 'deleteTaskID' ];
 
 	$sql = "SELECT server_path FROM tasks WHERE id = '" . $id . "'";
 	$path = $mysqli->query( $sql )->fetch_object()->server_path;
@@ -476,33 +491,58 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 }
 
 ?>
+
+<?php 
+if ($_GET['ajax'] == "statusHandshake") {
+	echo $status_file_uploading;
+	exit();
+}
+if ($_GET['ajax'] == "statusHash") {
+	echo $status_hash_uploading;
+	exit();
+}
+?>
+
+<?php
+if (!isset($_GET['ajax'])) {
+?>
 <div class="container-fluid">
 	<div class="col-lg-9 col-lg-offset-1">
 		<h2>Tasks</h2>
+		
+		<div style="overflow: auto;">
 		<?php
 		if ( $admin ) {
 			?>
-		<div style="overflow: auto;">
 			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
 				<input type="submit" value="Show only my networks" class="btn btn-default" name="showOnlyMyNetworks">
 			</form>
-			<!--
+			<?php
+		}
+		?>
 			<div style="overflow: auto;">
 				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST">
-					<input type="hidden" name="toggleautorefresh" value="On">
-					<input type="submit" value="Turn on auto-reload" class="btn btn-success">
+					<input type="button" value="Turn on auto-reload" class="btn btn-success" id="buttonTurnOnAutoRefresh">
 				</form>
-				
-
-			</div>-->
+			</div>
 			<br>
 			<br>
 		</div>
 
-		<?php
-		}
+		<div id="ajaxLoadTable"></div>
+	</div>
+	<div class="col-lg-2">
+		<div id="ajaxLoadRightNavBar"></div>
+	</div>
+<?php
+} else {
+	?>
+
+	
+	<?php
+			if($_GET['ajax'] == "table") {
 		?>
-		<form action="" method="post" enctype="multipart/form-data">
+		
 			<div class="panel panel-default">
 				<table class="table table-striped table-bordered table-nonfluid">
 					<tbody>
@@ -581,7 +621,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 									$type = "handshake";
 								}
 								if ( $row[ 'net_key' ] == '0' && $type != "ntlm") {
-									$key = '<input type="text" class="form-control" placeholder="Enter wpa key" name="' . $row[ 'id' ] . '">';
+									$key = '<form action="" method="post" enctype="multipart/form-data" class="wpaKeysTable"><input type="text" class="form-control" placeholder="Enter wpa key" name="' . $row[ 'id' ] . '"></form>';
 								} else {
 									$key = "<strong>" . $row[ 'net_key' ] . "</strong>";
 								}
@@ -589,7 +629,8 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 								$id++;
 								//<td>' . $row[ 'agents' ] . '</td>
 								$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $type . '</td><td>' . $row[ 'station_mac' ] . '</td><td>' . $row[ 'name' ] . '</td><td>' . $row[ 'essid' ] . '</td><td>' . $key . '</td><td><a href="' . $row[ 'site_path' ] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td class="status">' . getStatus( $row[ 'status' ] ) . '</td>';
-								$tasks_admin_panel = '<td><form action="" method="post"><input type="hidden" name="deleteTaskID" value="' . $row[ 'id' ] . '"><button type="submit" class="btn btn-default" name="deleteTask"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
+								
+								$tasks_admin_panel = '<td><form action="" method="get" onSubmit="delTask(this);"><input type="hidden" name="deleteTaskID" value="' . $row[ 'id' ] . '"><button type="submit" class="btn btn-default" name="deleteTask"><span class="glyphicon glyphicon-trash"></span></button></form></td>';
 								echo $str;
 								if ( $admin )
 									echo $tasks_admin_panel;
@@ -600,12 +641,13 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 					</tbody>
 				</table>
 			</div>
+
 			<nav aria-label="Page navigation">
 				<ul class="pagination">
 
 					<?php
 					// The "back" link
-					$prevlink = ( $page > 1 ) ? '<li><a href="?tasks%page=' . ( $page - 1 ) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+					$prevlink = ( $page > 1 ) ? '<li><a href="?tasks&page=' . ( $page - 1 ) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
 					echo $prevlink;
 
 					for ( $i = 1; $i <= $pages; $i++ ) {
@@ -624,16 +666,26 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 
 				</ul>
 			</nav>
-			<input type="submit" value="Send WPA keys" name="buttonWpaKeys" class="btn btn-default">
+			<form>
+			<input type="button" value="Send WPA keys" name="buttonWpaKeys" class="btn btn-default" onClick="sendWpaKeysAJax();">
 		</form>
 	</div>
-	<div class="col-lg-2">
+	</div>
+	<?php
+			} else if ($_GET['ajax'] == "right") {
+		?>
+			
+	<script type="application/javascript">
+$('.fileinput').change(function () {
+		file = this.files[0];		
+	});
+</script>
 		<h2>Add new tasks</h2>
-		<form class="" action="" method="post" enctype="multipart/form-data">
+		<form class="" action="" method="post" enctype="multipart/form-data" id="formUploadHandshake" onSubmit="sendAjaxForm('status_file_uploading', 'formUploadHandshake', 'content/tasks.php?ajax=statusHandshake', this);">
 			<input type="hidden" name="source" value="upload">
 			<input type="hidden" name="action" value="addfile">
 			<div class="panel panel-default">
-				<table class="table table-bordered table-nonfluid">
+				<table class="table table-bordered table-nonfluid" id="tableUploadHandshake">
 					<tbody>
 						<tr>
 							<th>Upload handshake file (cap, hccapx only)</th>
@@ -646,27 +698,24 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 
 						<tr>
 							<td>
-								<input type="file" class="form-control" name="upfile" required="">
+								<input type="file" class="form-control fileinput" name="upfile" required="" id="upfile">
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<input type="submit" class="btn btn-default" value="Upload files" name="buttonUploadFile">
+								<input type="submit" class="btn btn-default" value="Upload files" name="buttonUploadFile" id="buttonUploadFile" >
 							</td>
-						</tr>
-						<tr>
-							<?php echo $status_file_uploading; ?>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 		</form>
 		<h2>NTLM Hash</h2>
-		<form class="" action="" method="post" enctype="multipart/form-data">
+		<form class="" action="" method="post" enctype="multipart/form-data" id="formUploadNTLMHash" onSubmit="sendHashAjax(this);">
 			<input type="hidden" name="source" value="upload">
 			<input type="hidden" name="action" value="addfile">
 			<div class="panel panel-default">
-				<table class="table table-bordered table-nonfluid">
+				<table class="table table-bordered table-nonfluid" id="tableUploadHash">
 					<tbody>
 						<tr>
 							<th>Set username, challenge, response</th>
@@ -697,15 +746,19 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $admin ) {
 
 						<tr>
 							<td>
-								<input type="submit" class="btn btn-default" value="Upload hash" name="buttonUploadHash">
+								<input type="submit" class="btn btn-default" value="Upload hash" name="buttonUploadHash" id="buttonUploadHash" onClick="sendAjaxForm('status_hash_uploading', 'formUploadNTLMHash', 'content/tasks.php?ajax=statusHash');">
 							</td>
-						</tr>
-						<tr>
-							<?php echo $status_hash_uploading; ?>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 		</form>
 	</div>
+	</div>
+	<?php
+		}
+	?>
 </div>
+<?php
+		}
+		?>

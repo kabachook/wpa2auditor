@@ -3,6 +3,15 @@
 //Connect to db
 require( 'db.php' );
 
+//Check user rang
+$admin = false;
+if ( isset( $_COOKIE[ 'key' ] ) ) {
+	$sql = "SELECT rang FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
+	$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
+	if ( $result[ 0 ][ 'rang' ] == "admin" )
+		$admin = true;
+}
+
 //validate 32 char key (simple check for md5 format)
 function valid_key( $key ) {
 	return preg_match( '/^[a-f0-9]{32}$/', strtolower( $key ) );
