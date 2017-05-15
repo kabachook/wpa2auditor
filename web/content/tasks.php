@@ -353,7 +353,7 @@ $errors = [
 	3 => "FILE BIGGER THAN MAX FILE SIZE",
 	4 => "FORBIDDEN FILE FORMAT",
 ];
-var_dump($_POST);
+
 if ( isset( $_POST[ 'buttonUploadFile' ] ) ) {
 
 	// Check if file already exists
