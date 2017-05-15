@@ -3,9 +3,14 @@
 //Auto-reload button
 //is clicked
 var isAutoReload = false;
+
 //Timer id for cleaning
 var intervalID;
 var buttonAutoReloadID = "#buttonTurnOnAutoRefresh";
+
+//SOMN = ShowOnlyMyNetworks
+//Flag, if button was pressed
+var isPressedSONM = false;
 
 //Configuration
 var baseUrl = "content/tasks.php";
@@ -31,9 +36,12 @@ var tableUploadHashID = "tableUploadHash";
 var formUploadNTLMHashID = "formUploadNTLMHash";
 var formUploadHandshakeID = "formUploadHandshake";
 
+//Buttons IDs
+var buttonShowOnlyMyNetworksID = "buttonShowOnlyMyNetworks";
+
 //Reload table
 function loadTable() {
-	$.get(tableUrl, function (data) {
+	$.get(tableUrl, {"somn" : isPressedSONM}, function (data) {
 		$(tableDivID).html(data);
 		colorStatus();
 	});
@@ -180,21 +188,47 @@ function ajaxSendWPAKeys() {
 		},
 		
 		//On error upload
-		error: function (response) { // Данные не отправлены
+		error: function (response) {
 			console.log("Error while sending hash\handshake. " + response);
 		}
 	});
 }
 
-function showOnlyMyNetworks() {
+function showOnlyMyNetworks(vard) {
+	
+	var button = vard.elements.buttonShowOnlyMyNetworks;
+	
+	//Cancel submit form to server via POST wtih page reload
+	event.preventDefault();
+	
+	//Reverse somn
+	isPressedSONM = !isPressedSONM;
+	
+	//Send via post showOnlyMyNetworks flag and get new table
+	$.get(tableUrl, {"somn" : isPressedSONM}, function (data) {
+		
+		//Reload table
+		$(tableDivID).html(data);
+		
+		//Color status
+		colorStatus();
+		
+		//Change button value
+		button.value = isPressedSONM === true ? "Show all networks" : "Show only my networks";
+	});
+	
+}
+
+function ajaxGetPage(page) {
 	
 	//Cancel submit form to server via POST wtih page reload
 	event.preventDefault();
 	
 	//Send via post showOnlyMyNetworks flag and get new table
-	$.post(tableUrl, {"showOnlyMyNetworks": true}, function (data) {
+	$.get(tableUrl, {"page": page, "somn" : isPressedSONM}, function (data) {
 		$(tableDivID).html(data);
 		colorStatus();
+		console.log(isPressedSONM);
 	});
 
 }

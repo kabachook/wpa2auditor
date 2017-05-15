@@ -407,7 +407,7 @@ if (isset($_POST['buttonUploadHash']) && $_POST['buttonUploadHash'] == "true") {
 
 		//Get the key
 		$result = $result->fetch_object();
-		$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert">Hash already in DB. Password : ' . $result->net_key . '</div></td>';
+		$status_hash_uploading = '<td><div class="alert alert-danger mb0" role="alert">Hash already in DB. Password : ' . $result->net_key . '</div></td>';
 	} else {
 
 		//Add hash to DB
@@ -520,8 +520,8 @@ if (!isset($_GET['ajax'])) {
 
 		<div style="overflow: auto;">
 
-			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST" onSubmit="showOnlyMyNetworks();">
-				<input type="submit" value="Show only my networks" class="btn btn-default" name="buttonShowOnlyMyNetworks">
+			<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST" onSubmit="showOnlyMyNetworks(this);">
+				<input type="submit" value="Show only my networks" class="btn btn-default" id="buttonShowOnlyMyNetworks">
 			</form>
 
 			<div style="overflow: auto;">
@@ -569,10 +569,19 @@ if (!isset($_GET['ajax'])) {
 					</tr>
 
 					<?php
+					
+					//Get user id
+					$user_id = getUserID();
+			
+					//If show only my networks true
+					$somn = isset($_GET['somn']) && $user_id != -1 && $_GET['somn'] == "true" ? true : false;
+					
 					// Paggination
 					// Find out how many items are in the table
-					$total = $mysqli->query('SELECT COUNT(*) as count FROM tasks')->fetch_object()->count;
+					$sql = $somn ? "SELECT COUNT(*) as count FROM tasks WHERE user_id='" . $user_id . "'" : "SELECT COUNT(*) as count FROM tasks";
 
+					$total = $mysqli->query($sql)->fetch_object()->count;
+				
 					// How many items to list per page
 					$limit = 20;
 
@@ -605,13 +614,14 @@ if (!isset($_GET['ajax'])) {
 						];
 						return $listOfStatus[$status];
 					}
-
-					$user_id = getUserID();
-
-					//Show only my networks, if user are logged in
-					if (isset($_POST['showOnlyMyNetworks']) && $user_id != -1) {
+			
+					if ($somn) {
+						
+						//Show only my networks, if user are logged in
 						$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path, type FROM tasks WHERE user_id='" . $user_id . "' ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
+						
 					} else {
+						
 						//Else show all networks
 						$sql = "SELECT id, name, filename, status, agents, net_key, essid, station_mac, site_path, type FROM tasks ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
 					}
@@ -658,19 +668,19 @@ if (!isset($_GET['ajax'])) {
 
 				<?php
 				// The "back" link
-				$prevlink = ($page > 1) ? '<li><a href="?tasks&page=' . ($page - 1) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+				$prevlink = ($page > 1) ? '<li><a onClick="ajaxGetPage(' . ($page - 1) . ');" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>': '<li class="disabled"><a aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
 				echo $prevlink;
 
 				for ($i = 1; $i <= $pages; $i++) {
-					$element = '<li><a href="?tasks&page=' . $i . '">' . $i . '</a></li>';
+					$element = '<li><a onClick="ajaxGetPage(' . $i . ');">' . $i . '</a></li>';
 					if ($i == $page) {
-						$element = '<li class="active"><a href="?tasks&page=' . $i . '">' . $i . '</a></li>';
+						$element = '<li class="active"><a>' . $i . '</a></li>';
 					}
 					echo $element;
 				}
 
 				// The "forward" link
-				$nextlink = ($page < $pages) ? '<li><a href="?tasks&page=' . ($page + 1) . '" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>': '<li class="disabled"><a href="?tasks&page=1" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+				$nextlink = ($page < $pages) ? '<li><a onClick="ajaxGetPage(' . ($page + 1) . ');" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>': '<li class="disabled"><a aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
 				echo $nextlink;
 
 				?>

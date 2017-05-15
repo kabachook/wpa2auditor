@@ -1,9 +1,7 @@
 <?php include( 'common.php' ); ?>
 
 <!DOCTYPE html>
-<html>
-
-<head>
+<html><head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
@@ -23,7 +21,7 @@
 	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 	<!-- BOOTSTRAP END-->
-
+	
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
 	<script src="js/stat.js" async=""></script>

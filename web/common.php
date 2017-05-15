@@ -44,6 +44,8 @@ function getNickname() {
 
 //Remove key
 if ( isset( $_POST[ 'remkey' ] ) ) {
+	
+	//Key
 	setcookie( 'key', '', 1, '', '', false, true );
 	unset( $_COOKIE[ 'key' ] );
 }
