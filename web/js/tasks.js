@@ -35,6 +35,7 @@ var formUploadHandshakeID = "formUploadHandshake";
 function loadTable() {
 	$.get(tableUrl, function (data) {
 		$(tableDivID).html(data);
+		colorStatus();
 	});
 }
 
@@ -192,13 +193,16 @@ function showOnlyMyNetworks() {
 	
 	//Send via post showOnlyMyNetworks flag and get new table
 	$.post(tableUrl, {"showOnlyMyNetworks": true}, function (data) {
-				$(tableDivID).html(data);
+		$(tableDivID).html(data);
+		colorStatus();
 	});
 
 }
 
-//Change class for status
-$(".status").each(function () {
+function colorStatus() {
+	
+	//Change class for status
+	$(".status").each(function () {
 	
 	if ($(this).text() === "SUCCESS") {
 		$(this).addClass("alert");
@@ -220,6 +224,7 @@ $(".status").each(function () {
 		$(this).addClass("alert-warning");
 	}
 });
+}
 
 //After page fully loaded
 $(function () {
