@@ -70,21 +70,20 @@
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
 
-						?>
-
-						
+					?>
 						<p class="navbar-text">Signed in as <strong><a href="?profile"><?php echo getNickname(); ?> </a></strong></p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>
-						<?php
+						
+					<?php
 					} else {
 					//If false - login and signup button
-						?>
+					?>
 						<form class="navbar-form navbar-left" action="" method="post">
 								  <div class="form-group">
 									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
 									<button type="submit" class="btn btn-default">Log in</button> or <a href="?get_key" class="btn btn-default">Sign up</a>
 								  </div>
-							  </form>
-							  <?php
+						</form>
+					<?php
 					}
 					?>
 

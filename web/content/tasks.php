@@ -279,7 +279,7 @@ function addTaskToDB($file, $info) {
 
 		//Change status
 		$status_file_uploading = [
-			'type' => 'alert',
+			'type' => 'danger',
 			'error' => true,
 			'message' => 'Hash already in DB. Password is ' . ($result->net_key == 0 ? 'not found yet' : $result->net_key),
 		];
@@ -364,7 +364,7 @@ if (isset($_POST['buttonUploadFile'])) {
 			$status_file_uploading = [
 				'type' => 'success',
 				'error' => false,
-				'message' => '<strong>OK!</strong> File uploaded sucefully!'
+				'message' => '<strong>OK!</strong> Handshake uploaded sucefully!'
 			];
 
 			//Only if file uploaded without error, we add it to db
