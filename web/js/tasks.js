@@ -134,7 +134,7 @@ function ajaxSendForm(vard, type) {
 		success: function (response) {
 			
 			//Check if status exists in table
-			if ($("tr").is("#" + result_status)) {
+			/*if ($("tr").is("#" + result_status)) {
 
 				//Change status
 				$("#" + result_status).html(response);
@@ -142,21 +142,42 @@ function ajaxSendForm(vard, type) {
 
 				//if doesn't exists add it to table
 				$("#" + result_table + " > tbody:last-child").append("<tr id='" + result_status + "'>" + response + "</tr>");
-			}
+			}*/
 			
 			//Reset all inputs
 			$("#" + result_form).get(0).reset();
 			
 			//Reload table
 			loadTable();
+			
+			//generate notify
+			var json = $.parseJSON(response);
+			genNotify(json.type, json.message);
+			
 		},
-		
 		//Failed to send data
 		error: function (response) {
 			console.log("Error while sending hash\handshake. " + response);
 		}
 	});
 
+}
+
+function genNotify(type, message) {
+	$.notify({
+	// options
+	icon: 'glyphicon glyphicon-warning-sign',
+	message: message,
+},{
+	// settings
+	type: type,
+	newest_on_top: false,
+	placement: {
+		from: "bottom",
+		align: "right"
+	},
+	mouse_over: "pause",
+});
 }
 
 function ajaxSendWPAKeys() {

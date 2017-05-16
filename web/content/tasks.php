@@ -1,18 +1,25 @@
 <?php
 
-//Shut down error reporting
-error_reporting(0);
-
-//Include all we need
-include("../common.php");
-
 /*
+
 AJAX codes for tasks.php
 - table = return only table with tasks
 - right = return only right side bar
 - statusHandshakeUpload = return status of Handshake Upload
 - statusHashUpload = return status of hash upload
+
+JSON structure for status_file\hash_uploading
+- type
+- error
+- message
+
 */
+
+//Shut down error reporting
+error_reporting(0);
+
+//Include all we need
+include("../common.php");
 
 //There we want to upload file
 $target_file = $cfg_tasks_targetFolder . basename($_FILES["upfile"]["name"]);
@@ -24,8 +31,8 @@ $uploadCode = 1;
 $uploadFileType = pathinfo($target_file, PATHINFO_EXTENSION);
 
 //Statuses
-$status_file_uploading = null;
-$status_hash_uploading = null;
+$status_file_uploading;
+$status_hash_uploading;
 
 //CRUTCH
 $sql = "SELECT * FROM tasks WHERE status='3'";
@@ -220,7 +227,7 @@ function handshakeConverter($file) {
 			array_push($ret, array("ext" => "hccapx", "path" => $out, "name" => $file['fileName'] . ".hccapx" . "_" . ($i + 1) . ".hccapx"));
 		}
 
-		//Delete oroginal hccapx file
+		//Delete original hccapx file
 		unlink($output);
 	} else {
 		return NULL;
@@ -271,7 +278,12 @@ function addTaskToDB($file, $info) {
 		$result = $result->fetch_object();
 
 		//Change status
-		$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert">Hash already in DB. Password : ' . $result->net_key . '</div></td>';
+		$status_file_uploading = [
+			'type' => 'alert',
+			'error' => true,
+			'message' => 'Hash already in DB. Password is ' . ($result->net_key == 0 ? 'not found yet' : $result->net_key),
+		];
+		
 	} else {
 		//Hash is uniq
 
@@ -338,13 +350,22 @@ if (isset($_POST['buttonUploadFile'])) {
 	if ($uploadCode != 1) {
 
 		//Change status to error
-		$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>' . $errors[$uploadCode] . '</strong></div></td>';
+		$status_file_uploading = [
+			'type' => 'danger',
+			'error' => true,
+			'message' => '<strong>' . $errors[$uploadCode] . '</strong>',
+		];
+		
 	} else {
 
 		// if everything is ok, try to move file
 		if (move_uploaded_file($_FILES["upfile"]["tmp_name"], $target_file)) {
 
-			$status_file_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> File uploaded sucefully!</div></td>';
+			$status_file_uploading = [
+				'type' => 'success',
+				'error' => false,
+				'message' => '<strong>OK!</strong> File uploaded sucefully!'
+			];
 
 			//Only if file uploaded without error, we add it to db
 			$path = $cfg_tasks_targetFolder . $_FILES["upfile"]["name"];
@@ -371,7 +392,11 @@ if (isset($_POST['buttonUploadFile'])) {
 
 		} else {
 			//Failed while moving file
-			$status_file_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Error while moving file on server. Contact Kabachook.</strong></div></td>';
+			$status_file_uploading = [
+				'type' => 'danger',
+				'error' => true,
+				'message' => '<strong>Error while moving file on server. Contact Kabachook.</strong>'
+			];
 		}
 	}
 
@@ -407,7 +432,12 @@ if (isset($_POST['buttonUploadHash']) && $_POST['buttonUploadHash'] == "true") {
 
 		//Get the key
 		$result = $result->fetch_object();
-		$status_hash_uploading = '<td><div class="alert alert-danger mb0" role="alert">Hash already in DB. Password : ' . $result->net_key . '</div></td>';
+
+		$status_hash_uploading = [
+			'type' => 'danger',
+			'error' => true,
+			'message' => 'Hash already in DB. Password is ' . ($result->net_key == 0 ? 'not found yet' : $result->net_key),
+		];
 	} else {
 
 		//Add hash to DB
@@ -417,12 +447,12 @@ if (isset($_POST['buttonUploadHash']) && $_POST['buttonUploadHash'] == "true") {
 		//Write ntlm hash file on server
 		file_put_contents($cfg_tasks_targetFolder . $task_name . ".ntlm", $username . "::::" . $response . ":" . $challenge);
 
-		//Check for error while adding to db
-		if ($ans) {
-			$status_hash_uploading = '<td><div class="alert alert-success mb0" role="alert"><strong>OK!</strong> Hash uploaded sucefully!</div></td>';
-		} else {
-			$status_hash_uploading = '<td><div class="alert alert-danger mb0" role="alert"><strong>Failed.</strong></div></td>';
-		}
+		//Check for error while adding to db	
+		$status_hash_uploading = [
+			'type' => $ans ? 'success' : 'danger',
+			'error' => !$ans,
+			'message' => $ans ? '<strong>OK!</strong> Hash uploaded sucefully!' : '<strong>Failed.</strong>',
+		];
 
 		//Get all dicts id
 		$sql = "SELECT id FROM dicts";
@@ -495,11 +525,11 @@ if (isset($_POST['deleteTask']) && $_POST['deleteTask'] == "true" && $admin) {
 //AJAX
 
 if ($_GET['ajax'] == "statusHandshakeUpload") {
-	echo $status_file_uploading;
+	echo json_encode($status_file_uploading);
 	exit();
 }
 if ($_GET['ajax'] == "statusHashUpload") {
-	echo $status_hash_uploading;
+	echo json_encode($status_hash_uploading);
 	exit();
 }
 
