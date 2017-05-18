@@ -24,6 +24,7 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
 	<!-- PLUGINS END -->
 	
+	<script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
 	<script src="js/stat.js" async=""></script>

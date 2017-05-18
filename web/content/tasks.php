@@ -164,6 +164,14 @@ function check_key($id, $key) {
 	return NULL;
 }
 
+/*function wpaclean($in) {
+	global $cfg_tools_wpaclean;
+	
+	$temp_out = "";
+	
+	exec($cfg_tools_wpaclean . " " . );
+	$file['server_path_toFile'];
+}*/
 //Convert handshake to hccapx
 function handshakeConverter($file) {
 	global $cfg_tools_cap2hccapx;
@@ -377,7 +385,11 @@ if (isset($_POST['buttonUploadFile'])) {
 				"site_path" => $cfg_site_url . "tasks/",
 				"ext" => $uploadFileType,
 			];
-
+			
+		/*	wpaclean() {
+				
+			}*/
+			
 			//Return hccapx always
 			$conv = handshakeConverter($file);
 
@@ -749,6 +761,23 @@ if (!isset($_GET['ajax'])) {
 						<tr>
 							<td>
 								<input type="file" class="form-control fileinput" name="upfile" required="" id="upfile" accept=".cap, .hccapx">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<h4>Input Groups</h4>
+            <div class="input-group">
+                <label class="input-group-btn">
+                    <span class="btn btn-primary">
+                        Browse&hellip; <input type="file" style="display: none;" multiple>
+                    </span>
+                </label>
+                <input type="text" class="form-control" readonly>
+            </div>
+            <span class="help-block">
+                Try selecting one or more files and watch the feedback
+            </span>
+        </div>
 							</td>
 						</tr>
 						<tr>
