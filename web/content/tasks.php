@@ -12,16 +12,20 @@ global $mysqli;
 
 $error_message = [
 	'code' => 0,
-	'message' => "All is OK."
+	'message' => "All is OK.",
+	"type" => "success"
 ];
 
-if ( isset( $_FILES[ 'upfile' ] ) ) {
-
+if ( $_POST['buttonUploadFile'] == "true" ) {
+	
+	$task_name = $_POST['task_name'];
+	
 	try {
 		$HS = new Handshake( $_FILES[ 'upfile' ] );
 	} catch ( Exception $e ) {
 		$error_message[ 'code' ] = $e->getCode();
 		$error_message[ 'message' ] = $e->getMessage();
+		$error_message['type'] = "danger";
 	}
 
 	$arr = $HS->get_array_of_handshakes();
@@ -29,14 +33,21 @@ if ( isset( $_FILES[ 'upfile' ] ) ) {
 	foreach ( $arr as $hnsd ) {
 
 		try {
-			$tmp = new Task( $hnsd, $user_id = 2, $task_name = "sfdgsdgfsfg" );
+			$tmp = Task::create_task_from_file( $hnsd, $user_id, $task_name );
 		} catch ( Exception $e ) {
 			$error_message[ 'code' ] = $e->getCode();
 			$error_message[ 'message' ] = $e->getMessage();
+			$error_message['type'] = "danger";
 		}
 
 	}
 }
+
+if($_GET['ajax'] == "statusHandshakeUpload") {
+	echo json_encode($error_message);
+	exit();
+}
+
 
 //Get user id
 	$user_id = getUserID();
@@ -125,7 +136,7 @@ if ( $_GET[ 'ajax' ] == "pagger" ) {
 		"arrow" => true,
 		"link" => "forward",
 		"active" => false,
-		"page" => false
+		"page" => ($page < $pages) ? ($page + 1) : 1
 	) );
 	
 	echo json_encode($ajax);

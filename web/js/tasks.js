@@ -76,13 +76,21 @@ function drawPagger(data) {
 	var result = '<nav aria-label="Page navigation"><ul class="pagination">';
 	//
 	data.forEach(function(element, index, array){
+		var arrow;
+		if(index !== 0) {
+			arrow = "&raquo;";
+		} else {
+			arrow = "&laquo;";
+		}
+		
+		
 		if(element.arrow === true) {
 			
 			if (element.active === true) {
-				result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">&laquo;</span><span class="sr-only">Previous</span></a></li>';
+				result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
 			}
 			else {
-				result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">&laquo;</span><span class="sr-only">Previous</span></a></li>';
+				result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
 			}
 			
 		} else {
@@ -149,6 +157,7 @@ function ajaxSendForm(vard, type) {
 	//Data to send
 	var data = new FormData();
 	var url;
+	file = vard.elements.upfile.files[0];
 
 	if (type === "handshake") {
 		
@@ -185,18 +194,7 @@ function ajaxSendForm(vard, type) {
 		contentType: false, // string requset
 
 		//On success upload
-		success: function (response) {
-			
-			//Check if status exists in table
-			/*if ($("tr").is("#" + result_status)) {
-
-				//Change status
-				$("#" + result_status).html(response);
-			} else {
-
-				//if doesn't exists add it to table
-				$("#" + result_table + " > tbody:last-child").append("<tr id='" + result_status + "'>" + response + "</tr>");
-			}*/
+		success: function (response) {			
 			
 			//Reset all inputs
 			$("#" + result_form).get(0).reset();
