@@ -16,6 +16,7 @@ var isPressedSONM = false;
 var baseUrl = "content/tasks.php";
 var prefix = "?ajax=";
 var tableUrl = baseUrl + prefix + "table";
+var paggerUrl = baseUrl + prefix + "pagger";
 var rightSideBarUrl = baseUrl + prefix + "right";
 var tableDivID = "#ajaxLoadTable";
 var rightSideBarDivID = "ajaxLoadRightNavBar";
@@ -39,13 +40,66 @@ var formUploadHandshakeID = "formUploadHandshake";
 //Buttons IDs
 var buttonShowOnlyMyNetworksID = "buttonShowOnlyMyNetworks";
 
-//Reload table
+//Table
+var ajaxTableDivID = "#ajaxTableDiv";
+var ajaxTableID = "#taskTable";
+
+var ajaxPaggerDivID = "#ajaxPagger";
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Load\reload table
 function loadTable() {
 	$.get(tableUrl, {"somn" : isPressedSONM}, function (data) {
-		$(tableDivID).html(data);
+		drawTable(data);
 		colorStatus();
-	});
+	}, "json" );
 }
+
+function loadPagger() {
+	$.get(paggerUrl, function (data) {
+		drawPagger(data);
+	}, "json" );
+}
+
+function drawPagger(data) {
+	var result = '<nav aria-label="Page navigation"><ul class="pagination">';
+	//
+	data.forEach(function(element, index, array){
+		if(element.arrow === true) {
+			
+			if (element.active === true) {
+				result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">&laquo;</span><span class="sr-only">Previous</span></a></li>';
+			}
+			else {
+				result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">&laquo;</span><span class="sr-only">Previous</span></a></li>';
+			}
+			
+		} else {
+			
+			if (element.active === true) {
+				result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
+			}
+			else {
+				result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
+			}
+		}
+	});
+	result += '</ul></nav>';
+	$(ajaxPaggerDivID).html(result);
+}
+
+
 
 //Delete task button
 function ajaxDeleteTask(vard) {
@@ -247,10 +301,10 @@ function ajaxGetPage(page) {
 	
 	//Send via post showOnlyMyNetworks flag and get new table
 	$.get(tableUrl, {"page": page, "somn" : isPressedSONM}, function (data) {
-		$(tableDivID).html(data);
+			drawTable(data);
 		colorStatus();
 		console.log(isPressedSONM);
-	});
+	}, "json");
 
 }
 
@@ -281,16 +335,63 @@ function colorStatus() {
 });
 }
 
+function drawTable(data) {
+	$(ajaxTableDivID).html(
+						 
+						 '<div class="panel panel-default">' +
+							'<table class="table table-striped table-bordered table-nonfluid " id="taskTable">' +
+							'<tbody>' +
+								'<tr>' +
+									'<th>#</th>' +
+									'<th>Type</th>' +
+									'<th>MAC</th>' +
+									'<th>Task name</th>' +
+									'<th>Net name</th>' +
+									'<th>Key</th>' +
+									'<th>Files</th>' +
+									'<!-- <th>Agents</th> for better days -->' +
+									'<th>Status</th>' +
+								'</tr>'
+		
+						 );
+	
+	var id = 1;
+	data.forEach(function(element, index, array) {
+		$(ajaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td>' + getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>net_key</td><td><a href="' + element.site_path + '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td class="status">' + getStatusByID(element.status) + '</td></tr>');
+		id++;
+	});
+}
+
+function getTypeByID(id) {
+	switch(id) {
+		case "0":
+			return "HANDSHAKE";
+		case "1":
+			return "NTLM";
+	}
+}
+
+function getStatusByID(id) {
+	switch(id) {
+		case "0":
+			return "IN QUEUE";
+		case "1":
+			return "IN PROGRESS";
+		case "2":
+			return "SUCCESS";
+		case "3":
+			return "FAILED";
+	}
+}
+
 //After page fully loaded
 $(function () {
-
-	//Load table
+	
+	//Load and draw table
 	loadTable();
-
-	//load right upload bar
-	$.get(rightSideBarUrl, function (data) {
-		$("#" + rightSideBarDivID).html(data);
-	});
+	
+	//Draw pagger
+	loadPagger();
 
 	//Setup autoreload button
 	$(buttonAutoReloadID).click(function () {
@@ -318,28 +419,4 @@ $(function () {
 			isAutoReload = true;
 		}
 	});
-	
-	// We can attach the `fileselect` event to all file inputs on the page
-  $(document).on('change', ':file', function() {
-    var input = $(this),
-        numFiles = input.get(0).files ? input.get(0).files.length : 1,
-        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-    input.trigger('fileselect', [numFiles, label]);
-  });
-
-  // We can watch for our custom `fileselect` event like this
-  $(document).ready( function() {
-      $(':file').on('fileselect', function(event, numFiles, label) {
-
-          var input = $(this).parents('.input-group').find(':text'),
-              log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-          if( input.length ) {
-              input.val(log);
-          } else {
-              if( log ) alert(log);
-          }
-
-      });
-  });
 });

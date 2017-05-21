@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 include('db.php');
 
@@ -16,22 +16,68 @@ class Task {
 	private $uniq_hash;
 	private $uniq;
 	
-	function __construct($Handshake, $task_name, $user_id) {
+	private $status;
+	
+	function __construct() {
+		
+	}
+	
+	static function create_task_from_db($task_id) {
 		
 		//vars
 		global $mysqli;
+		$instance = new self();
 		
-		$this->task_name = $task_name;
+		//Get all info from DB
+		$sql = "SELECT * FROM tasks WHERE id='" . $task_id . "'";
+		$result = $mysqli->query($sql)->fetch_object();
+
+		$instance->server_path = $result->server_path;
+		$instance->site_path = $result->site_path;
+		$instance->task_name = $result->task_name;
+		$instance->user_id = $result->user_id;
+		$instance->essid = $result->essid;
+		$instance->station_mac = $result->station_mac;
+		$instance->type = $result->type;
+		$instance->task_hash = $result->task_hash;
+		$instance->uniq_hash = $result->uniq_hash;
+		$instance->status = $result->status;
 		
-		$this->user_id = $user_id;
+		return $instance;
 		
-		$this->get_information_from_handshake($Handshake);
+	}
+	
+	static function create_task_from_file($Handshake, $task_name, $user_id) {
 		
-		if(!($this->check_uniq($mysqli, $this->uniq_hash)))
+		//vars
+		global $mysqli;
+		$instance = new self();
+		
+		$instance->task_name = $task_name;
+		$instance->user_id = $user_id;
+		$instance->get_information_from_handshake($Handshake);
+		
+		if(!($instance->check_uniq($mysqli, $instance->uniq_hash)))
 			throw new Exception("Hash is not uniq.", 14);
 		
-		$this->add_task_to_db($mysqli);
+		$instance->add_task_to_db($mysqli);
 		
+		return $instance;
+		
+	}
+	
+	function get_all_info() {
+		
+		$info['server_path'] = $this->server_path;
+		$info['site_path'] = $this->site_path;
+		$info['task_name'] = $this->task_name;
+		$info['user_id'] = $this->user_id;
+		$info['essid'] = $this->essid;
+		$info['station_mac'] = $this->station_mac;
+		$info['type'] = $this->type;
+		$info['status'] = $this->status;
+		
+		return $info;
 	}
 	
 	function check_uniq($mysqli, $hash) {

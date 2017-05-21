@@ -17,6 +17,24 @@ function valid_key( $key ) {
 	return preg_match( '/^[a-f0-9]{32}$/', strtolower( $key ) );
 }
 
+//Get user id
+function getUserID() {
+	global $mysqli;
+
+	//Get user by the key
+	$sql = "SELECT u_id FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
+	$user_id = $mysqli->query($sql)->fetch_object()->u_id;
+
+	if ($user_id == null) {
+		//Key doesn't exists, so user not loggged in
+		//Return universal id
+		return -1;
+	}
+
+	//Return user id
+	return $user_id;
+}
+
 //Set key
 if ( isset( $_POST[ 'key' ] ) ) {
 	if ( valid_key( $_POST[ 'key' ] ) ) {
