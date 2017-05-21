@@ -280,10 +280,7 @@ function showOnlyMyNetworks(vard) {
 	//Send via post showOnlyMyNetworks flag and get new table
 	$.get(tableUrl, {"somn" : isPressedSONM}, function (data) {
 		
-		//Reload table
-		$(tableDivID).html(data);
-		
-		//Color status
+		drawTable(data);
 		colorStatus();
 		
 		//Change button value
@@ -334,6 +331,9 @@ function colorStatus() {
 }
 
 function drawTable(data) {
+	
+	var admin = data.admin;
+	
 	$(ajaxTableDivID).html(
 						 
 						 '<div class="panel panel-default">' +
@@ -349,13 +349,19 @@ function drawTable(data) {
 									'<th>Files</th>' +
 									'<!-- <th>Agents</th> for better days -->' +
 									'<th>Status</th>' +
+									(admin ? "<th>Admin</th>" : "") +
 								'</tr>'
 		
 						 );
 	
+	
 	var id = 1;
-	data.forEach(function(element, index, array) {
-		$(ajaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td>' + getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>net_key</td><td><a href="' + element.site_path + '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td class="status">' + getStatusByID(element.status) + '</td></tr>');
+	data.table.forEach(function(element, index, array) {
+		
+		var net_key = element.net_key === "0" ? '' : element.net_key;
+		
+		$(ajaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td>' + getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + getStatusByID(element.status) + '</td>' + 
+													  (admin ? '<td><form action="" method="get" onSubmit="ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id +  '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
 		id++;
 	});
 }

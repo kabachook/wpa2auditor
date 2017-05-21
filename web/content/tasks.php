@@ -87,8 +87,6 @@ if ( $_GET[ 'ajax' ] == 'table' ) {
 
 	$ajax = [];
 
-	
-
 	if ( $somn ) {
 
 		//Show only my networks, if user are logged in
@@ -106,8 +104,11 @@ if ( $_GET[ 'ajax' ] == 'table' ) {
 		$Task = Task::create_task_from_db( $task[ 'id' ] );
 		array_push( $ajax, $Task->get_all_info() );
 	}
-
-	echo json_encode( $ajax );
+	
+	$json["admin"] = $admin;
+	$json['table'] = $ajax;
+	
+	echo json_encode( $json );
 	exit();
 }
 
@@ -138,12 +139,43 @@ if ( $_GET[ 'ajax' ] == "pagger" ) {
 		"active" => false,
 		"page" => ($page < $pages) ? ($page + 1) : 1
 	) );
-	
+		
 	echo json_encode($ajax);
 	exit();
 	
 }
 
+//Delete task by admin panel
+if ($_POST['deleteTask'] == "true" && $admin) {
+	
+	//Get id
+	$id = $_POST['deleteTaskID'];
+	
+	$Task = Task::create_task_from_db($id);
+	$Task->deleteTask();
+}
+
+//Delete task by admin panel
+if (isset($_POST['deleteTask']) && $_POST['deleteTask'] == "true" && $admin) {
+
+	//Get id
+	$id = $_POST['deleteTaskID'];
+
+	//Get path for handshake
+	$sql = "SELECT server_path FROM tasks WHERE id = '" . $id . "'";
+	$path = $mysqli->query($sql)->fetch_object()->server_path;
+
+	//Delete file
+	unlink($path);
+
+	//Delete task from tasks
+	$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
+	$mysqli->query($sql);
+
+	//Delete task from tasks_dicts
+	$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $id . "'";
+	$mysqli->query($sql);
+}
 ?>
 
 <div class="container-fluid">

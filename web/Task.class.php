@@ -17,6 +17,8 @@ class Task {
 	private $uniq;
 	
 	private $status;
+	private $net_key;
+	private $id;
 	
 	function __construct() {
 		
@@ -42,6 +44,8 @@ class Task {
 		$instance->task_hash = $result->task_hash;
 		$instance->uniq_hash = $result->uniq_hash;
 		$instance->status = $result->status;
+		$instance->net_key = $result->net_key;
+		$instance->id = $result->id;
 		
 		return $instance;
 		
@@ -76,6 +80,8 @@ class Task {
 		$info['station_mac'] = $this->station_mac;
 		$info['type'] = $this->type;
 		$info['status'] = $this->status;
+		$info['net_key'] = $this->net_key;
+		$info['id'] = $this->id;
 		
 		return $info;
 	}
@@ -94,6 +100,17 @@ class Task {
 		if ($net_key == 0)
 			return false;
 		else return $net_key;
+	}
+	
+	function deleteTask() {
+		
+		global $mysqli;
+		
+		unlink($this->server_path);
+		
+		//Delete task from tasks
+		$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
+		$mysqli->query($sql);
 	}
 	
 	function get_information_from_handshake($handshake) {

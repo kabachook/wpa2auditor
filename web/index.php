@@ -11,6 +11,7 @@
 
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
 	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
 	<title>Distributed WPA/WPA2 auditor</title>
 
@@ -18,6 +19,7 @@
    		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   	<![endif]-->
 
+<script src="https://use.fontawesome.com/15779f561f.js"></script>
 	<!-- BOOTSTRAP START 
 	
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
