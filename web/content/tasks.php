@@ -259,7 +259,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $_POST[ 'deleteTask' ] == "true" && $adm
 							</tr>
 							<tr>
 								<td>
-									<input type="submit" class="btn btn-default" value="Upload files" name="buttonUploadFile" id="buttonUploadFile">
+									<input type="submit" class="btn btn-primary" value="Upload files" name="buttonUploadFile" id="buttonUploadFile">
 								</td>
 							</tr>
 						</tbody>
@@ -303,7 +303,7 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $_POST[ 'deleteTask' ] == "true" && $adm
 
 							<tr>
 								<td>
-									<input type="submit" class="btn btn-default" value="Upload hash" name="buttonUploadHash" id="buttonUploadHash">
+									<input type="submit" class="btn btn-primary" value="Upload hash" name="buttonUploadHash" id="buttonUploadHash">
 								</td>
 							</tr>
 						</tbody>
