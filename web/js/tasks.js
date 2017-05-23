@@ -157,11 +157,12 @@ function ajaxSendForm(vard, type) {
 	//Data to send
 	var data = new FormData();
 	var url;
-	file = vard.elements.upfile.files[0];
+	
 
 	if (type === "handshake") {
 		
 		result_status = uniqHandshakeStatusDivID;
+		file = vard.elements.upfile.files[0];
 		
 		data.append("upfile", file);
 		data.append("buttonUploadFile", true);
@@ -176,7 +177,7 @@ function ajaxSendForm(vard, type) {
 		result_status = uniqHashStatusDivID;
 		
 		data.append('buttonUploadHash', true);
-		data.append('taskname', vard.elements.taskname.value);
+		data.append('task_name', vard.elements.taskname.value);
 		data.append('username', vard.elements.username.value);
 		data.append('challenge', vard.elements.challenge.value);
 		data.append('response', vard.elements.response.value);

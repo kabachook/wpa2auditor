@@ -1,12 +1,13 @@
 <?php
 
 //Shut down error reporting
-error_reporting(0);
+error_reporting( 0 );
 
 include( '../Handshake.class.php' );
 include( '../Task.class.php' );
+include( '../NTLM.class.php' );
 include( '../db.php' );
-include('../common.php');
+include( '../common.php' );
 
 global $mysqli;
 
@@ -16,16 +17,19 @@ $error_message = [
 	"type" => "success"
 ];
 
-if ( $_POST['buttonUploadFile'] == "true" ) {
-	
-	$task_name = $_POST['task_name'];
-	
+//Get user id
+$user_id = getUserID();
+
+if ( $_POST[ 'buttonUploadFile' ] == "true" ) {
+
+	$task_name = $_POST[ 'task_name' ];
+
 	try {
 		$HS = new Handshake( $_FILES[ 'upfile' ] );
 	} catch ( Exception $e ) {
 		$error_message[ 'code' ] = $e->getCode();
 		$error_message[ 'message' ] = $e->getMessage();
-		$error_message['type'] = "danger";
+		$error_message[ 'type' ] = "danger";
 	}
 
 	$arr = $HS->get_array_of_handshakes();
@@ -37,49 +41,71 @@ if ( $_POST['buttonUploadFile'] == "true" ) {
 		} catch ( Exception $e ) {
 			$error_message[ 'code' ] = $e->getCode();
 			$error_message[ 'message' ] = $e->getMessage();
-			$error_message['type'] = "danger";
+			$error_message[ 'type' ] = "danger";
 		}
 
 	}
 }
 
-if($_GET['ajax'] == "statusHandshakeUpload") {
-	echo json_encode($error_message);
+if ( $_POST[ 'buttonUploadHash' ] == "true" ) {
+	
+	$task_name = $_POST[ 'task_name' ];
+
+	try {
+		$Hash = new NTLM( $_POST );
+	} catch ( Exception $e ) {
+		$error_message[ 'code' ] = $e->getCode();
+		$error_message[ 'message' ] = $e->getMessage();
+		$error_message[ 'type' ] = "danger";
+	}
+
+	$hash = $Hash->get_array_info();
+
+	try {
+		$tmp = Task::create_task_from_file( $hash, $user_id, $task_name );
+	} catch ( Exception $e ) {
+		$error_message[ 'code' ] = $e->getCode();
+		$error_message[ 'message' ] = $e->getMessage();
+		$error_message[ 'type' ] = "danger";
+	}
+
+}
+
+if ( $_GET[ 'ajax' ] == "statusHandshakeUpload" || $_GET[ 'ajax' ] == "statusHashUpload") {
+	echo json_encode( $error_message );
 	exit();
 }
 
 
-//Get user id
-	$user_id = getUserID();
 
-	//If show only my networks true
-	$somn = isset( $_GET[ 'somn' ] ) && $user_id != -1 && $_GET[ 'somn' ] == "true" ? true : false;
+//If show only my networks true
+$somn = isset( $_GET[ 'somn' ] ) && $user_id != -1 && $_GET[ 'somn' ] == "true" ? true : false;
 
-	// Paggination
-	// Find out how many items are in the table
-	$sql = $somn ? "SELECT COUNT(*) as count FROM tasks WHERE user_id='" . $user_id . "'": "SELECT COUNT(*) as count FROM tasks";
-	$total = $mysqli->query( $sql )->fetch_object()->count;
+// Paggination
+// Find out how many items are in the table
+$sql = $somn ? "SELECT COUNT(*) as count FROM tasks WHERE user_id='" . $user_id . "'": "SELECT COUNT(*) as count FROM tasks";
+$total = $mysqli->query( $sql )->fetch_object()->count;
 
-	// How many items to list per page
-	$limit = 20;
+// How many items to list per page
+$limit = 20;
 
-	// How many pages will there be
-	$pages = ceil( $total / $limit );
+// How many pages will there be
+$pages = ceil( $total / $limit );
 
-	// What page are we currently on?
-	$page = min( $pages, filter_input( INPUT_GET, 'page', FILTER_VALIDATE_INT, array(
-		'options' => array(
-			'default' => 1,
-			'min_range' => 1,
-		),
-	) ) );
+// What page are we currently on?
+$page = min( $pages, filter_input( INPUT_GET, 'page', FILTER_VALIDATE_INT, array(
+	'options' => array(
+		'default' => 1,
+		'min_range' => 1,
+	),
+) ) );
 
-	// Calculate the offset for the query
-	$offset = ( $page - 1 ) * $limit;
+// Calculate the offset for the query
+$offset = ( $page - 1 ) * $limit;
 
-	// Some information to display to the user
-	$start = $offset + 1;
-	$end = min( ( $offset + $limit ), $total );
+// Some information to display to the user
+$start = $offset + 1;
+$end = min( ( $offset + $limit ), $total );
 
 if ( $_GET[ 'ajax' ] == 'table' ) {
 
@@ -104,10 +130,10 @@ if ( $_GET[ 'ajax' ] == 'table' ) {
 		$Task = Task::create_task_from_db( $task[ 'id' ] );
 		array_push( $ajax, $Task->get_all_info() );
 	}
-	
-	$json["admin"] = $admin;
-	$json['table'] = $ajax;
-	
+
+	$json[ "admin" ] = $admin;
+	$json[ 'table' ] = $ajax;
+
 	echo json_encode( $json );
 	exit();
 }
@@ -128,53 +154,53 @@ if ( $_GET[ 'ajax' ] == "pagger" ) {
 	for ( $i = 1; $i <= $pages; $i++ ) {
 		array_push( $ajax, array(
 			"arrow" => false,
-			"active" => ($i == $page ) ? true : false,
+			"active" => ( $i == $page ) ? true : false,
 			"page" => $i
-		));
+		) );
 	}
 
 	array_push( $ajax, array(
 		"arrow" => true,
 		"link" => "forward",
 		"active" => false,
-		"page" => ($page < $pages) ? ($page + 1) : 1
+		"page" => ( $page < $pages ) ? ( $page + 1 ) : 1
 	) );
-		
-	echo json_encode($ajax);
+
+	echo json_encode( $ajax );
 	exit();
-	
+
 }
 
 //Delete task by admin panel
-if ($_POST['deleteTask'] == "true" && $admin) {
-	
+if ( $_POST[ 'deleteTask' ] == "true" && $admin ) {
+
 	//Get id
-	$id = $_POST['deleteTaskID'];
-	
-	$Task = Task::create_task_from_db($id);
+	$id = $_POST[ 'deleteTaskID' ];
+
+	$Task = Task::create_task_from_db( $id );
 	$Task->deleteTask();
 }
 
 //Delete task by admin panel
-if (isset($_POST['deleteTask']) && $_POST['deleteTask'] == "true" && $admin) {
+if ( isset( $_POST[ 'deleteTask' ] ) && $_POST[ 'deleteTask' ] == "true" && $admin ) {
 
 	//Get id
-	$id = $_POST['deleteTaskID'];
+	$id = $_POST[ 'deleteTaskID' ];
 
 	//Get path for handshake
 	$sql = "SELECT server_path FROM tasks WHERE id = '" . $id . "'";
-	$path = $mysqli->query($sql)->fetch_object()->server_path;
+	$path = $mysqli->query( $sql )->fetch_object()->server_path;
 
 	//Delete file
-	unlink($path);
+	unlink( $path );
 
 	//Delete task from tasks
 	$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
-	$mysqli->query($sql);
+	$mysqli->query( $sql );
 
 	//Delete task from tasks_dicts
 	$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $id . "'";
-	$mysqli->query($sql);
+	$mysqli->query( $sql );
 }
 ?>
 

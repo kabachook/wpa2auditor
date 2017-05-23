@@ -43,7 +43,7 @@
 </head>
 
 <body>
-	<nav class="navbar navbar-toggleable-md navbar-light bg-faded mb-3 justify-content-between">
+	<nav class="navbar navbar-toggleable-md navbar-light bg-faded justify-content-between">
 		<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
     		<span class="navbar-toggler-icon"></span>
   		</button>
@@ -105,6 +105,7 @@
 		<!-- /.container-fluid -->
 	</nav>
 	<!-- nav bar end -->
+	<div class="mb-2"></div>
 	<div id="content">
 		<?php include($cont) ?>
 	</div>
