@@ -1,6 +1,6 @@
 <?php
 
-include('conf.php');
+include('..\conf.php');
 
 class NTLM {
 	
@@ -61,5 +61,4 @@ class NTLM {
 	}
 	
 }
-
 ?>

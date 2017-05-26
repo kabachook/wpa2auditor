@@ -3,11 +3,11 @@
 //Shut down error reporting
 error_reporting( 0 );
 
-include( '../Handshake.class.php' );
-include( '../Task.class.php' );
-include( '../NTLM.class.php' );
-include( '../db.php' );
-include( '../common.php' );
+include( '..\Model\Handshake.class.php' );
+include( '..\Model/Task.class.php' );
+include( '..\Model/NTLM.class.php' );
+
+include('..\common.php');
 
 global $mysqli;
 
@@ -25,13 +25,13 @@ if ( $_POST[ 'buttonUploadFile' ] == "true" ) {
 	$task_name = $_POST[ 'task_name' ];
 
 	try {
-		$HS = new Handshake( $_FILES[ 'upfile' ] );
+		$HS = Handshake::get_handshake_from_file( $_FILES[ 'upfile' ] );
 	} catch ( Exception $e ) {
 		$error_message[ 'code' ] = $e->getCode();
 		$error_message[ 'message' ] = $e->getMessage();
 		$error_message[ 'type' ] = "danger";
 	}
-
+	
 	$arr = $HS->get_array_of_handshakes();
 
 	foreach ( $arr as $hnsd ) {
@@ -202,6 +202,32 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $_POST[ 'deleteTask' ] == "true" && $adm
 	$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $id . "'";
 	$mysqli->query( $sql );
 }
+
+//WPA key
+if ($_POST['sendWPAKey'] == "true") {
+
+	foreach ($_POST as $task_id => $wpa_key) {
+
+		//WPA Key must be from 8 to 64 symbols
+		//Ignoring POST value of submit button
+
+		//Check key lenght
+		if (strlen($wpa_key) < 8 || strlen($wpa_key) > 64 || $wpa_key == 'true')
+			continue;
+		
+		//Create task with known id
+		$handshake = Handshake::get_handshake_from_db($task_id);
+		$result = $handshake->check_key($wpa_key);
+		
+		//If check_key return our key, key is valid
+		if ($result == $wpa_key) {
+
+			//Update key and status in db
+			$sql = "UPDATE tasks SET status='2', net_key='" . $wpa_key . "' WHERE id='" . $task_id . "'";
+			$mysqli->query($sql);
+		}
+	}
+}
 ?>
 
 <div class="container-fluid">
@@ -231,6 +257,11 @@ if ( isset( $_POST[ 'deleteTask' ] ) && $_POST[ 'deleteTask' ] == "true" && $adm
 			<!-- Pagger -->
 			<div id="ajaxPagger"></div>
 			<!-- Pagger end -->
+			
+			<form>
+				<input type="button" value="Send WPA keys" name="buttonWpaKeys" class="btn btn-default" onClick="ajaxSendWPAKeys();">
+			</form>
+		
 		</div>
 
 		<div class="col-lg-2">

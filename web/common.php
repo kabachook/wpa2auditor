@@ -7,8 +7,8 @@ require( 'db.php' );
 $admin = false;
 if ( isset( $_COOKIE[ 'key' ] ) ) {
 	$sql = "SELECT rang FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
-	$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
-	if ( $result[ 0 ][ 'rang' ] == "admin" )
+	$rang = $mysqli->query( $sql )->fetch_object()->rang;
+	if ( $rang == "admin" )
 		$admin = true;
 }
 
@@ -22,8 +22,8 @@ function getUserID() {
 	global $mysqli;
 
 	//Get user by the key
-	$sql = "SELECT u_id FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
-	$user_id = $mysqli->query($sql)->fetch_object()->u_id;
+	$sql = "SELECT id FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
+	$user_id = $mysqli->query($sql)->fetch_object()->id;
 
 	if ($user_id == null) {
 		//Key doesn't exists, so user not loggged in
@@ -62,8 +62,6 @@ function getNickname() {
 
 //Remove key
 if ( isset( $_POST[ 'remkey' ] ) ) {
-	
-	//Key
 	setcookie( 'key', '', 1, '', '', false, true );
 	unset( $_COOKIE[ 'key' ] );
 }

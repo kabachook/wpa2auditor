@@ -46,70 +46,56 @@ var ajaxTableID = "#taskTable";
 
 var ajaxPaggerDivID = "#ajaxPagger";
 
-
-
-
-
-
-
-
-
-
-
-
-
 //Load\reload table
 function loadTable() {
-	$.get(tableUrl, {"somn" : isPressedSONM}, function (data) {
+	$.get(tableUrl, {
+		"somn": isPressedSONM
+	}, function (data) {
 		drawTable(data);
 		colorStatus();
-	}, "json" );
+	}, "json");
 }
 
 function loadPagger() {
 	$.get(paggerUrl, function (data) {
 		drawPagger(data);
-	}, "json" );
+	}, "json");
 }
 
 function drawPagger(data) {
 	var result = '<nav aria-label="Page navigation"><ul class="pagination">';
-	//
-	data.forEach(function(element, index, array){
+
+	data.forEach(function (element, index, array) {
 		var arrow;
-		if(index !== 0) {
+		if (index !== 0) {
 			arrow = "&raquo;";
 		} else {
 			arrow = "&laquo;";
 		}
-		
-		
-		if(element.arrow === true) {
-			
+
+		if (element.arrow === true) {
+
 			if (element.active === true) {
 				result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
-			}
-			else {
+			} else {
 				result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
 			}
-			
+
 		} else {
-			
+
 			if (element.active === true) {
 				result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
-			}
-			else {
+			} else {
 				result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
 			}
 		}
 	});
+
 	result += '</ul></nav>';
 	$(ajaxPaggerDivID).html(result);
 }
 
-
-
-//Delete task button
+//Delete_task button
 function ajaxDeleteTask(vard) {
 
 	//Cancel submit form to server via POST wtih page reload
@@ -117,12 +103,12 @@ function ajaxDeleteTask(vard) {
 
 	//Get id task for delete from form
 	var id = vard.elements.deleteTaskID.value;
-	
+
 	//Data to send
 	var data = new FormData();
 	data.append("deleteTask", true);
 	data.append("deleteTaskID", id);
-	
+
 	jQuery.ajax({
 		url: baseUrl, //page url
 		type: "POST",
@@ -157,31 +143,30 @@ function ajaxSendForm(vard, type) {
 	//Data to send
 	var data = new FormData();
 	var url;
-	
 
 	if (type === "handshake") {
-		
+
 		result_status = uniqHandshakeStatusDivID;
 		file = vard.elements.upfile.files[0];
-		
+
 		data.append("upfile", file);
 		data.append("buttonUploadFile", true);
 		data.append("task_name", vard.elements.task_name.value);
-		
+
 		url = statusHandshakeUrl;
 		result_table = tableUploadHandshakeID;
 		result_form = formUploadHandshakeID;
-		
+
 	} else if (type === "ntlm") {
-		
+
 		result_status = uniqHashStatusDivID;
-		
+
 		data.append('buttonUploadHash', true);
 		data.append('task_name', vard.elements.taskname.value);
 		data.append('username', vard.elements.username.value);
 		data.append('challenge', vard.elements.challenge.value);
 		data.append('response', vard.elements.response.value);
-		
+
 		url = statusHashUrl;
 		result_table = tableUploadHashID;
 		result_form = formUploadNTLMHashID;
@@ -195,18 +180,18 @@ function ajaxSendForm(vard, type) {
 		contentType: false, // string requset
 
 		//On success upload
-		success: function (response) {			
-			
+		success: function (response) {
+
 			//Reset all inputs
 			$("#" + result_form).get(0).reset();
-			
+
 			//Reload table
 			loadTable();
-			
+
 			//generate notify
 			var json = $.parseJSON(response);
 			genNotify(json.type, json.message);
-			
+
 		},
 		//Failed to send data
 		error: function (response) {
@@ -218,35 +203,37 @@ function ajaxSendForm(vard, type) {
 
 function genNotify(type, message) {
 	$.notify({
-	// options
-	icon: 'glyphicon glyphicon-warning-sign',
-	message: message,
-},{
-	// settings
-	type: type,
-	newest_on_top: false,
-	placement: {
-		from: "bottom",
-		align: "right"
-	},
-	mouse_over: "pause",
-});
+		// options
+		icon: 'fa fa-exclamation-triangle',
+		message: message,
+	}, {
+		// settings
+		type: type,
+		newest_on_top: false,
+		placement: {
+			from: "bottom",
+			align: "right"
+		},
+		mouse_over: "pause",
+	});
 }
 
 function ajaxSendWPAKeys() {
-	
+
 	//Cancel submit form to server via POST wtih page reload
 	event.preventDefault();
-	
+
 	//Data to send
 	var data = new FormData();
-	
+
 	data.append("sendWPAKey", true);
-	
+
 	//For all forms with class wpaKeysTable get id and key
 	$(".wpaKeysTable").each(function () {
 		var item = $(this).serializeArray()[0];
-		data.append(item.name, item.value);
+		if (item.value !== '') {
+			data.append(item.name, item.value);
+		}
 	});
 
 	jQuery.ajax({
@@ -255,12 +242,12 @@ function ajaxSendWPAKeys() {
 		data: data,
 		processData: false, // Dont process the file
 		contentType: false, // string requset
-		
+
 		//On success upload
-		success: function () { 
+		success: function () {
 			loadTable();
 		},
-		
+
 		//On error upload
 		error: function (response) {
 			console.log("Error while sending hash\handshake. " + response);
@@ -269,35 +256,40 @@ function ajaxSendWPAKeys() {
 }
 
 function showOnlyMyNetworks(vard) {
-	
+
 	var button = vard.elements.buttonShowOnlyMyNetworks;
-	
+
 	//Cancel submit form to server via POST wtih page reload
 	event.preventDefault();
-	
+
 	//Reverse somn
 	isPressedSONM = !isPressedSONM;
-	
+
 	//Send via post showOnlyMyNetworks flag and get new table
-	$.get(tableUrl, {"somn" : isPressedSONM}, function (data) {
-		
+	$.get(tableUrl, {
+		"somn": isPressedSONM
+	}, function (data) {
+
 		drawTable(data);
 		colorStatus();
-		
+
 		//Change button value
 		button.value = isPressedSONM === true ? "Show all networks" : "Show only my networks";
 	});
-	
+
 }
 
 function ajaxGetPage(page) {
-	
+
 	//Cancel submit form to server via POST wtih page reload
 	event.preventDefault();
-	
+
 	//Send via post showOnlyMyNetworks flag and get new table
-	$.get(tableUrl, {"page": page, "somn" : isPressedSONM}, function (data) {
-			drawTable(data);
+	$.get(tableUrl, {
+		"page": page,
+		"somn": isPressedSONM
+	}, function (data) {
+		drawTable(data);
 		colorStatus();
 		console.log(isPressedSONM);
 	}, "json");
@@ -305,70 +297,70 @@ function ajaxGetPage(page) {
 }
 
 function colorStatus() {
-	
+
 	//Change class for status
 	$(".status").each(function () {
-	
-	if ($(this).text() === "SUCCESS") {
-		$(this).addClass("alert");
-		$(this).addClass("alert-success");
-	}
 
-	if ($(this).text() === "IN QUEUE") {
-		$(this).addClass("alert");
-		$(this).addClass("alert-info");
-	}
+		if ($(this).text() === "SUCCESS") {
+			$(this).addClass("alert");
+			$(this).addClass("alert-success");
+		}
 
-	if ($(this).text() === "FAILED") {
-		$(this).addClass("alert");
-		$(this).addClass("alert-danger");
-	}
+		if ($(this).text() === "IN QUEUE") {
+			$(this).addClass("alert");
+			$(this).addClass("alert-info");
+		}
 
-	if ($(this).text() === "IN PROGRESS") {
-		$(this).addClass("alert");
-		$(this).addClass("alert-warning");
-	}
-});
+		if ($(this).text() === "FAILED") {
+			$(this).addClass("alert");
+			$(this).addClass("alert-danger");
+		}
+
+		if ($(this).text() === "IN PROGRESS") {
+			$(this).addClass("alert");
+			$(this).addClass("alert-warning");
+		}
+	});
 }
 
 function drawTable(data) {
-	
+
 	var admin = data.admin;
-	
+
 	$(ajaxTableDivID).html(
-						 
-						 '<div class="panel panel-default">' +
-							'<table class="table table-striped table-bordered table-nonfluid " id="taskTable">' +
-							'<tbody>' +
-								'<tr>' +
-									'<th>#</th>' +
-									'<th>Type</th>' +
-									'<th>MAC</th>' +
-									'<th>Task name</th>' +
-									'<th>Net name</th>' +
-									'<th>Key</th>' +
-									'<th>Files</th>' +
-									'<!-- <th>Agents</th> for better days -->' +
-									'<th>Status</th>' +
-									(admin ? "<th>Admin</th>" : "") +
-								'</tr>'
-		
-						 );
-	
-	
+
+		'<div class="panel panel-default">' +
+		'<table class="table table-striped table-bordered table-nonfluid " id="taskTable">' +
+		'<tbody>' +
+		'<tr>' +
+		'<th>#</th>' +
+		'<th>Type</th>' +
+		'<th>MAC</th>' +
+		'<th>Task name</th>' +
+		'<th>Net name</th>' +
+		'<th>Key</th>' +
+		'<th>Files</th>' +
+		'<!-- <th>Agents</th> for better days -->' +
+		'<th>Status</th>' +
+		(admin ? "<th>Admin</th>" : "") +
+		'</tr>'
+
+	);
+
+
 	var id = 1;
-	data.table.forEach(function(element, index, array) {
-		
-		var net_key = element.net_key === "0" ? '' : element.net_key;
-		
-		$(ajaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td>' + getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + getStatusByID(element.status) + '</td>' + 
-													  (admin ? '<td><form action="" method="get" onSubmit="ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id +  '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
+	data.table.forEach(function (element, index, array) {
+
+		var net_key = element.net_key === "0" ? '<input type="text" class="form-control wpaKeysTable" placeholder="Enter wpa key" name="' + element.id + '">' : "<strong>" + element.net_key + "</strong>";
+
+		$(ajaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td>' + getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + getStatusByID(element.status) + '</td>' +
+			(admin ? '<td><form action="" method="get" onSubmit="ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
 		id++;
 	});
 }
 
 function getTypeByID(id) {
-	switch(id) {
+	switch (id) {
 		case "0":
 			return "HANDSHAKE";
 		case "1":
@@ -377,7 +369,7 @@ function getTypeByID(id) {
 }
 
 function getStatusByID(id) {
-	switch(id) {
+	switch (id) {
 		case "0":
 			return "IN QUEUE";
 		case "1":
@@ -391,10 +383,10 @@ function getStatusByID(id) {
 
 //After page fully loaded
 $(function () {
-	
+
 	//Load and draw table
 	loadTable();
-	
+
 	//Draw pagger
 	loadPagger();
 

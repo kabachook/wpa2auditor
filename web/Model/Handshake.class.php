@@ -1,52 +1,79 @@
 <?php
 
-include( 'conf.php' );
+include( '..\conf.php' );
+include( '..\db.php');
+include( '..\Model/File.abstract.php' );
 
-class Handshake {
+class Handshake extends File {
 
-	private $filename;
-	private $size;
-	private $extension;
-	private $path;
+	private $array_of_handshakes = [];
 
-	public $target_file;
+	private $type = 0;
 
-	public $array_of_handshakes;
+	function __construct() {
 
-	function __construct( $file ) {
+	}
+
+	static
+	function get_handshake_from_db( $task_id ) {
+
+		//vars
+		global $mysqli;
+		$instance = new self();
+
+		//Get all info from DB
+		$sql = "SELECT * FROM tasks WHERE id='" . $task_id . "'";
+		$result = $mysqli->query( $sql );
+		if ( $result == false )
+			throw new Exception( "Error in handling to DB." );
+		$result = $result->fetch_object();
+
+		$instance->server_path = $result->server_path;
+		$info = $instance->get_handshake_info( $instance->server_path );
+
+		array_push( $instance->array_of_handshakes, array( "structure" => $info ) );
+
+		return $instance;
+
+	}
+
+	static
+	function get_handshake_from_file( $file ) {
 
 		//vars
 		global $cfg_tasks_target_folder;
 		global $cfg_tasks_max_file_size;
-		global $cfg_tasks_allowed_formats;
-		global $cfg_tasks_allowed_formats;
+		global $cfg_tasks_allowed_ext;
 		global $cfg_tools_cap2hccapx;
 		global $cfg_site_url;
 
-		//filename
-		$this->filename = $this->generate_random_string( 16 );
+		$instance = new self();
 
-		$this->get_information_from_file( $file );
+		//Generate filename
+		$instance->filename = $instance->generate_random_string( 16 );
 
-		$this->target_file = $cfg_tasks_target_folder . $this->filename . $this->extension;
+		//Get size and ext from file
+		$instance->get_information_from_file( $file );
+
+		$instance->target_file = $cfg_tasks_target_folder . $instance->filename . $instance->extension;
 
 		//Check file exists
-		if ( $this->check_file_exists( $this->target_file ) )
+		if ( $instance->check_file_exists( $instance->target_file ) )
 			throw new Exception( 'File already exists. Contact AtomicMan', 0 );
 
 		//Check size
-		if ( !( $this->check_file_size( $this->size, $cfg_tasks_max_file_size ) ) )
+		if ( !( $instance->check_file_size( $instance->size, $cfg_tasks_max_file_size ) ) )
 			throw new Exception( 'File is bigger than allowed max file size. ', 1 );
 
 		//Check file format
-		if ( !( $this->check_file_extension( $this->extension, $cfg_tasks_allowed_formats ) ) )
+		if ( !( $instance->check_file_extension( $instance->extension, $cfg_tasks_allowed_ext ) ) )
 			throw new Exception( 'Forbidden file format.', 2 );
 
 		//Try to move file
-		if ( !move_uploaded_file( $file[ "tmp_name" ], $this->target_file ) )
-			throw new Exception( 'Error while moving file on server from ' . $file[ 'tmp_name' ] . ' to ' . $this->target_file . $this->extension, 3 );
+		if ( !move_uploaded_file( $file[ "tmp_name" ], $instance->target_file ) )
+			throw new Exception( 'Error while moving file on server from ' . $file[ 'tmp_name' ] . ' to ' . $instance->target_file . $instance->extension, 3 );
 
-		if ( $this->extension == ".cap" ) {
+		if ( $instance->extension == ".cap" ) {
 
 			/*	//Integrity check
 				$tmp = check_handshake_integrity();
@@ -64,64 +91,58 @@ class Handshake {
 			*/
 
 			//Cap converter
-			$this->extension = ".hccapx";
-			$tmp = $this->cap_converter( $this->target_file, $cfg_tasks_target_folder . $this -> filename . $this->extension, $cfg_tools_cap2hccapx );
+			$instance->extension = ".hccapx";
+			$tmp = $instance->cap_converter( $instance->target_file, $cfg_tasks_target_folder . $instance->filename . $instance->extension, $cfg_tools_cap2hccapx );
 			if ( $tmp == false )
 				throw new Exception( 'Fail while convert handshake.', 6 );
-			$this->size = 393;
-			
-
+			$instance->size = 393;
 
 		}
 
-		//CRUCTH
 		//Handshake slice
-		$sliced = $this->slice_handshake( $cfg_tasks_target_folder, $this->filename, $this->extension, $this->size, $cfg_site_url . "tasks/" );
+		$sliced = $instance->slice_handshake( $cfg_tasks_target_folder, $instance->filename, $instance->extension, $instance->size, $cfg_site_url . "tasks/" );
 		if ( $sliced == false )
 			throw new Exception( 'Fail while slice handshake.', 7 );
 
-		$this->array_of_handshakes = $sliced;
+		$instance->array_of_handshakes = $sliced;
 
 		//get handshake info and add to array
-		foreach ( $this->array_of_handshakes as & $hndshk ) {
-			$info = $this->get_handshake_info( $hndshk[ 'server_path' ] );
+		foreach ( $instance->array_of_handshakes as & $hndshk ) {
+			$info = $instance->get_handshake_info( $hndshk[ 'server_path' ] );
 			$hndshk[ "structure" ] = $info;
-			$hndshk[ "uniq_hash" ] = $this->uniq_hash( $info[ 'keymic' ], $info[ 'mac_ap' ], $info[ 'essid' ] );
+			$hndshk[ "uniq_hash" ] = $instance->uniq_hash( $info[ 'keymic' ], $info[ 'mac_ap' ], $info[ 'essid' ] );
 		}
+
+		return $instance;
 
 	}
 
+	function check_key( $key ) {
+		
+		$ahccap = $this->array_of_handshakes[0]['structure'];
 
-	function get_information_from_file( $file ) {
+		$m = $ahccap[ 'm' ];
+		$n = $ahccap[ 'n' ];
+		//Need only for check key
+		$block = "Pairwise key expansion\0" . $m . $n . "\0";
 
-		//Size
-		$this->size = $file[ 'size' ];
+		$pmk = hash_pbkdf2( 'sha1', $key, $ahccap[ 'essid' ], 4096, 32, True );
+		$ptk = hash_hmac( 'sha1', $block, $pmk, True );
 
-		//Extension with dot (like .cap)
-		$this->extension = "." . pathinfo( $file[ 'name' ], PATHINFO_EXTENSION );
+		if ( $ahccap[ 'keyver' ] == 1 )
+			$testmic = hash_hmac( 'md5', $ahccap[ 'eapol' ], substr( $ptk, 0, 16 ), True );
+		else
+			$testmic = hash_hmac( 'sha1', $ahccap[ 'eapol' ], substr( $ptk, 0, 16 ), True );
 
+		//If mic whick we get with our key match with keymic in our handshake
+		if ( strncmp( $testmic, $ahccap[ 'keymic' ], 16 ) == 0 )
+			return $key;
+
+		return false;
 	}
 
 	function uniq_hash( $keymic, $mac_ap, $essid ) {
 		return md5( $keymic . $mac_ap . $essid );
-	}
-
-	function generate_random_string( $length ) {
-		return substr( str_shuffle( str_repeat( $x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil( $length / strlen( $x ) ) ) ), 1, $length );
-	}
-
-	function check_file_exists( $path ) {
-		return file_exists( $path );
-	}
-
-	function check_file_size( $size, $max ) {
-		if ( $size > $max )
-			return false;
-		return true;
-	}
-
-	function check_file_extension( $extension, $allowed_formats ) {
-		return in_array( $extension, $allowed_formats );
 	}
 
 	function check_handshake_integrity() {
@@ -158,10 +179,18 @@ class Handshake {
 			$original = file_get_contents( $in );
 
 			for ( $i = 0; $i < $size; $i += 393 ) {
+
 				$sliced = substr( $original, $i, 393 );
 				$filename = $this->generate_random_string( 16 ) . $ext;
+
 				fwrite( fopen( $base . $filename, "w" ), $sliced );
-				array_push( $array, array( "task_hash" => hash_file("sha256", $base . $filename),"type" => 0, "server_path" => $base . $filename, "site_path" => $cfg_site_url . $filename, "extension" => $ext, "size" => filesize( $base . $filename ) ) );
+
+				$task_hash = hash_file( "sha256", $base . $filename );
+				$server_path = $base . $filename;
+				$site_path = $cfg_site_url . $filename;
+				$filesize = filesize( $base . $filename );
+
+				array_push( $array, array( "task_hash" => $task_hash, "type" => $this->type, "server_path" => $server_path, "site_path" => $site_path, "extension" => $ext, "size" => $filesize ) );
 			}
 
 			unlink( $in );
@@ -237,5 +266,4 @@ class Handshake {
 	}
 
 }
-
 ?>
