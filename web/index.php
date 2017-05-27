@@ -32,6 +32,7 @@
 
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
+	<script src="js/dicts.js" async=""></script>
 
 </head>
 

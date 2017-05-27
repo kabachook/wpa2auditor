@@ -1,4 +1,4 @@
-﻿<div class="container-fluid">
+<div class="container-fluid">
 	<div class="row">
 		<div class="col-lg-9 col-lg-offset-1">
 			<h2>Search</h2>

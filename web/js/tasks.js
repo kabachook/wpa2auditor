@@ -250,7 +250,7 @@ class Task {
 		if (type === "handshake") {
 
 			tasksResult_status = tasksUniqHandshakeStatusDivID;
-			tasksFile = vard.elements.uptasksFile.tasksFiles[0];
+			tasksFile = vard.elements.upfile.files[0];
 
 			data.append("uptasksFile", tasksFile);
 			data.append("buttonUploadFile", true);
