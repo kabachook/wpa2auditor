@@ -57,7 +57,7 @@ class Dictionary {
 		data.table.forEach(function (element, index, array) {
 
 			$(dictsAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td><strong>' + element.dict_name + '</strong></td><td>' + Dictionary.getHumSize(element.size) + '</td><td><a href="' + element.site_path + '" class="btn btn-default">DOWNLOAD</a></td>' +
-				(admin ? '<td><form action="" method="get" onSubmit="ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
+				(admin ? '<td><form action="" method="get" onSubmit="Dictionary.ajaxDeleteDictionary(this);"><input type="hidden" name="deleteDictID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
 			id++;
 		});
 	}
@@ -92,11 +92,9 @@ class Dictionary {
 		//Send via post showOnlyMyNetworks flag and get new table
 		$.get(dictsTableUrl, {
 			"page": page,
-			"somn": dictsIsPressedSONM
 		}, function (data) {
 			Dictionary.drawTable(data);
 			Dictionary.colorStatus();
-			console.log(dictsIsPressedSONM);
 		}, "json");
 	}
 
@@ -140,12 +138,12 @@ class Dictionary {
 		event.preventDefault();
 
 		//Get id task for delete from form
-		var id = vard.elements.deleteDictionaryID.value;
+		var id = vard.elements.deleteDictID.value;
 
 		//Data to send
 		var data = new FormData();
 		data.append("deleteDictionary", true);
-		data.append("deleteDictionaryID", id);
+		data.append("deleteDictID", id);
 
 		jQuery.ajax({
 			url: dictsBaseUrl, //page url

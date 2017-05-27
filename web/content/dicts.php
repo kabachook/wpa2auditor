@@ -23,6 +23,15 @@ if (isset($_POST['buttonUploadDict'])) {
 	}
 }
 
+if ($_POST['deleteDictionary'] == 'true') {
+	
+	//Id of dict for delete
+	$id = $_POST['deleteDictID'];
+
+	$Dict = Dictionary::get_dict_from_db($id);
+	$Dict->delete_dict();
+}
+
 if ($_GET['ajax'] == 'table') {
 	
 	header( 'Content-Type: application/json' );
