@@ -7,14 +7,32 @@ require( 'db.php' );
 $admin = false;
 if ( isset( $_COOKIE[ 'key' ] ) ) {
 	$sql = "SELECT rang FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
-	$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
-	if ( $result[ 0 ][ 'rang' ] == "admin" )
+	$rang = $mysqli->query( $sql )->fetch_object()->rang;
+	if ( $rang == "admin" )
 		$admin = true;
 }
 
 //validate 32 char key (simple check for md5 format)
 function valid_key( $key ) {
 	return preg_match( '/^[a-f0-9]{32}$/', strtolower( $key ) );
+}
+
+//Get user id
+function getUserID() {
+	global $mysqli;
+
+	//Get user by the key
+	$sql = "SELECT id FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
+	$user_id = $mysqli->query($sql)->fetch_object()->id;
+
+	if ($user_id == null) {
+		//Key doesn't exists, so user not loggged in
+		//Return universal id
+		return -1;
+	}
+
+	//Return user id
+	return $user_id;
 }
 
 //Set key
@@ -44,8 +62,6 @@ function getNickname() {
 
 //Remove key
 if ( isset( $_POST[ 'remkey' ] ) ) {
-	
-	//Key
 	setcookie( 'key', '', 1, '', '', false, true );
 	unset( $_COOKIE[ 'key' ] );
 }
