@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Май 10 2017 г., 21:34
+-- Время создания: Май 27 2017 г., 19:55
 -- Версия сервера: 5.7.14
 -- Версия PHP: 5.6.25
 
@@ -20,6 +20,17 @@ SET time_zone = "+00:00";
 -- База данных: `wpa`
 --
 
+DELIMITER $$
+--
+-- Процедуры
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_2_3_status` ()  BEGIN
+	DELETE FROM tasks_dicts WHERE net_id IN(SELECT id FROM tasks WHERE status IN('3') AND forDelete='1' OR status IN('2'));
+	UPDATE tasks SET forDelete='0' WHERE forDelete='1';
+END$$
+
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -29,10 +40,11 @@ SET time_zone = "+00:00";
 CREATE TABLE `dicts` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `dpath` varchar(256) NOT NULL,
-  `dhash` binary(32) DEFAULT NULL,
-  `dname` varchar(128) NOT NULL,
-  `filename` varchar(60) NOT NULL,
+  `server_path` varchar(256) NOT NULL,
+  `site_path` varchar(256) NOT NULL,
+  `hash` binary(32) DEFAULT NULL,
+  `dict_name` varchar(128) NOT NULL,
+  `file_name` varchar(60) NOT NULL,
   `size` int(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -40,12 +52,8 @@ CREATE TABLE `dicts` (
 -- Дамп данных таблицы `dicts`
 --
 
-INSERT INTO `dicts` (`id`, `ts`, `dpath`, `dhash`, `dname`, `filename`, `size`) VALUES
-(14, '2017-05-01 10:40:37', 'http://localhost/wpa2auditor/web/dicts/old_gold.txt.gz', 0xf0bd087bf8235b62159123e9b8ba3e16dd6b590db5ec39b643d1fbc7c8c9a683, 'old_good', '', 7489767),
-(15, '2017-05-03 16:37:27', 'http://localhost/wpa2auditor/web/dicts/insidepro.txt.gz', 0xd15e890980652653226be071450d154946c4a4eaa857afabc73d61f8fa7a8bb2, 'inside', '', 36924775),
-(16, '2017-05-03 16:38:29', 'http://localhost/wpa2auditor/web/dicts/used.txt.gz', 0x83b309d08585fe0666f6dabbf48cc9e189394e1f09d094575ec7e6b031871e9c, 'used', '', 41715893),
-(17, '2017-05-03 16:39:29', 'http://localhost/wpa2auditor/web/dicts/os.txt.gz', 0x100ecc1ee13053dd3a6e4bb1cea44a8c3dd4635f2b00eb52e1cdf94a9cd406d7, 'werwerw', '', 94918295),
-(19, '2017-05-10 20:10:06', 'http://localhost/wpa2auditor/web/dicts/openwall.txt.gz', 0xe37b9d2edd2b78dab3db6d6c471ac134a92d19c9fbcd43b2e0766f0ba309ffe6, 'gvvbvbvb', 'openwall.txt.gz', 5503980);
+INSERT INTO `dicts` (`id`, `ts`, `server_path`, `site_path`, `hash`, `dict_name`, `file_name`, `size`) VALUES
+(31, '2017-05-27 17:21:08', 'C:/wamp64/www/wpa2auditor-dev/web/dicts/5y2jqhgGwdSU9KDI.gz', 'http://localhost/wpa2auditor-dev/web/dicts/5y2jqhgGwdSU9KDI.gz', 0x82a330fca8b089c228225dcc7059ba43e618cba72cf10ee97ce56addaa61f6cd, 'cracked', '5y2jqhgGwdSU9KDI', 122545);
 
 -- --------------------------------------------------------
 
@@ -55,16 +63,14 @@ INSERT INTO `dicts` (`id`, `ts`, `dpath`, `dhash`, `dname`, `filename`, `size`) 
 
 CREATE TABLE `tasks` (
   `id` bigint(20) NOT NULL,
-  `name` varchar(65) NOT NULL,
-  `filename` varchar(60) DEFAULT NULL,
+  `task_name` varchar(65) NOT NULL,
   `user_id` int(11) NOT NULL,
   `server_path` varchar(120) DEFAULT NULL,
   `site_path` varchar(120) NOT NULL,
   `essid` varchar(60) DEFAULT NULL,
   `station_mac` varchar(12) DEFAULT NULL,
   `type` int(11) NOT NULL,
-  `ext` varchar(10) NOT NULL,
-  `thash` binary(32) DEFAULT NULL,
+  `task_hash` binary(32) DEFAULT NULL,
   `uniq_hash` binary(16) NOT NULL,
   `net_key` varchar(64) DEFAULT '0',
   `username` varchar(60) DEFAULT NULL,
@@ -73,15 +79,16 @@ CREATE TABLE `tasks` (
   `priority` int(11) NOT NULL DEFAULT '0',
   `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `agents` int(11) NOT NULL DEFAULT '0',
-  `status` int(11) DEFAULT '0'
+  `status` int(11) DEFAULT '0',
+  `forDelete` int(5) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Дамп данных таблицы `tasks`
 --
 
-INSERT INTO `tasks` (`id`, `name`, `filename`, `user_id`, `server_path`, `site_path`, `essid`, `station_mac`, `type`, `ext`, `thash`, `uniq_hash`, `net_key`, `username`, `challenge`, `response`, `priority`, `ts`, `agents`, `status`) VALUES
-(297, 'sdfsdfsdf', 'handshake-01.cap.hccapx_1.hccapx', 2, 'C:/wamp64/www/wpa2auditor/web/tasks/handshake-01.cap.hccapx_1.hccapx', 'http://localhost/wpa2auditor/web/tasks/handshake-01.cap.hccapx_1.hccapx', 'MTSRouter-EAA450', 'a0ab1beaa450', 0, 'hccapx', 0x30098a4c172b28fbd241e094d8f79eb4ba2a67b08314ffb36c64467c237e732f, 0x6a8b1147b19b9aff1a06f2774e5b3122, '0', NULL, NULL, NULL, 0, '2017-05-10 20:08:47', 0, 0);
+INSERT INTO `tasks` (`id`, `task_name`, `user_id`, `server_path`, `site_path`, `essid`, `station_mac`, `type`, `task_hash`, `uniq_hash`, `net_key`, `username`, `challenge`, `response`, `priority`, `ts`, `agents`, `status`, `forDelete`) VALUES
+(383, 'my_net', 2, 'C:/wamp64/www/wpa2auditor-dev/web/tasks/sK7BJV6gbIeq0Wfz.hccapx', 'http://localhost/wpa2auditor-dev/web/tasks/sK7BJV6gbIeq0Wfz.hccapx', 'MTSRouter-EAA450', 'a0ab1beaa450', 0, 0x30098a4c172b28fbd241e094d8f79eb4ba2a67b08314ffb36c64467c237e732f, 0xdec655b5614fe024aeffeba275cdf46b, '0', NULL, NULL, NULL, 0, '2017-05-27 19:04:42', 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -101,21 +108,41 @@ CREATE TABLE `tasks_dicts` (
 --
 
 INSERT INTO `tasks_dicts` (`id`, `net_id`, `dict_id`, `status`) VALUES
-(1530, 297, 14, 0),
-(1531, 297, 15, 0),
-(1532, 297, 16, 0),
-(1533, 297, 17, 0),
-(1534, 297, 19, 0),
-(1535, 297, 14, 0),
-(1536, 297, 15, 0),
-(1537, 297, 16, 0),
-(1538, 297, 17, 0),
-(1539, 297, 19, 0),
-(1540, 297, 14, 0),
-(1541, 297, 15, 0),
-(1542, 297, 16, 0),
-(1543, 297, 17, 0),
-(1544, 297, 19, 0);
+(1946, 383, 31, 0);
+
+--
+-- Триггеры `tasks_dicts`
+--
+DELIMITER $$
+CREATE TRIGGER `change_status_to_failed` AFTER UPDATE ON `tasks_dicts` FOR EACH ROW BEGIN
+   	DECLARE dicts_count INT;
+	DECLARE stat INT;
+
+	SELECT COUNT(*) INTO dicts_count FROM (SELECT * FROM tasks_dicts WHERE status NOT IN ('1') AND net_id=NEW.net_id) as alias;
+	IF (dicts_count=0) THEN
+		UPDATE tasks SET status='3' WHERE id=NEW.net_id;
+		UPDATE tasks SET forDelete='1' WHERE id=NEW.net_id;
+	END IF;
+    SELECT COUNT(*) INTO dicts_count FROM (SELECT * FROM tasks_dicts WHERE status NOT IN ('1') AND net_id=NEW.net_id) as alias;
+	SELECT status INTO stat FROM tasks WHERE id=NEW.net_id;
+	IF dicts_count!=0 AND stat=3 THEN
+		UPDATE tasks SET status='0' WHERE id=NEW.net_id;
+	END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `reset_failed` AFTER INSERT ON `tasks_dicts` FOR EACH ROW BEGIN
+DECLARE dicts_count INT;
+DECLARE stat INT;
+SELECT COUNT(*) INTO dicts_count FROM (SELECT * FROM tasks_dicts WHERE status NOT IN ('1') AND net_id=NEW.net_id) as alias;
+	SELECT status INTO stat FROM tasks WHERE id=NEW.net_id;
+	IF dicts_count!=0 AND stat=3 THEN
+		UPDATE tasks SET status='0' WHERE id=NEW.net_id;
+	END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -124,7 +151,7 @@ INSERT INTO `tasks_dicts` (`id`, `net_id`, `dict_id`, `status`) VALUES
 --
 
 CREATE TABLE `users` (
-  `u_id` bigint(20) NOT NULL,
+  `id` bigint(20) NOT NULL,
   `rang` text NOT NULL,
   `nick` text NOT NULL,
   `email` varchar(500) CHARACTER SET latin1 COLLATE latin1_general_ci DEFAULT NULL,
@@ -138,14 +165,16 @@ CREATE TABLE `users` (
 -- Дамп данных таблицы `users`
 --
 
-INSERT INTO `users` (`u_id`, `rang`, `nick`, `email`, `userkey`, `invite`, `invited_c`, `ts`) VALUES
+INSERT INTO `users` (`id`, `rang`, `nick`, `email`, `userkey`, `invite`, `invited_c`, `ts`) VALUES
 (2, 'admin', 'AtomnijPchelovek', 'admin@admin.ru', 0xb9d17e7dd4c28bf17ff87a8fea3213fb, 0xb9d17e7dd4c28bf17ff87a8fea3213fb, 1, '2017-04-13 20:00:16'),
 (3, 'admin', 'nickgant', 'admin_2@admin.ru', 0x2d536641fb64ac6ba11865e55406af30, 0x00000000000000000000000000000000, 0, '2017-04-24 19:35:43'),
 (4, 'user', 'sdffsgdfg', 'dfgdf@sdfsdf', 0x1612e74c4724e9b0d651cdbcfdfce86d, 0x00000000000000000000000000000000, 0, '2017-05-10 18:03:29'),
 (5, 'user', 'sdfsdfsdf', 'sdfsdfs@wdwfs', 0xb6dc23d20827338bd6f57f8e072181ac, 0x00000000000000000000000000000000, 0, '2017-05-10 18:07:03'),
 (6, 'user', 'dfgdfg', 'dfgdfgd@dsffdsgsd', 0xa7479b6d56f9cf4eef73e6e958047a80, 0x00000000000000000000000000000000, 0, '2017-05-10 18:10:04'),
 (7, 'admin', 'ssssssssssssss', 'asdasdsd@sdsdsd', 0x4cbb2b8083833b31e4331f97a2184464, 0x94cdbdb84e8e1de80000000000000000, 0, '2017-05-10 18:51:28'),
-(8, 'user', 'sfgfdfsd', 'sdfsdfs@sdfsfdsfd', 0x3c1e3a85d8ac4535b1628693246d084a, 0x74b72ae2ee96f9be0000000000000000, 0, '2017-05-10 18:52:54');
+(8, 'user', 'sfgfdfsd', 'sdfsdfs@sdfsfdsfd', 0x3c1e3a85d8ac4535b1628693246d084a, 0x74b72ae2ee96f9be0000000000000000, 0, '2017-05-10 18:52:54'),
+(9, 'user', 'cbvcvn vbn', 'cdth@fghfgh', 0xd5c12f8136701fd416532f2ac7d55309, 0xcfa3a0bc94975cb9c346a585ccb3ad9e, 0, '2017-05-13 20:59:49'),
+(10, 'user', 'sdfsdf', 'sdfsdfsdf@sdfsdf', 0xa2d27186c0c79d8a971b23819ae0ebbe, 0x7a1e01c1f482effc90f8e7d0e2581aff, 0, '2017-05-21 10:41:00');
 
 --
 -- Индексы сохранённых таблиц
@@ -173,7 +202,7 @@ ALTER TABLE `tasks_dicts`
 -- Индексы таблицы `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`u_id`),
+  ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `IDX_users_userkey` (`userkey`),
   ADD UNIQUE KEY `IDX_users_mail` (`email`);
 
@@ -185,22 +214,22 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `dicts`
 --
 ALTER TABLE `dicts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 --
 -- AUTO_INCREMENT для таблицы `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=298;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=384;
 --
 -- AUTO_INCREMENT для таблицы `tasks_dicts`
 --
 ALTER TABLE `tasks_dicts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1545;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1947;
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `u_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
