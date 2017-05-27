@@ -25,12 +25,12 @@ if ( $type == 1 )
 	$ntlm = true;
 
 $json[ 'id' ] = $task_id;
-$json[ 'name' ] = $result[ 0 ][ 'name' ];
+$json[ 'name' ] = $result[ 0 ][ 'task_name' ];
 $json[ 'type' ] = $type;
 
 if ( !$ntlm ) {
-	$json[ 'url' ] = $cfg_site_url . "tasks//" . $result[ 0 ][ 'filename' ];
-	$json[ 'hash' ] = bin2hex( $result[ 0 ][ 'thash' ] );
+	$json[ 'url' ] = $result[ 0 ][ 'site_path' ];
+	$json[ 'hash' ] = bin2hex( $result[ 0 ][ 'task_hash' ] );
 } else {
 	$json[ 'username' ] = $result[ 0 ][ 'username' ];
 	$json[ 'challenge' ] = $result[ 0 ][ 'challenge' ];
