@@ -1,13 +1,12 @@
-DELIMITER $$
---
--- Процедуры
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_2_3_status`()
-BEGIN
-	DELETE FROM tasks_dicts WHERE net_id IN(SELECT id FROM tasks WHERE status IN('2', '3') AND forDelete='1');
-	UPDATE tasks SET forDelete='0' WHERE forDelete='1';
-END$$
+set global event_scheduler = ON;
 
+DELIMITER $$
+CREATE PROCEDURE delete_2_3_status()
+BEGIN
+	DELETE FROM tasks_dicts WHERE net_id IN(SELECT id FROM tasks WHERE status IN('3') AND forDelete='1' OR status IN('2'));
+	UPDATE tasks SET forDelete='0' WHERE forDelete='1';
+END
+$$
 DELIMITER ;
 
 DELIMITER //
