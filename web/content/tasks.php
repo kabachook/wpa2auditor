@@ -87,7 +87,7 @@ $sql = $somn ? "SELECT COUNT(*) as count FROM tasks WHERE user_id='" . $user_id 
 $total = $mysqli->query( $sql )->fetch_object()->count;
 
 // How many items to list per page
-$limit = 20;
+$limit = 10;
 
 // How many pages will there be
 $pages = ceil( $total / $limit );
@@ -238,7 +238,7 @@ if ($_POST['sendWPAKey'] == "true") {
 			<h2>Tasks</h2>
 
 			<div style="overflow: auto;" class="my-2">
-				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST" onSubmit="showOnlyMyNetworks(this);">
+				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST" onSubmit="Task.showOnlyMyNetworks(this);">
 					<input type="submit" value="Show only my networks" class="btn btn-default" id="buttonShowOnlyMyNetworks">
 				</form>
 
@@ -259,7 +259,7 @@ if ($_POST['sendWPAKey'] == "true") {
 			<!-- Pagger end -->
 			
 			<form>
-				<input type="button" value="Send WPA keys" name="buttonWpaKeys" class="btn btn-default" onClick="ajaxSendWPAKeys();">
+				<input type="button" value="Send WPA keys" name="buttonWpaKeys" class="btn btn-default" onClick="Task.ajaxSendWPAKeys();">
 			</form>
 		
 		</div>
@@ -268,7 +268,7 @@ if ($_POST['sendWPAKey'] == "true") {
 
 			<!-- Right side Bar -->
 			<h2>Add new tasks</h2>
-			<form enctype="multipart/form-data" id="formUploadHandshake" onSubmit="ajaxSendForm(this, 'handshake');">
+			<form enctype="multipart/form-data" id="formUploadHandshake" onSubmit="Task.ajaxSendForm(this, 'handshake');">
 				<input type="hidden" name="source" value="upload">
 				<input type="hidden" name="action" value="addfile">
 				<div class="panel panel-default">
@@ -299,7 +299,7 @@ if ($_POST['sendWPAKey'] == "true") {
 			</form>
 
 			<h2>NTLM Hash</h2>
-			<form enctype="multipart/form-data" id="formUploadNTLMHash" onSubmit="ajaxSendForm(this, 'ntlm');">
+			<form enctype="multipart/form-data" id="formUploadNTLMHash" onSubmit="Task.ajaxSendForm(this, 'ntlm');">
 				<input type="hidden" name="source" value="upload">
 				<input type="hidden" name="action" value="addfile">
 				<div class="panel panel-default">
