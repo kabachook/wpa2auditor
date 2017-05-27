@@ -2,8 +2,8 @@
 //Shut down error reporting
 //FOR DEV ONLY
 error_reporting(0);
-include('..\Model/Dictionary.class.php');
-include('..\common.php');
+include('../Model/Dictionary.class.php');
+include('../common.php');
 
 global $admin;
 
