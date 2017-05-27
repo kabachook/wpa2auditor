@@ -39,7 +39,7 @@ class Handshake extends File {
 
 	static
 	function get_handshake_from_file( $file ) {
-
+		
 		//vars
 		global $cfg_tasks_target_folder;
 		global $cfg_tasks_max_file_size;

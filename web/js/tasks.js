@@ -18,9 +18,6 @@ var tasksBaseUrl = "content/tasks.php";
 var tasksPrefix = "?ajax=";
 var tasksTableUrl = tasksBaseUrl + tasksPrefix + "table";
 var tasksPaggerUrl = tasksBaseUrl + tasksPrefix + "pagger";
-var tasksRightSideBarUrl = tasksBaseUrl + tasksPrefix + "right";
-var tasksTableDivID = "#ajaxLoadTable";
-var tasksRightSideBarDivID = "ajaxLoadRightNavBar";
 
 //Status
 var tasksStatusHandshakeUrl = tasksBaseUrl + tasksPrefix + "statusHandshakeUpload";
@@ -37,9 +34,6 @@ var tasksTableUploadHashID = "tableUploadHash";
 //Forms IDs
 var tasksFormUploadNTLMHashID = "formUploadNTLMHash";
 var tasksFormUploadHandshakeID = "formUploadHandshake";
-
-//Buttons IDs
-var tasksButtonShowOnlyMyNetworksID = "buttonShowOnlyMyNetworks";
 
 //Table
 var tasksAjaxTableDivID = "#ajaxTableDiv";
@@ -252,7 +246,7 @@ class Task {
 			tasksResult_status = tasksUniqHandshakeStatusDivID;
 			tasksFile = vard.elements.upfile.files[0];
 
-			data.append("uptasksFile", tasksFile);
+			data.append("upfile", tasksFile);
 			data.append("buttonUploadFile", true);
 			data.append("task_name", vard.elements.task_name.value);
 
