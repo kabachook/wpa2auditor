@@ -2,42 +2,6 @@
 //Connect to db
 require( 'db.php' );
 
-//CRUTCH
-
-//Find all uncomplete tasks
-$sql = "SELECT id FROM tasks WHERE status NOT IN('2')";
-$task_list = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
-$failed_list = array();
-foreach ( $task_list as $task_id ) {
-	
-	//Find all tasks which doesn't have dict with status 0
-	$sql = "SELECT * FROM tasks_dicts WHERE net_id='" . $task_id[ 'id' ] . "' AND status NOT IN('1')";
-	$nr = $mysqli->query( $sql )->num_rows;
-	if ( $nr == 0 )
-		array_push( $failed_list, $task_id[ 'id' ] );
-}
-foreach ( array_unique( $failed_list ) as $f_id ) {
-	//Change status to FAILED for all tasks without dict
-	$sql = "UPDATE tasks SET status='3' WHERE id='" . $f_id . "'";
-	$mysqli->query( $sql );
-}
-
-//CRUTCH 2
-//Find all uncomplete tasks
-/*$sql = "SELECT * FROM tasks WHERE status NOT IN('2')";
-$task_list = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
-$sql = "SELECT * FROM dicts";
-$dicts_list = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
-
-//for each task add all dicts we can find
-foreach($task_list as $task_id) {
-	foreach($dicts_list as $dict) {
-		$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $task_id[ 'id' ] . "', '" . $dict[ 'id' ] . "', 0)";
-		$mysqli->query($sql);
-	}
-}*/
-
-
 //JSON answer
 $json = array();
 
@@ -86,13 +50,13 @@ foreach ( $result as $row ) {
 //For all dicts_id get it's filename to generate url to download
 $dicts = array();
 foreach ( $dicts_id as $id ) {
-	$sql = "SELECT dpath, dhash FROM dicts WHERE id='" . $id . "'";
+	$sql = "SELECT site_path, hash FROM dicts WHERE id='" . $id . "'";
 	$result = $mysqli->query( $sql );
 	$result = $result->fetch_all( MYSQLI_ASSOC );
 	array_push( $dicts, array(
 		"dict_id" => $id,
-		"dict_url" => $result[ 0 ][ 'dpath' ],
-		"dict_hash" => bin2hex( $result[ 0 ][ 'dhash' ] ),
+		"dict_url" => $result[ 0 ][ 'site_path' ],
+		"dict_hash" => bin2hex( $result[ 0 ][ 'hash' ] ),
 	) );
 }
 
