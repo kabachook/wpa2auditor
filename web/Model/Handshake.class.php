@@ -1,8 +1,8 @@
 <?php
 
-include( '..\conf.php' );
-include( '..\db.php');
-include( '..\Model/File.abstract.php' );
+include( '../conf.php' );
+include( '../db.php');
+include( '../Model/File.abstract.php' );
 
 class Handshake extends File {
 

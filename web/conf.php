@@ -30,7 +30,6 @@ if ( strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN' ) {
 
 //WPACLEAN
 $cfg_tools_wpaclean = "C:/wamp64/www/wpa2auditor-dev/web/wpaclean/wpaclean";
-
 $cfg_tools_cowpatty = "";
 
 ?>

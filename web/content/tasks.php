@@ -3,11 +3,11 @@
 //Shut down error reporting
 error_reporting( 0 );
 
-include( '..\Model\Handshake.class.php' );
-include( '..\Model/Task.class.php' );
-include( '..\Model/NTLM.class.php' );
+include( '../Model/Handshake.class.php' );
+include( '../Model/Task.class.php' );
+include( '../Model/NTLM.class.php' );
 
-include('..\common.php');
+include('../common.php');
 
 global $mysqli;
 
