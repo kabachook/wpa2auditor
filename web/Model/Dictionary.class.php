@@ -91,6 +91,10 @@ class Dictionary extends File {
 		$instance->hash = hash_file( "sha256", $instance->server_path );
 
 		$instance->add_dict_to_db( $mysqli );
+		
+		$instance->id = $mysqli->insert_id;
+		
+		$instance->add_dict_to_tasks($mysqli);
 
 		return $instance;
 	}
@@ -128,6 +132,16 @@ class Dictionary extends File {
 		$sql = "DELETE FROM tasks_dicts WHERE dict_id='" . $id . "'";
 		$mysqli->query( $sql );
 
+	}
+	
+	function add_dict_to_tasks($mysqli) {
+		$sql = "SELECT id FROM tasks WHERE status NOT IN('2')";
+		$array_tasks = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
+		foreach ($array_tasks as $task) {
+			$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $task['id'] . "', '" . $this->id . "', '0')";
+			$mysqli->query($sql);
+		}
+		
 	}
 
 }
