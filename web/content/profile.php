@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $sql = "SELECT * FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
 $result = $mysqli->query($sql)->fetch_object();
 
