@@ -1,9 +1,7 @@
 <?php include( 'common.php' ); ?>
 
 <!DOCTYPE html>
-<html>
-
-<head>
+<html><head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
@@ -18,12 +16,14 @@
 	<!-- BOOTSTRAP START -->
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 	<!-- BOOTSTRAP END-->
-
+	
+	<!-- PLUGINS START -->
+	<script src="js/bootstrap-notify.min.js" type="application/javascript"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+	<!-- PLUGINS END -->
+	
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
 	<script src="js/stat.js" async=""></script>
@@ -70,23 +70,21 @@
 					//Check if we have key in cookie
 					if ( isset( $_COOKIE[ 'key' ] ) ) {
 
-						//Check user rang
-						$sql = "SELECT rang FROM users WHERE userkey=UNHEX('" . $_COOKIE[ 'key' ] . "')";
-						$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
-						if ( $result[ 0 ][ 'rang' ] == "admin" )
-							$admin = true;
-
-						//If true - logout button with nickname
-						echo '<p class="navbar-text">Signed in as <strong><a href="?profile">' . getNickname() . '</a></strong></p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>';
-					} else
+					?>
+						<p class="navbar-text">Signed in as <strong><a href="?profile"><?php echo getNickname(); ?> </a></strong></p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>
+						
+					<?php
+					} else {
 					//If false - login and signup button
-						echo '<form class="navbar-form navbar-left" action="" method="post">
+					?>
+						<form class="navbar-form navbar-left" action="" method="post">
 								  <div class="form-group">
 									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
 									<button type="submit" class="btn btn-default">Log in</button> or <a href="?get_key" class="btn btn-default">Sign up</a>
 								  </div>
-							  </form>
-							  ';
+						</form>
+					<?php
+					}
 					?>
 
 					<!-- LOGIN BUTTON END -->
