@@ -8,14 +8,13 @@ import shutil
 import subprocess
 import threading
 import time
-
 import requests
 
 # API conf
 base_url = 'http://inlovewith.space/dev/web'
 get_work_url = base_url + '/?get_job'
 put_work_url = base_url + '/?put_job'
-benchmark_url = base_url + '/?agents_api'
+agents_url = base_url + '/?agents_api'
 alive_url = base_url + '/?agents_api'
 user_key = ''
 user_key_file = 'user_key.txt'
@@ -29,7 +28,7 @@ speed_regex = r"[0-9]+ [HKM]+(/s)"
 
 # Folders
 dict_folder = 'dicts/'
-hccap_folder = 'hccap/'
+hccapx_folder = 'hccap/'
 hash_folder = 'hashes/'
 
 # Cracker arguments
@@ -121,46 +120,19 @@ def put_alive():
         time.sleep(60)
 
 
-job = {}
-
 # Check folders
 if not os.path.exists(dict_folder):
     os.makedirs(dict_folder)
-if not os.path.exists(hccap_folder):
-    os.makedirs(hccap_folder)
+if not os.path.exists(hccapx_folder):
+    os.makedirs(hccapx_folder)
 if not os.path.exists(hash_folder):
     os.makedirs(hash_folder)
-
-# Check benchmark
-if not os.path.exists(benchmark):
-    print("Benchmarking...")
-    runner = params['benchmark'].format(hashcat)
-    try:
-        o, e = subprocess.Popen(shlex.split(runner), stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-        o = o.decode('utf-8')
-        import re
-
-        speed = re.search(speed_regex, o)[0].split(' ')
-        speed[0] = int(speed[0])
-        if speed[1] == 'KH/s':
-            speed[0] = speed[0] * 1000
-        if speed[1] == 'MH/s':
-            speed[0] = speed[0] * 1000000
-        with open(benchmark, 'w') as f:
-            f.write(str(speed[0]))
-        f.close()
-
-        r = requests.post(benchmark_url, json={'performance': speed[0], 'user_key': user_key})
-        if r.status_code != 200:
-            print("Unable to send performance")
-            exit(1)
-
-    except Exception as ex:
-        print(ex)
+if os.path.exists(outfile):
+    os.unlink(outfile)
 
 # Check user key
 if not os.path.exists(user_key_file):
-    print("User key not specified in user_key.txt\nEnter key or type n:\n")
+    print("User key not specified in user_key.txt\nEnter key or type n to get key:\n")
     answer = input()
     if answer not in ['N', 'n']:
         user_key = answer
@@ -168,21 +140,48 @@ if not os.path.exists(user_key_file):
             f.write(user_key)
         f.close()
     else:
-        import secrets
+        import secrets, platform, re
 
-        user_key = secrets.token_urlsafe(16)
+        user_key = secrets.token_hex(16)
         with open(user_key_file, 'w') as f:
             f.write(user_key)
         f.close()
+
+        print("Benchmarking...")
+        runner = params['benchmark'].format(hashcat)
+        try:
+            o, e = subprocess.Popen(shlex.split(runner), stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            o = o.decode('utf-8')
+
+            speed = re.search(speed_regex, o)[0].split(' ')
+            speed[0] = int(speed[0])
+            if speed[1] == 'KH/s':
+                speed[0] = speed[0] * 1000
+            if speed[1] == 'MH/s':
+                speed[0] = speed[0] * 1000000
+            with open(benchmark, 'w') as f:
+                f.write(str(speed[0]))
+            f.close()
+        except Exception as ex:
+            print(ex)
+
+        system_info = '{} {} {}'.format(platform.system(), platform.release(), platform.architecture()[0])
+
+        r = requests.post(agents_url, json={'performance': speed[0], 'system_info': system_info, 'user_key': user_key})
+        if r.status_code != 200:
+            print("Unable to send data")
+            exit(1)
+
 else:
     with open(user_key_file, 'r') as f:
         user_key = f.readline().rstrip('\n')
     f.close()
-
+    
 t = threading.Thread(target=put_alive, daemon=True)
 t.start()
 
 try:
+    job = {}
     while True:
         dict_queue = queue.deque()  # Queue for dictionaries
         brutefile = ''
@@ -195,16 +194,18 @@ try:
             if job['id'] == '-1':
                 print("No tasks. Nothing to do.")
                 exit(1)
-    
+
             # Delete spaces in taskname
             taskname = ''.join(job['name'].split(' '))
-    
+
             job_type = job['type']
-    
+            # dict_type = job['dict_type']
+            dict_type = '0'
+
             # Download hashes
             if job_type == '0':
                 # Download brutefile and check hashsum
-                brutefile = hccap_folder + taskname + ".hccap"
+                brutefile = hccapx_folder + taskname + ".hccapx"
                 download_file(job['url'], brutefile)
                 if not check_hash(brutefile, job['hash']):
                     print("[ERROR] Checksums do not match")
@@ -214,59 +215,68 @@ try:
                 with open(brutefile, 'w') as f:
                     f.write('{}::::{}:{}'.format(job['username'], job['response'], job['challenge']))
                 f.close()
-    
+
             # Downaload all dicts and check hashsums
             for i in job['dicts']:
-                filename = dict_folder + i['dict_url'].split('/')[-1]
-                if not os.path.exists(filename):
-                    print('Downloading {}'.format(filename))
-                    download_file(i['dict_url'], filename)
+                # if i['dict_type'] == '0': # Temporary disable type checking
+                if True:
+                    filename = dict_folder + i['dict_url'].split('/')[-1]
+                    if not os.path.exists(filename):
+                        print('Downloading {}'.format(filename))
+                        download_file(i['dict_url'], filename)
+                    else:
+                        if not check_hash(filename, i['dict_hash']):
+                            print('Downloading {}'.format(filename))
+                            download_file(i['dict_url'], filename)
                     if not check_hash(filename, i['dict_hash']):
                         print("[ERROR] Checksums do not match. Exiting...")
                         exit(1)
-                else:
-                    if not check_hash(filename, i['dict_hash']):
-                        print('Downloading {}'.format(filename))
-                        download_file(i['dict_url'], filename)
-                        if not check_hash(filename, i['dict_hash']):
-                            print("[ERROR] Checksums do not match. Exiting...")
-                            exit(1)
-                extension = filename.split('.')[-1]
-                # Unpack dictionaries if necessary
-                if extension == 'gz':
-                    if not os.path.exists(''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]):
-                        print("Unpacking {}".format(filename))
-                        ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
-                        # filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
-                    dict_queue.append((filename[:-3], i['dict_id']))
-                else:
-                    dict_queue.append((filename, i['dict_id']))
-    
+                    extension = filename.split('.')[-1]
+                    # Unpack dictionaries if necessary
+                    if extension == 'gz':
+                        if not os.path.exists(''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]):
+                            print("Unpacking {}".format(filename))
+                            ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
+                            # filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
+                        dict_queue.append((filename[:-3], i['dict_id'], '0'))
+                    else:
+                        dict_queue.append((filename, i['dict_id'], '0'))
+                '''if i['dict_type'] == '1'
+                    dict_queue.append(i)'''
+
         # run hashcat for every dict
         while len(dict_queue):
+            # 0 - filename, 1 - dict_id, 2 - dict_type
             i = dict_queue.popleft()  # i = current dictionary
-            dict_file = i[0]
             dict_id = i[1]
-    
+            curr_dict = ''
+            cracker = ''
+
             try:
                 if job_type in ['0', '1']:
+                    if i[2] == '0':
+                        curr_dict = i[0]
+
+                    if i[2] == '1':
+                        curr_dict = i[0]
+
                     cracker = params[job_type].format(hashcat,
                                                       performance,
                                                       outfile,
                                                       brutefile,
-                                                      dict_file)
+                                                      curr_dict)
                 else:
                     exit(1)
-    
+
                 # Send status to api
                 put_job({"job_status": "started",
                          "task_id": job['id'],
                          "dict_id": dict_id,
                          "user_key": user_key})
-    
+
                 # Run hashcat with arguments
                 subprocess.check_call(shlex.split(cracker))
-    
+
             # Catch exceptions and returncodes
             except subprocess.CalledProcessError as ex:
                 if ex.returncode == -2:
@@ -293,7 +303,7 @@ try:
                 if os.path.exists(outfile):
                     os.unlink(outfile)
                     exit(1)
-    
+
             if os.path.exists(outfile):  # If bruted
                 k = open(outfile, 'r')
                 key = k.readline()
@@ -314,7 +324,7 @@ try:
                     os.unlink(outfile)
                     break
                 else:
-                    print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_file))
+                    print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], curr_dict))
                     while not put_job({'job_status': 'finished',  # Send fail status
                                        'task_id': job['id'],
                                        'dict_id': dict_id,
@@ -332,15 +342,15 @@ try:
                                    'dict_status': '1',
                                    'net_key': ""}):
                     print("Can't data to server")'''
-    
+
             # cleanup
             if os.path.exists(outfile):
                 os.unlink(outfile)
-    
+
         # reset job
         print("Going to next job")
         job = {}
         time.sleep(2)
-except Exception as ex:
+except KeyboardInterrupt as ex:
     print("Exiting...")
     exit(1)
