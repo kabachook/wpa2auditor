@@ -68,8 +68,8 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 
 //CMS
 $content = 'content/';
-$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'dicts', 'get_job', 'put_job', 'stat', 'search', 'profile' );
-$keys_if = array( 'get_job', 'put_job' );
+$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'dicts', 'get_job', 'put_job', 'stat', 'search', 'profile', 'agents', 'agents_api' );
+$keys_if = array( 'get_job', 'put_job', 'agents_api' );
 
 list( $key ) = each( $_GET );
 if ( !in_array( $key, $keys ) )

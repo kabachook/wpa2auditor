@@ -33,6 +33,7 @@
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
 	<script src="js/dicts.js" async=""></script>
+	<script src="js/agents.js" async=""></script>
 
 </head>
 
@@ -51,6 +52,8 @@
 				<li class="nav-item"><a class="nav-link" href="?tasks">Tasks</a>
 				</li>
 				<li class="nav-item"><a class="nav-link" href="?dicts">Dicts</a>
+				</li>
+				<li class="nav-item"><a class="nav-link" href="?agents">Agents</a>
 				</li>
 			</ul>
 
