@@ -35,8 +35,8 @@ if ( $status == "finished" ) {
 	if ( $task_status == 2 ) {
 		//Delete all dicts_tasks for this job
 		$sql = "DELETE FROM tasks_dicts WHERE net_id='" . $task_id . "'";
-		$mysqli->query($sql);
-		
+		$mysqli->query( $sql );
+
 		//Password found
 		$net_key = $json[ 'net_key' ];
 		$sql = "UPDATE tasks SET net_key='" . $net_key . "' WHERE id='" . $task_id . "'";
@@ -52,7 +52,7 @@ if ( $status == "finished" ) {
 	$mysqli->query( $sql );
 }
 
-if ($status != "started" && $status != "finished") {
-	http_response_code(404);
+if ( $status != "started" && $status != "finished" ) {
+	http_response_code( 404 );
 }
 ?>

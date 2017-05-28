@@ -1,7 +1,11 @@
 <?php
 
+//Configuration
 include( '../conf.php' );
-include( '../db.php');
+
+//Connect to DB
+include( '../db.php' );
+
 include( '../Model/File.abstract.php' );
 
 class Handshake extends File {
@@ -14,14 +18,13 @@ class Handshake extends File {
 
 	}
 
-	static
-	function get_handshake_from_db( $task_id ) {
+	static function get_handshake_from_db( $task_id ) {
 
 		//vars
 		global $mysqli;
 		$instance = new self();
 
-		//Get all info from DB
+		//Get all info from DB for task with task_id
 		$sql = "SELECT * FROM tasks WHERE id='" . $task_id . "'";
 		$result = $mysqli->query( $sql );
 		if ( $result == false )
@@ -29,6 +32,8 @@ class Handshake extends File {
 		$result = $result->fetch_object();
 
 		$instance->server_path = $result->server_path;
+		
+		//Get info from handshake file
 		$info = $instance->get_handshake_info( $instance->server_path );
 
 		array_push( $instance->array_of_handshakes, array( "structure" => $info ) );
@@ -37,9 +42,8 @@ class Handshake extends File {
 
 	}
 
-	static
-	function get_handshake_from_file( $file ) {
-		
+	static function get_handshake_from_file( $file ) {
+
 		//vars
 		global $cfg_tasks_target_folder;
 		global $cfg_tasks_max_file_size;
@@ -55,6 +59,7 @@ class Handshake extends File {
 		//Get size and ext from file
 		$instance->get_information_from_file( $file );
 
+		//Path where we want to upload file on server
 		$instance->target_file = $cfg_tasks_target_folder . $instance->filename . $instance->extension;
 
 		//Check file exists
@@ -72,34 +77,21 @@ class Handshake extends File {
 		//Try to move file
 		if ( !move_uploaded_file( $file[ "tmp_name" ], $instance->target_file ) )
 			throw new Exception( 'Error while moving file on server from ' . $file[ 'tmp_name' ] . ' to ' . $instance->target_file . $instance->extension, 3 );
-
+		
 		if ( $instance->extension == ".cap" ) {
 
-			/*	//Integrity check
-				$tmp = check_handshake_integrity();
-				if ( $tmp == false )
-					throw new Exception( 'Fail to check handshake integrity.', 4 );
-				else
-					$target_file = $tmp;
-				
-				//Clean handshake
-				$tmp = clean_handshake();
-				if ( $tmp == false )
-					throw new Exception( 'Fail while clean handshake.', 5 );
-				else
-					$target_file = $tmp;
-			*/
-
 			//Cap converter
-			$instance->extension = ".hccapx";
+			
+			//Change extension
+			$instance->extension = ".hccapx"; 
+			
+			//Convert handshake from cap to hccapx
 			$tmp = $instance->cap_converter( $instance->target_file, $cfg_tasks_target_folder . $instance->filename . $instance->extension, $cfg_tools_cap2hccapx );
 			if ( $tmp == false )
 				throw new Exception( 'Fail while convert handshake.', 6 );
-			$instance->size = 393;
-
 		}
 
-		//Handshake slice
+		//Cut the hccapx handshake into parts of 393 bytes
 		$sliced = $instance->slice_handshake( $cfg_tasks_target_folder, $instance->filename, $instance->extension, $instance->size, $cfg_site_url . "tasks/" );
 		if ( $sliced == false )
 			throw new Exception( 'Fail while slice handshake.', 7 );
@@ -118,8 +110,8 @@ class Handshake extends File {
 	}
 
 	function check_key( $key ) {
-		
-		$ahccap = $this->array_of_handshakes[0]['structure'];
+
+		$ahccap = $this->array_of_handshakes[ 0 ][ 'structure' ];
 
 		$m = $ahccap[ 'm' ];
 		$n = $ahccap[ 'n' ];
@@ -141,23 +133,11 @@ class Handshake extends File {
 		return false;
 	}
 
-	function uniq_hash( $keymic, $mac_ap, $essid ) {
+	private function uniq_hash( $keymic, $mac_ap, $essid ) {
 		return md5( $keymic . $mac_ap . $essid );
 	}
 
-	function check_handshake_integrity() {
-		//TODO
-		//coWPAtty here
-		return false;
-	}
-
-	function clean_handshake() {
-		//TOOD
-		//WPACLEAN
-		return false;
-	}
-
-	function cap_converter( $in, $out, $cfg_tools_cap2hccapx ) {
+	protected function cap_converter( $in, $out, $cfg_tools_cap2hccapx ) {
 
 		//Run cap2hccapx tool
 		exec( $cfg_tools_cap2hccapx . " " . $in . " " . $out );
@@ -169,22 +149,29 @@ class Handshake extends File {
 		return filesize( $out );
 	}
 
-	function slice_handshake( $base, $filename, $ext, $size, $cfg_site_url ) {
-
+	protected function slice_handshake( $base, $filename, $ext, $size, $cfg_site_url ) {
+		
+		//Input file
 		$in = $base . $filename . $ext;
 
 		$array = [];
 
 		if ( $size % 393 == 0 ) {
+			
+			//Get content of input file
 			$original = file_get_contents( $in );
 
 			for ( $i = 0; $i < $size; $i += 393 ) {
-
+				
+				//Cut the hccapx handshake into parts of 393 bytes
 				$sliced = substr( $original, $i, 393 );
+				//Generate random name
 				$filename = $this->generate_random_string( 16 ) . $ext;
-
+				
+				//Write file
 				fwrite( fopen( $base . $filename, "w" ), $sliced );
-
+				
+				//Get sha256 hash of file
 				$task_hash = hash_file( "sha256", $base . $filename );
 				$server_path = $base . $filename;
 				$site_path = $cfg_site_url . $filename;
@@ -192,16 +179,17 @@ class Handshake extends File {
 
 				array_push( $array, array( "task_hash" => $task_hash, "type" => $this->type, "server_path" => $server_path, "site_path" => $site_path, "extension" => $ext, "size" => $filesize ) );
 			}
-
+			
+			//Delete original input file
 			unlink( $in );
 
 			return $array;
 		}
-
+		
 		return false;
 	}
 
-	function get_handshake_info( $file ) {
+	protected function get_handshake_info( $file ) {
 
 		//Open and read handshake file from $file
 		$hccapx = file_get_contents( $file );
@@ -264,6 +252,5 @@ class Handshake extends File {
 	function get_array_of_handshakes() {
 		return $this->array_of_handshakes;
 	}
-
 }
 ?>

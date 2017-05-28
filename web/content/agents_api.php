@@ -11,7 +11,7 @@ $json = json_decode( file_get_contents( 'php://input' ), true );
 if ( isset( $json[ 'alive' ] ) ) {
 	$agent_key = $json[ 'alive' ];
 	$sql = "UPDATE agents SET status='1' WHERE agent_key=UNHEX('" . $agent_key . "')";
-	$mysqli->query($sql);
+	$mysqli->query( $sql );
 	exit();
 }
 
@@ -32,8 +32,7 @@ if ( $result->num_rows != 0 ) {
 $perf = $json[ 'performance' ];
 $sysinfo = $json[ 'system_info' ];
 
-$sql = "INSERT INTO agents(user_id, user_nick, agent_key, os, perf) VALUES('" . $user_id . "', '" . $nick . "', UNHEX('" . $agent_key . "'), '" . $sysinfo . "', '" . $perf . "')";var_dump($sql);
+$sql = "INSERT INTO agents(user_id, user_nick, agent_key, os, perf) VALUES('" . $user_id . "', '" . $nick . "', UNHEX('" . $agent_key . "'), '" . $sysinfo . "', '" . $perf . "')";
 $mysqli->query( $sql );
-
 
 ?>

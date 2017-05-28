@@ -9,10 +9,9 @@ var agentsTableUrl = agentsBaseUrl + agentsPrefix + "table";
 var agentsPaggerUrl = agentsBaseUrl + agentsPrefix + "pagger";
 
 //Draw table
-//DIV
-var agentsAjaxTableDivID = "#ajaxTableDiv";
-//TABLE
-var agentsAjaxTableID = "#agentsTable";
+
+var agentsAjaxTableDivID = "#ajaxTableDiv"; //DIV ID
+var agentsAjaxTableID = "#agentsTable"; //TABLE ID
 
 class Agents {
 
@@ -23,13 +22,14 @@ class Agents {
 			Agents.colorStatus();
 		}, "json");
 	}
-	
+
 	static colorStatus() {
-		
+
 	}
-	
+
 	static drawTable(data) {
 
+		//Draw table start
 		$(agentsAjaxTableDivID).html(
 
 			'<div class="panel panel-default">' +
@@ -43,18 +43,24 @@ class Agents {
 			'<th>Status</th>' +
 			'<th>Last seen</th>' +
 			'</tr>'
-			
+
 		);
 
-		var id = 1;
+		//Draw table body
 		data.forEach(function (element, index, array) {
 
-			$(agentsAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td>' + element.nick + '</td><td>' + element.os + '</td><td>' + element.perf + '</td><td>' + element.status + '</td><td>' + element.ts + '</td>' + '</tr>');
-			
-			id++;
+			$(agentsAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td>' + element.nick + '</td><td>' + element.os + '</td><td>' + element.perf + '</td><td>' + element.status + '</td><td>' + element.ts + '</td>' + '</tr>');
 		});
+
+		//Draw table end
+		$(agentsAjaxTableDivID).append(
+
+			'</tbody>' +
+			'</table>' +
+			'</div>'
+
+		);
 	}
-	
 }
 
 //After page fully loaded

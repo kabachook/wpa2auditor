@@ -1,9 +1,10 @@
 <?php
 
 //Shut down error reporting
-error_reporting( 0 );	
-include('../db.php');
-include('../Model/Agent.class.php');
+error_reporting( 0 );
+
+include( '../db.php' );
+include( '../Model/Agent.class.php' );
 
 global $mysqli;
 
@@ -33,32 +34,32 @@ $offset = ( $page - 1 ) * $limit;
 $start = $offset + 1;
 $end = min( ( $offset + $limit ), $total );
 
-if ($_GET['ajax'] == 'table') {
-	
+if ( $_GET[ 'ajax' ] == 'table' ) {
+
 	header( 'Content-Type: application/json' );
-	
+
 	$json = [];
-	
+
 	$sql = "SELECT * FROM agents ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
-	$result = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
-	foreach($result as $agent) {
-		$Agent = Agent::get_agent_from_db($agent['id']);
+	$result = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
+	foreach ( $result as $agent ) {
+		$Agent = Agent::get_agent_from_db( $agent[ 'id' ] );
 		$info = $Agent->get_all_info();
-		array_push($json, $info);
+		array_push( $json, $info );
 	}
-	echo json_encode($json);
+	echo json_encode( $json );
 	exit();
 }
 
 ?>
 
- <div class="container">
- 
- 	<h2>Agents</h2>
- 
- 	<!-- Table start -->
- 	<div id="ajaxTableDiv">
- 	</div>
- 	<!-- Table end -->
- 	
+<div class="container">
+
+	<h2>Agents</h2>
+
+	<!-- Table start -->
+	<div id="ajaxTableDiv">
+	</div>
+	<!-- Table end -->
+
 </div>

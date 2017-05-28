@@ -3,7 +3,7 @@
 include( '../db.php' );
 
 class Task {
-	
+
 	private $server_path;
 	private $site_path;
 	private $task_name;
@@ -25,7 +25,7 @@ class Task {
 	private $status;
 	private $net_key;
 	private $id;
-	
+
 	private $task_id;
 
 	function __construct() {
@@ -40,9 +40,9 @@ class Task {
 
 		//Get all info from DB
 		$sql = "SELECT * FROM tasks WHERE id='" . $task_id . "'";
-		$result = $mysqli->query($sql);
-		if ($result == false)
-			throw new Exception("Error in handling to DB.");
+		$result = $mysqli->query( $sql );
+		if ( $result == false )
+			throw new Exception( "Error in handling to DB." );
 		$result = $result->fetch_object();
 
 		$instance->server_path = $result->server_path;
@@ -70,20 +70,25 @@ class Task {
 
 		$instance->task_name = $task_name;
 		$instance->user_id = $user_id;
-		
-		$tmp = $instance->get_information_from_handshake( $Handshake );
-		if($tmp == false)
-			throw new Exception("Error while getting info from handshake", 88);
 
+		//Get information from handshake/NTLM hash
+		$tmp = $instance->get_information_from_handshake( $Handshake );
+		if ( $tmp == false )
+			throw new Exception( "Error while getting info from handshake", 88 );
+
+		//Check hash uniq
 		if ( !( $instance->check_uniq( $mysqli, $instance->uniq_hash ) ) )
 			throw new Exception( "Hash is not uniq.", 14 );
 
-		if( $instance->add_task_to_db( $mysqli ) == false)
-			throw new Exception("Error while adding task to DB.");
-		
+		//Add task to DB
+		if ( $instance->add_task_to_db( $mysqli ) == false )
+			throw new Exception( "Error while adding task to DB." );
+
+		//Get id of inserted task
 		$instance->task_id = $mysqli->insert_id;
-		
-		$instance->add_dicts_to_task($mysqli);
+
+		//Add all dicts to task in tasks_dicts
+		$instance->add_dicts_to_task( $mysqli );
 
 		return $instance;
 
@@ -105,33 +110,32 @@ class Task {
 		return $info;
 	}
 
-	function check_uniq( $mysqli, $hash ) {
+	private function check_uniq( $mysqli, $hash ) {
+
 		$sql = "SELECT * FROM tasks WHERE uniq_hash=UNHEX('" . $hash . "')";
 		$result = $mysqli->query( $sql )->num_rows;
-		
+
 		if ( $result != 0 )
 			return false;
-		
+
 		return true;
 	}
 
-	function get_network_key( $mysqli, $id ) {
+	private function get_network_key( $mysqli, $id ) {
+
 		$sql = "SELECT net_key FROM tasks WHERE id='" . $id . "'";
 		$net_key = $mysqli->query( $sql )->fetch_object()->net_key;
-		
+
 		if ( $net_key == 0 )
 			return false;
-		else 
+		else
 			return $net_key;
-	}
-	
-	function check_network_key($net_key) {
-		
 	}
 
 	function deleteTask() {
+
 		global $mysqli;
-		
+
 		//Delete file
 		unlink( $this->server_path );
 
@@ -140,7 +144,7 @@ class Task {
 		$mysqli->query( $sql );
 	}
 
-	function get_information_from_handshake( $handshake ) {
+	private function get_information_from_handshake( $handshake ) {
 
 		$type = $handshake[ 'type' ];
 
@@ -166,11 +170,11 @@ class Task {
 				//In case of error
 				return false;
 		}
-		
+
 		return true;
 	}
 
-	function add_task_to_db( $mysqli ) {
+	private function add_task_to_db( $mysqli ) {
 
 		switch ( $this->type ) {
 			case 0:
@@ -189,20 +193,19 @@ class Task {
 		//Add task to DB
 		return $mysqli->query( $sql );
 	}
-	
-	function add_dicts_to_task($mysqli) {
-		
-		//Get all dicts id
-		$sql = "SELECT id FROM dicts";
-		$result = $mysqli->query($sql)->fetch_all(MYSQLI_ASSOC);
 
-		//Insert into tasks_dicts for last (current) task all dicts
-		foreach ($result as $row) {
-			$dict_curr_id = $row['id'];
+	private function add_dicts_to_task( $mysqli ) {
+
+		//Get id for every dicts
+		$sql = "SELECT id FROM dicts";
+		$result = $mysqli->query( $sql )->fetch_all( MYSQLI_ASSOC );
+
+		//Insert into tasks_dicts for current task all dicts
+		foreach ( $result as $row ) {
+			$dict_curr_id = $row[ 'id' ];
 			$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $this->task_id . "', '" . $dict_curr_id . "', '0')";
-			$mysqli->query($sql);
+			$mysqli->query( $sql );
 		}
-		
 	}
 }
 ?>

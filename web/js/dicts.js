@@ -22,9 +22,6 @@ var dictsAjaxPaggerDivID = "#ajaxPagger";
 
 var dictsFile;
 
-//ID Form with status
-var dictsResult_form;
-
 class Dictionary {
 
 	//Load\reload table
@@ -34,10 +31,13 @@ class Dictionary {
 		}, "json");
 	}
 
+	//Draw table
 	static drawTable(data) {
 
+		//Is user admin?
 		var admin = data.admin;
 
+		//Draw start of table
 		$(dictsAjaxTableDivID).html(
 
 			'<div class="panel panel-default">' +
@@ -53,15 +53,24 @@ class Dictionary {
 
 		);
 
-		var id = 1;
+		//Draw table
 		data.table.forEach(function (element, index, array) {
 
-			$(dictsAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td><strong>' + element.dict_name + '</strong></td><td>' + Dictionary.getHumSize(element.size) + '</td><td><a href="' + element.site_path + '" class="btn btn-default">DOWNLOAD</a></td>' +
+			$(dictsAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td><strong>' + element.dict_name + '</strong></td><td>' + Dictionary.getHumSize(element.size) + '</td><td><a href="' + element.site_path + '" class="btn btn-default">DOWNLOAD</a></td>' +
 				(admin ? '<td><form action="" method="get" onSubmit="Dictionary.ajaxDeleteDictionary(this);"><input type="hidden" name="deleteDictID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
-			id++;
 		});
+
+		//Draw end of table
+		$(dictsAjaxTableDivID).append(
+
+			'</tbody>' +
+			'</table>' +
+			'</div>'
+
+		);
 	}
 
+	//Get human-friendly size in MB, GB and etc instead of bytes
 	static getHumSize(size) {
 		//get size in bytes
 
@@ -77,7 +86,7 @@ class Dictionary {
 		return size.toFixed(2) + " " + sizes[i] + "B";
 	}
 
-
+	//Load pagination
 	static loadPagger() {
 		$.get(dictsPaggerUrl, function (data) {
 			Dictionary.drawPagger(data);
@@ -149,8 +158,6 @@ class Dictionary {
 			url: dictsBaseUrl, //page url
 			type: "POST",
 			data: data,
-			processData: false, // Dont process the tasksFiles
-			contentType: false, // string request
 			success: function () { //Data send success
 				Dictionary.loadTable();
 			},
@@ -160,6 +167,7 @@ class Dictionary {
 		});
 	}
 
+	//Upload dict
 	static ajaxUploadDict(vard) {
 
 		//Cancel submit form to server via POST wtih page reload
@@ -167,16 +175,20 @@ class Dictionary {
 
 		//Data to send
 		var data = new FormData();
+		var result_form;
 		var url;
 
 		dictsFile = vard.elements.upfile.files[0];
 
+		//File
 		data.append("upfile", dictsFile);
 		data.append("buttonUploadDict", true);
+
+		//Dict name that user enter
 		data.append("dict_name", vard.elements.dict_name.value);
 
 		url = dictsStatusOfDictURL;
-		dictsResult_form = dictsFormUploadID;
+		result_form = dictsFormUploadID;
 
 		jQuery.ajax({
 			url: url, //page url
@@ -189,7 +201,7 @@ class Dictionary {
 			success: function (response) {
 
 				//Reset all inputs
-				$("#" + dictsResult_form).get(0).reset();
+				$("#" + result_form).get(0).reset();
 
 				//Reload table
 				Dictionary.loadTable();

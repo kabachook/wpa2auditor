@@ -1,6 +1,7 @@
 "use strict";
 
 var tasksPageURL = "?tasks";
+
 //Auto-reload button
 //is clicked
 var tasksIsAutoReload = false;
@@ -91,10 +92,13 @@ class Task {
 		});
 	}
 
+	//Draw table
 	static drawTable(data) {
-
+		
+		//Is user admin?
 		var admin = data.admin;
-
+		
+		//Draw table start
 		$(tasksAjaxTableDivID).html(
 
 			'<div class="panel panel-default">' +
@@ -114,16 +118,24 @@ class Task {
 			'</tr>'
 
 		);
-
-		var id = 1;
+		
+		//Draw table body
 		data.table.forEach(function (element, index, array) {
 
 			var net_key = element.net_key === "0" ? '<input type="text" class="form-control wpaKeysTable" placeholder="Enter wpa key" name="' + element.id + '">' : "<strong>" + element.net_key + "</strong>";
 
-			$(tasksAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + id + '</strong></td><td>' + Task.getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + Task.getStatusByID(element.status) + '</td>' +
+			$(tasksAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td>' + Task.getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + Task.getStatusByID(element.status) + '</td>' +
 				(admin ? '<td><form action="" method="get" onSubmit="Task.ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
-			id++;
 		});
+		
+		//Draw table end
+		$(tasksAjaxTableDivID).append(
+
+			'</tbody>' +
+			'</table>' +
+			'</div>'
+
+		);
 	}
 
 	static getTypeByID(id) {
@@ -170,6 +182,7 @@ class Task {
 		}, "json");
 	}
 
+	//Draw pagination
 	static drawPagger(data) {
 		var result = '<nav aria-label="Page navigation"><ul class="pagination">';
 
@@ -221,8 +234,6 @@ class Task {
 			url: tasksBaseUrl, //page url
 			type: "POST",
 			data: data,
-			processData: false, // Dont process the tasksFiles
-			contentType: false, // string request
 			success: function () { //Data send success
 				Task.loadTable();
 			},
