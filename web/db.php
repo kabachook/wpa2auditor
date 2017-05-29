@@ -1,4 +1,6 @@
 <?php
+
+//Configuration
 require( 'conf.php' );
 
 //connect to db

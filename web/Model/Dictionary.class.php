@@ -1,7 +1,11 @@
 <?php
 
-include( 'conf.php' );
-include( 'db.php' );
+//Configuration
+include( '../conf.php' );
+
+//Connect to DB
+include( '../db.php' );
+
 include( 'File.abstract.php' );
 
 class Dictionary extends File {
@@ -22,13 +26,11 @@ class Dictionary extends File {
 
 	}
 
-	static
-
-	function get_dict_from_db( $dict_id ) {
+	static function get_dict_from_db( $dict_id ) {
 
 		//vars
 		$instance = new self();
-		
+
 		global $mysqli;
 
 		//Get all info from DB
@@ -37,7 +39,7 @@ class Dictionary extends File {
 		if ( $result == false )
 			throw new Exception( "Error in handling to DB." );
 		$result = $result->fetch_object();
-		
+
 		$instance->id = $dict_id;
 		$instance->server_path = $result->server_path;
 		$instance->site_path = $result->site_path;
@@ -48,9 +50,7 @@ class Dictionary extends File {
 		return $instance;
 	}
 
-	static
-
-	function get_dict_from_file( $file, $dict_name ) {
+	static function get_dict_from_file( $file, $dict_name ) {
 
 		//vars
 		global $cfg_dicts_target_folder;
@@ -65,9 +65,11 @@ class Dictionary extends File {
 
 		//Get size and ext
 		$instance->get_information_from_file( $file );
-
+		
+		//Where we want to upload file
 		$instance->target_file = $cfg_dicts_target_folder . $instance->file_name . $instance->extension;
-
+		
+		//Get dict name that user send
 		$instance->dict_name = $dict_name;
 
 		//Check file exists
@@ -88,18 +90,23 @@ class Dictionary extends File {
 
 		$instance->server_path = $cfg_dicts_target_folder . $instance->file_name . $instance->extension;
 		$instance->site_path = $cfg_site_url . "dicts/" . $instance->file_name . $instance->extension;
+		
+		//Get hash of handshake
 		$instance->hash = hash_file( "sha256", $instance->server_path );
-
+		
+		//Add dict to DB
 		$instance->add_dict_to_db( $mysqli );
 		
+		//Get id for query
 		$instance->id = $mysqli->insert_id;
 		
-		$instance->add_dict_to_tasks($mysqli);
+		//Add cuurent dict to all uncomlety tasks
+		$instance->add_dict_to_tasks( $mysqli );
 
 		return $instance;
 	}
 
-	function add_dict_to_db( $mysqli ) {
+	private function add_dict_to_db( $mysqli ) {
 
 		$sql = "INSERT INTO dicts(server_path, site_path, hash, dict_name, file_name, size) VALUES('" . $this->server_path . "', '" . $this->site_path . "', UNHEX('" . $this->hash . "'), '" . $this->dict_name . "', '" . $this->file_name . "', '" . $this->size . "')";
 		$mysqli->query( $sql );
@@ -120,11 +127,15 @@ class Dictionary extends File {
 	}
 
 	function delete_dict() {
+		
 		global $mysqli;
+		
 		//Id of dict for delete
 		$id = $this->id;
 
 		$path = $this->server_path;
+		
+		//Delete file
 		unlink( $path );
 
 		$sql = "DELETE FROM dicts WHERE id='" . $id . "'";
@@ -133,17 +144,18 @@ class Dictionary extends File {
 		$mysqli->query( $sql );
 
 	}
-	
-	function add_dict_to_tasks($mysqli) {
-		$sql = "SELECT id FROM tasks WHERE status NOT IN('2')";
-		$array_tasks = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
-		foreach ($array_tasks as $task) {
-			$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $task['id'] . "', '" . $this->id . "', '0')";
-			$mysqli->query($sql);
-		}
+
+	private function add_dict_to_tasks( $mysqli ) {
 		
+		//Get id for all uncomlety tasks
+		$sql = "SELECT id FROM tasks WHERE status NOT IN('2')";
+		$array_tasks = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
+		
+		//For all tasks add current dict
+		foreach ( $array_tasks as $task ) {
+			$sql = "INSERT INTO tasks_dicts(net_id, dict_id, status) VALUES('" . $task[ 'id' ] . "', '" . $this->id . "', '0')";
+			$mysqli->query( $sql );
+		}
 	}
-
 }
-
 ?>

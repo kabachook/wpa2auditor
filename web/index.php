@@ -18,11 +18,12 @@
 	<!--[if IE]>
    		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   	<![endif]-->
-	
+
 	<!-- Instead of glyphicon -->
 	<script src="https://use.fontawesome.com/15779f561f.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
-	
+
+	<!-- Bootstrap notify -->
 	<script src="js/bootstrap-notify.min.js" type="application/javascript"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
 
@@ -33,6 +34,7 @@
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
 	<script src="js/dicts.js" async=""></script>
+	<script src="js/agents.js" async=""></script>
 
 </head>
 
@@ -42,8 +44,8 @@
     		<span class="navbar-toggler-icon"></span>
   		</button>
 	
-		<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 
+		<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
 		<div class="collapse navbar-collapse" id="navbarNavDropdown">
@@ -52,64 +54,67 @@
 				</li>
 				<li class="nav-item"><a class="nav-link" href="?dicts">Dicts</a>
 				</li>
+				<li class="nav-item"><a class="nav-link" href="?agents">Agents</a>
+				</li>
 			</ul>
 
-				<!-- LOGIN BUTTON -->
-				
-				<form class="form-inline my-2 my-lg-0 m-2 mr-4" action="?search" method="post">
-					<div class="input-group">
-						<input type="text" class="form-control mr-1" placeholder="Search by ESSID" name="search_query">
-						<button type="submit" class="btn btn-secondary">Search</button>
-					</div>
-				</form>
-				
-				<?php
-				//Check if we have key in cookie
-				if (isset($_COOKIE['key'])) {
-				?>
-				
-				<form class="form-inline my-2 my-lg-0" action="" method="post">
-					<div class="input-group">
-						<span class="navbar-text  mb-2 mr-sm-2 mb-sm-0">Signed in as <strong><a href="?profile"><?php echo getNickname(); ?> </a></strong></span>
-						<input type="hidden" name="remkey" value="1"/><button type="submit" class="btn btn-secondary">Log out</button>
-					</div>
-				</form>
-
-				<?php
-				} else {
-					//If false - signin and signup button
-				?>
-				
-				<form class="form-inline my-2 my-lg-0" action="" method="post">
-					<div class="form-group">
-						<input type="text" class="form-control mr-1" placeholder="Key" name="key" maxlength="32">
-						<button type="submit" class="btn btn-secondary">Log in</button> <span class="mx-1">or</span> <a href="?get_key" class="btn btn-secondary">Sign up</a>
-					</div>
-				</form>
-				
-				<?php
-				}
-				?>
+			<!-- Search form start -->
+			<form class="form-inline my-2 my-lg-0 m-2 mr-4" action="?search" method="post">
+				<div class="input-group">
+					<input type="text" class="form-control mr-1" placeholder="Search by ESSID" name="search_query">
+					<button type="submit" class="btn btn-secondary">Search</button>
+				</div>
+			</form>
+			<!-- Search form end -->
 			
-				<!-- LOGIN BUTTON END -->	
+			<!-- LOGIN BUTTON -->
+			<?php
+			//Check if we have key in cookie
+			if (isset($_COOKIE['key'])) {
+				?>
+
+			<form class="form-inline my-2 my-lg-0" action="" method="post">
+				<div class="input-group">
+					<span class="navbar-text  mb-2 mr-sm-2 mb-sm-0">Signed in as <strong><a href="?profile"><?php echo getNickname(); ?> </a></strong></span>
+					<input type="hidden" name="remkey" value="1"/><button type="submit" class="btn btn-secondary">Log out</button>
+				</div>
+			</form>
+
+			<?php
+			} else {
+				//If false - signin and signup button
+				?>
+
+			<form class="form-inline my-2 my-lg-0" action="" method="post">
+				<div class="form-group">
+					<input type="text" class="form-control mr-1" placeholder="Key" name="key" maxlength="32">
+					<button type="submit" class="btn btn-secondary">Log in</button> <span class="mx-1">or</span> <a href="?get_key" class="btn btn-secondary">Sign up</a>
+				</div>
+			</form>
+
+			<?php
+			}
+			?>
+			<!-- LOGIN BUTTON END -->
+			
 		</div>
 		<!-- /.navbar-collapse -->
+		
 	</nav>
 	<!-- nav bar end -->
-		
+
 	<div id="content">
 		<?php include($cont) ?>
 	</div>
-	
+
 	<!-- FOOTER -->
 	<hr>
 	<div class="container">
 		<footer>
-			Copyright Nick Gant and AtomnijPchelovek
+			Copyright Nick Gant and AtomnijPchelovek 2017
 		</footer>
 	</div>
 	<!-- FOOTER END -->
 
 </body>
-
 </html>

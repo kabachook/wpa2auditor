@@ -1,9 +1,10 @@
-<?php 
+<?php
+
 //Shut down error reporting
-//FOR DEV ONLY
-error_reporting(0);
-include('..\Model/Dictionary.class.php');
-include('..\common.php');
+error_reporting( 0 );
+
+include( '../Model/Dictionary.class.php' );
+include( '../common.php' );
 
 global $admin;
 
@@ -13,50 +14,52 @@ $error_message = [
 	"type" => "success"
 ];
 
-if (isset($_POST['buttonUploadDict'])) {
+//Upload dict
+if ( isset( $_POST[ 'buttonUploadDict' ] ) ) {
 	try {
-		$Dict = Dictionary::get_dict_from_file($_FILES['upfile'], $_POST['dict_name']);
-	} catch(Exception $e) {
+		$Dict = Dictionary::get_dict_from_file( $_FILES[ 'upfile' ], $_POST[ 'dict_name' ] );
+	} catch ( Exception $e ) {
 		$error_message[ 'code' ] = $e->getCode();
 		$error_message[ 'message' ] = $e->getMessage();
 		$error_message[ 'type' ] = "danger";
 	}
 }
 
-if ($_POST['deleteDictionary'] == 'true') {
-	
-	//Id of dict for delete
-	$id = $_POST['deleteDictID'];
+//Delete dict
+if ( $_POST[ 'deleteDictionary' ] == 'true' ) {
 
-	$Dict = Dictionary::get_dict_from_db($id);
+	//Id of dict for delete
+	$id = $_POST[ 'deleteDictID' ];
+
+	$Dict = Dictionary::get_dict_from_db( $id );
 	$Dict->delete_dict();
 }
 
-if ($_GET['ajax'] == 'table') {
-	
+//Ajax get table
+if ( $_GET[ 'ajax' ] == 'table' ) {
+
 	header( 'Content-Type: application/json' );
-	
+
 	$ajax = [];
-	
+
 	$sql = "SELECT id FROM dicts";
-	$result = $mysqli->query($sql)->fetch_all(MYSQL_ASSOC);
-	foreach ($result as $dict) {
-		$Dict = Dictionary::get_dict_from_db($dict['id']);
-		array_push($ajax, $Dict->get_all_info());
+	$result = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
+	foreach ( $result as $dict ) {
+		$Dict = Dictionary::get_dict_from_db( $dict[ 'id' ] );
+		array_push( $ajax, $Dict->get_all_info() );
 	}
-	
-	$json['admin'] = $admin;
-	$json['table'] = $ajax;
-	
-	echo json_encode($json);
+
+	$json[ 'admin' ] = $admin;
+	$json[ 'table' ] = $ajax;
+
+	echo json_encode( $json );
 	exit();
 }
 
-if($_GET['ajax'] == 'statusDictUpload') {
-	echo json_encode($error_message);
+if ( $_GET[ 'ajax' ] == 'statusDictUpload' ) {
+	echo json_encode( $error_message );
 	exit();
 }
-
 ?>
 
 <div class="container">
@@ -71,7 +74,7 @@ if($_GET['ajax'] == 'statusDictUpload') {
 			<div id="ajaxTableDiv">
 			</div>
 			<!-- Table end -->
-		
+
 		</div>
 
 		<!-- side bar start -->
@@ -107,10 +110,6 @@ if($_GET['ajax'] == 'statusDictUpload') {
 			</form>
 		</div>
 		<!-- side bar end -->
-		
-	</div>
-</div>
 
-		
 	</div>
 </div>
