@@ -16,12 +16,12 @@
 							<th>Status</th>
 						</tr>
 						<?php
-						
+
 						//Shut down error reporting
 						error_reporting( 0 );
-						
+
 						$query = $_POST['search_query'];
-						
+
 						//List of status codes for tasks
 						function getStatus($status) {
 							$listOfStatus = [
@@ -38,8 +38,8 @@
 						$sql = "SELECT * FROM tasks WHERE essid LIKE '%" . $query . "%' OR task_name LIKE '%" . $query . "%'";
 
 						$result = $mysqli->query($sql)->fetch_all(MYSQLI_ASSOC);
-						
-						
+
+
 						$id = 0;
 						foreach ($result as $row) {
 							if ($row['net_key'] == '0') {
@@ -48,8 +48,8 @@
 								$key = "<strong>" . $row['net_key'] . "</strong>";
 							}
 							$id++;
-							$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['station_mac'] . '</td><td>' . $row['name'] . '</td><td>' . $row['essid'] . '</td><td>' . $key . '</td><td><a href="' . $row['site_path'] . '" class="btn btn-default"><span class="glyphicon glyphicon-download"></span></a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td>';
-							$tasks_admin_panel = '<td><a class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></a></td></tr>';
+							$str = '<tr><td><strong>' . $id . '</strong></td><td>' . $row['station_mac'] . '</td><td>' . $row['name'] . '</td><td>' . $row['essid'] . '</td><td>' . $key . '</td><td><a href="' . $row['site_path'] . '" class="btn btn-default"><i class="fa fa-download fa-lg"></i	></a><td>' . $row['agents'] . '</td><td class="status">' . getStatus($row['status']) . '</td>';
+							$tasks_admin_panel = '<td><a class="btn btn-default"><i class="fa fa-thrash fa-lg"></i></a></td></tr>';
 							echo $str;
 						}
 						?>

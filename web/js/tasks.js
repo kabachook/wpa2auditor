@@ -94,10 +94,10 @@ class Task {
 
 	//Draw table
 	static drawTable(data) {
-		
+
 		//Is user admin?
 		var admin = data.admin;
-		
+
 		//Draw table start
 		$(tasksAjaxTableDivID).html(
 
@@ -118,7 +118,7 @@ class Task {
 			'</tr>'
 
 		);
-		
+
 		//Draw table body
 		data.table.forEach(function (element, index, array) {
 
@@ -127,7 +127,7 @@ class Task {
 			$(tasksAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td>' + Task.getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + Task.getStatusByID(element.status) + '</td>' +
 				(admin ? '<td><form action="" method="get" onSubmit="Task.ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
 		});
-		
+
 		//Draw table end
 		$(tasksAjaxTableDivID).append(
 
@@ -391,7 +391,7 @@ class Task {
 //After page fully loaded
 $(function () {
 
-	if (document.URL.indexOf(tasksPageURL) > -1) {
+	if (document.URL.indexOf(tasksPageURL) >= -1) {
 		//Load and draw table
 		Task.loadTable();
 
