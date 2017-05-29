@@ -219,6 +219,13 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 		<div class="col-lg-9 offset-1">
 
 			<!-- Header start -->
+			
+			<br />
+			
+			<div class="alert alert-warning" role="alert">
+				<strong>Warning!</strong> Note that some networks may occur more than one time. This happens because they have different wpa passphrases.
+			</div>
+
 			<h2>Tasks</h2>
 
 			<div style="overflow: auto;" class="my-2">
@@ -348,7 +355,7 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 				</div>
 			</form>
 			<!-- Right side Bar end-->
-			
+
 		</div>
 	</div>
 </div>
