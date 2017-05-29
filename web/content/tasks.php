@@ -99,6 +99,8 @@ $limit = 10;
 // How many pages will there be
 $pages = ceil( $total / $limit );
 
+$pages = $pages > 0 ? $pages : 1;
+
 // What page are we currently on?
 $page = min( $pages, filter_input( INPUT_GET, 'page', FILTER_VALIDATE_INT, array(
 	'options' => array(
