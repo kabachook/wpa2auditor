@@ -89,6 +89,8 @@ class Handshake extends File {
 			$tmp = $instance->cap_converter( $instance->target_file, $cfg_tasks_target_folder . $instance->filename . $instance->extension, $cfg_tools_cap2hccapx );
 			if ( $tmp == false )
 				throw new Exception( 'Fail while convert handshake.', 6 );
+			
+			$instance->size = $tmp;
 		}
 
 		//Cut the hccapx handshake into parts of 393 bytes

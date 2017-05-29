@@ -138,12 +138,12 @@ class Task {
 	function deleteTask() {
 
 		global $mysqli;
-
+		
 		//Delete file
 		unlink( $this->server_path );
 
 		//Delete task from tasks
-		$sql = "DELETE FROM tasks WHERE id='" . $id . "'";
+		$sql = "DELETE FROM tasks WHERE id='" . $this->id . "'";
 		$mysqli->query( $sql );
 	}
 
