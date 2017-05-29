@@ -286,6 +286,7 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 									<input type="text" class="form-control" name="task_name" required="" placeholder="Enter task name">
 								</td>
 							</tr>
+							<?php if($admin) { ?>
 							<tr>
 								<td>
 									<label for="exampleSelect1">Select priority</label>
@@ -303,6 +304,7 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 									</select>
 								</td>
 							</tr>
+							<?php } ?>
 							<tr>
 								<td>
 									<input type="file" class="form-control fileinput" name="upfile" required="" id="upfile" accept=".cap, .hccapx">
