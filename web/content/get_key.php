@@ -132,10 +132,10 @@ if ( isset( $_COOKIE[ 'key' ] ) ) {
 		<div class="col-md-12">
 			<div class="modal-dialog" style="margin-bottom:0">
 				<div class="modal-content">
-					<div class="panel-heading">
-						<h3 class="panel-title"><strong>Sign Up</strong></h3>
+					<div class="modal-header">
+						<h3 class="modal-title"><strong>Sign Up</strong></h3>
 					</div>
-					<div class="panel-body">
+					<div class="modal-body">
 						<form role="form" method="post" action="">
 							<fieldset>
 								<div class="form-group">
@@ -149,7 +149,7 @@ if ( isset( $_COOKIE[ 'key' ] ) ) {
 								</div>
 								<div class="form-group">
 									<input type="hidden" name="rec_valid" value="1"/>
-									<button class="btn btn-sm btn-success">Sign up</button>
+									<button class="btn btn-md btn-success">Sign up</button>
 								</div>
 								<?php echo $error_reg_message; ?>
 							</fieldset>

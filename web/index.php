@@ -54,8 +54,10 @@
 				</li>
 				<li class="nav-item"><a class="nav-link" href="?dicts">Dicts</a>
 				</li>
+				<?php if($admin) { ?>
 				<li class="nav-item"><a class="nav-link" href="?agents">Agents</a>
 				</li>
+				<?php } ?>
 			</ul>
 
 			<!-- Search form start -->

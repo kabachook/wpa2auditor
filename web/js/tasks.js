@@ -253,7 +253,7 @@ class Task {
 		//Data to send
 		var data = new FormData();
 		var url;
-		var priority = vard.elements.tasksSelectPriority.value;
+		var priority = vard.elements.tasksSelectPriority === undefined ? 10 : vard.elements.tasksSelectPriority.value;
 		
 		if (type === "handshake") {
 
@@ -333,6 +333,9 @@ class Task {
 	
 	static getHumMac(mac) {
 		
+		if(mac === null) {
+			return "";
+		}
 		var humMac = "";
 		
 		for (var i = 0; i < 11; i += 2) {
@@ -407,7 +410,7 @@ class Task {
 //After page fully loaded
 $(function () {
 
-	if (document.URL.indexOf(tasksPageURL) >= -1) {
+	if (document.URL.indexOf(tasksPageURL) > -1) {
 		//Load and draw table
 		Task.loadTable();
 

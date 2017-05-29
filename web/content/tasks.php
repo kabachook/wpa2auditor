@@ -354,7 +354,25 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 									<input type="text" class="form-control" name="response" required="" placeholder="Response">
 								</td>
 							</tr>
-
+							<?php if($admin) { ?>
+							<tr>
+								<td>
+									<label for="exampleSelect1">Select priority</label>
+									<select class="form-control" id="tasksSelectPriority">
+										<option>1</option>
+										<option>2</option>
+										<option>3</option>
+										<option>4</option>
+										<option>5</option>
+										<option>6</option>
+										<option>7</option>
+										<option>8</option>
+										<option>9</option>
+										<option>10</option>
+									</select>
+								</td>
+							</tr>
+							<?php } ?>
 							<tr>
 								<td>
 									<input type="submit" class="btn btn-primary" value="Upload hash" name="buttonUploadHash" id="buttonUploadHash">

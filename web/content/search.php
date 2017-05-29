@@ -1,6 +1,5 @@
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-lg-9 col-lg-offset-1">
+<div class="container">
+	
 			<h2>Search</h2>
 			<div class="panel panel-default">
 				<table class="table table-striped table-bordered table-nonfluid">
@@ -57,5 +56,3 @@
 				</table>
 			</div>
 		</div>
-	</div>
-</div>
