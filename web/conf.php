@@ -7,11 +7,11 @@ $cfg_db_pass = 'wpapass';
 $cfg_db_name = 'wpa';
 
 //Dicts
-$cfg_dicts_max_file_size = 1e+8;
+$cfg_dicts_max_file_size = 1e+16;
 $cfg_dicts_allowed_ext = [ '.txt', '.zip', '.rar', '.7z', '.lst', '.dct', '.gz', '.tar', '.txt.gz' ];
 
 //Tasks
-$cfg_tasks_max_file_size = 1e+8;
+$cfg_tasks_max_file_size = 1e+16;
 $cfg_tasks_allowed_ext = [ '.cap', '.hccapx' ];
 
 //Change settings depending on the server (localhost or inlovewith)

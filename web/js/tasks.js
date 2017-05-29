@@ -197,17 +197,17 @@ class Task {
 			if (element.arrow === true) {
 
 				if (element.active === true) {
-					result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
+					result += '<li class="page-item"><a class="page-link disabled" onClick="Task.ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
 				} else {
-					result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
+					result += '<li class="page-item"><a class="page-link" onClick="Task.ajaxGetPage(' + element.page + ');" aria-label="Previous"><span aria-hidden="true">' + arrow + '</span><span class="sr-only">Previous</span></a></li>';
 				}
 
 			} else {
 
 				if (element.active === true) {
-					result += '<li class="page-item"><a class="page-link disabled" onClick="ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
+					result += '<li class="page-item"><a class="page-link disabled" onClick="Task.ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
 				} else {
-					result += '<li class="page-item"><a class="page-link" onClick="ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
+					result += '<li class="page-item"><a class="page-link" onClick="Task.ajaxGetPage(' + element.page + ');">' + element.page + '</a></li>';
 				}
 			}
 		});
