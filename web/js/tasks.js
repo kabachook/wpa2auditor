@@ -121,10 +121,10 @@ class Task {
 
 		//Draw table body
 		data.table.forEach(function (element, index, array) {
-
+			
 			var net_key = element.net_key === "0" ? '<input type="text" class="form-control wpaKeysTable" placeholder="Enter wpa key" name="' + element.id + '">' : "<strong>" + element.net_key + "</strong>";
 
-			$(tasksAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td>' + Task.getTypeByID(element.type) + '</td><td>' + element.station_mac + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + Task.getStatusByID(element.status) + '</td>' +
+			$(tasksAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td>' + Task.getTypeByID(element.type) + '</td><td>' + Task.getHumMac(element.station_mac) + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + Task.getStatusByID(element.status) + '</td>' +
 				(admin ? '<td><form action="" method="get" onSubmit="Task.ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
 		});
 
@@ -234,6 +234,8 @@ class Task {
 			url: tasksBaseUrl, //page url
 			type: "POST",
 			data: data,
+			processData: false, // Dont process the tasksFile
+			contentType: false, // string requset
 			success: function () { //Data send success
 				Task.loadTable();
 			},
@@ -251,7 +253,8 @@ class Task {
 		//Data to send
 		var data = new FormData();
 		var url;
-
+		var priority = vard.elements.tasksSelectPriority.value;
+		
 		if (type === "handshake") {
 
 			tasksResult_status = tasksUniqHandshakeStatusDivID;
@@ -279,6 +282,8 @@ class Task {
 			tasksResult_table = tasksTableUploadHashID;
 			tasksResult_form = tasksFormUploadNTLMHashID;
 		}
+		
+		data.append("priority", priority);
 
 		jQuery.ajax({
 			url: url, //page url
@@ -324,6 +329,17 @@ class Task {
 			},
 			mouse_over: "pause",
 		});
+	}
+	
+	static getHumMac(mac) {
+		
+		var humMac = "";
+		
+		for (var i = 0; i < 11; i += 2) {
+			humMac += mac.substring(i, i+2).toUpperCase() + ":";
+		}
+		
+		return humMac.substr(0, 17);
 	}
 
 	static ajaxSendWPAKeys() {

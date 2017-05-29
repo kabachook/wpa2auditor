@@ -24,6 +24,9 @@ $user_id = getUserID();
 if ( $_POST[ 'buttonUploadFile' ] == "true" ) {
 
 	$task_name = $_POST[ 'task_name' ];
+	$priority = "10";
+	if($admin)
+		$priority = $_POST['priority'];
 
 	//Upload handshake and get info about it
 	try {
@@ -39,7 +42,7 @@ if ( $_POST[ 'buttonUploadFile' ] == "true" ) {
 	//Add all handshakes to DB
 	foreach ( $arr as $hnsd ) {
 		try {
-			$tmp = Task::create_task_from_file( $hnsd, $user_id, $task_name );
+			$tmp = Task::create_task_from_file( $hnsd, $user_id, $task_name, $priority );
 		} catch ( Exception $e ) {
 			$error_message[ 'code' ] = $e->getCode();
 			$error_message[ 'message' ] = $e->getMessage();
@@ -52,6 +55,9 @@ if ( $_POST[ 'buttonUploadFile' ] == "true" ) {
 if ( $_POST[ 'buttonUploadHash' ] == "true" ) {
 
 	$task_name = $_POST[ 'task_name' ];
+	$priority = "10";
+	if($admin)
+		$priority = $_POST['priority'];
 
 	//Upload NTLM and get info about it
 	try {
@@ -66,7 +72,7 @@ if ( $_POST[ 'buttonUploadHash' ] == "true" ) {
 
 	//Add NTLM to DB
 	try {
-		$tmp = Task::create_task_from_file( $hash, $user_id, $task_name );
+		$tmp = Task::create_task_from_file( $hash, $user_id, $task_name, $priority );
 	} catch ( Exception $e ) {
 		$error_message[ 'code' ] = $e->getCode();
 		$error_message[ 'message' ] = $e->getMessage();
@@ -182,7 +188,6 @@ if ( $_POST[ 'deleteTask' ] == "true" && $admin ) {
 
 	//Get id
 	$id = $_POST[ 'deleteTaskID' ];
-
 	$Task = Task::create_task_from_db( $id );
 	$Task->deleteTask();
 }
@@ -222,6 +227,7 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 			
 			<br />
 			
+			<!-- Warning -->
 			<div class="alert alert-warning" role="alert">
 				<strong>Warning!</strong> Note that some networks may occur more than one time. This happens because they have different wpa passphrases.
 			</div>
@@ -281,7 +287,7 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 							<tr>
 								<td>
 									<label for="exampleSelect1">Select priority</label>
-									<select class="form-control" id="exampleSelect1">
+									<select class="form-control" id="tasksSelectPriority">
 										<option>1</option>
 										<option>2</option>
 										<option>3</option>

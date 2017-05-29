@@ -9,6 +9,7 @@ class Task {
 	private $task_name;
 	private $user_id;
 	private $type;
+	private $priority;
 
 	//Handshake
 	private $essid;
@@ -57,12 +58,13 @@ class Task {
 		$instance->status = $result->status;
 		$instance->net_key = $result->net_key;
 		$instance->id = $result->id;
+		$instance->priority = $result->priority;
 
 		return $instance;
 
 	}
 
-	static function create_task_from_file( $Handshake, $task_name, $user_id ) {
+	static function create_task_from_file( $Handshake, $task_name, $user_id, $priority ) {
 
 		//vars
 		global $mysqli;
@@ -70,6 +72,7 @@ class Task {
 
 		$instance->task_name = $task_name;
 		$instance->user_id = $user_id;
+		$instance->priority = $priority;
 
 		//Get information from handshake/NTLM hash
 		$tmp = $instance->get_information_from_handshake( $Handshake );
@@ -179,11 +182,11 @@ class Task {
 		switch ( $this->type ) {
 			case 0:
 				//Handshake
-				$sql = "INSERT INTO tasks(task_name, user_id, server_path, site_path, essid, station_mac, type, task_hash, uniq_hash) VALUES('" . $this->user_id . "', '" . $this->task_name . "', '" . $this->server_path . "', '" . $this->site_path . "', '" . $this->essid . "', '" . $this->station_mac . "', '" . $this->type . "', UNHEX('" . $this->task_hash . "'), UNHEX('" . $this->uniq_hash . "'))";
+				$sql = "INSERT INTO tasks(task_name, user_id, server_path, site_path, essid, station_mac, type, task_hash, uniq_hash, priority) VALUES('" . $this->user_id . "', '" . $this->task_name . "', '" . $this->server_path . "', '" . $this->site_path . "', '" . $this->essid . "', '" . $this->station_mac . "', '" . $this->type . "', UNHEX('" . $this->task_hash . "'), UNHEX('" . $this->uniq_hash . "'), '" . $this->priority . "')";
 				break;
 			case 1:
 				//NTLM
-				$sql = "INSERT INTO tasks(task_name, user_id, server_path, site_path, type, task_hash, uniq_hash, username, challenge, response) VALUES('" . $this->user_id . "', '" . $this->task_name . "', '" . $this->server_path . "', '" . $this->site_path . "', '1', UNHEX('" . $this->task_hash . "'), UNHEX('" . $this->uniq_hash . "'), '" . $this->username . "', '" . $this->challenge . "', '" . $this->response . "')";
+				$sql = "INSERT INTO tasks(task_name, user_id, server_path, site_path, type, task_hash, uniq_hash, username, challenge, response, priority) VALUES('" . $this->user_id . "', '" . $this->task_name . "', '" . $this->server_path . "', '" . $this->site_path . "', '1', UNHEX('" . $this->task_hash . "'), UNHEX('" . $this->uniq_hash . "'), '" . $this->username . "', '" . $this->challenge . "', '" . $this->response . "', '" . $this->priority . "')";
 				break;
 			default:
 				//In case of error
