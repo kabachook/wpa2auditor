@@ -33,17 +33,17 @@ if ( strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN' ) {
 } else {
 	
 	//Tasks settings
-	$cfg_tasks_target_folder = "var/www/html/dev/web/tasks/";
+	$cfg_tasks_target_folder = "/var/www/html/dev/web/tasks/";
 	
 	//Dicts settings
-	$cfg_dicts_target_folder = "var/www/html/dev/web/dicts/";
+	$cfg_dicts_target_folder = "/var/www/html/dev/web/dicts/";
 	
 	//Site
 	$cfg_site_url = 'http://inlovewith.space/dev/web/';
 	
 	//Tools
 	//CAP2HCCAPX
-	$cfg_tools_cap2hccapx = "var/www/html/dev/web/cap2hccapx/cap2hccapx.bin";
+	$cfg_tools_cap2hccapx = "/var/www/html/dev/web/cap2hccapx/cap2hccapx.bin";
 	
 }
 ?>
