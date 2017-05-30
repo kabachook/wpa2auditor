@@ -1,4 +1,8 @@
 <?php
+
+//Shut down error reporting
+//error_reporting( 0 );
+
 //Connect to db
 require( 'db.php' );
 
@@ -6,7 +10,7 @@ require( 'db.php' );
 $json = array();
 
 //Get last job from queue
-$sql = "SELECT * FROM tasks WHERE status NOT IN ('2', '3') ORDER BY id DESC LIMIT 1";
+$sql = "SELECT * FROM tasks WHERE status NOT IN ('2', '3') ORDER BY priority ASC LIMIT 1";
 $result = $mysqli->query( $sql );
 
 if ( $result->num_rows == 0 ) {

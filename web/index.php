@@ -35,6 +35,7 @@
 	<script src="js/tasks.js" async=""></script>
 	<script src="js/dicts.js" async=""></script>
 	<script src="js/agents.js" async=""></script>
+	<script src="js/search.js" async=""></script>
 
 </head>
 
@@ -44,6 +45,8 @@
     		<span class="navbar-toggler-icon"></span>
   		</button>
 	
+
+
 
 		<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 
@@ -68,16 +71,52 @@
 				</div>
 			</form>
 			<!-- Search form end -->
-			
+
 			<!-- LOGIN BUTTON -->
 			<?php
 			//Check if we have key in cookie
 			if (isset($_COOKIE['key'])) {
+
+				$sql = "SELECT * FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
+				$result = $mysqli->query($sql)->fetch_object();
+
 				?>
+
+			<!-- Modal -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+							<h4 class="modal-title" id="myModalLabel">My profile</h4>
+						</div>
+						<div class="modal-body">
+							<p>Your userkey is
+								<strong>
+									<?php echo bin2hex($result->userkey); ?> </strong>
+							</p>
+							<p>Your invite is
+								<strong>
+									<?php echo bin2hex($result->invite); ?> </strong>
+							</p>
+							<p>You invite
+								<strong>
+									<?php echo $result->invited_c; ?>
+								</strong> users</p>
+						</div>
+						<div class="modal-footer">
+							<center>
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close profile</button>
+							</center>
+						</div>
+					</div>
+				</div>
+			</div>
+
 
 			<form class="form-inline my-2 my-lg-0" action="" method="post">
 				<div class="input-group">
-					<span class="navbar-text  mb-2 mr-sm-2 mb-sm-0">Signed in as <strong><a href="?profile"><?php echo getNickname(); ?> </a></strong></span>
+					<span class="navbar-text  mb-2 mr-sm-2 mb-sm-0">Signed in as <strong><a href="#aboutModal" data-toggle="modal" data-target="#myModal"><?php echo getNickname(); ?> </a></strong></span>
 					<input type="hidden" name="remkey" value="1"/><button type="submit" class="btn btn-secondary">Log out</button>
 				</div>
 			</form>
@@ -98,10 +137,10 @@
 			}
 			?>
 			<!-- LOGIN BUTTON END -->
-			
+
 		</div>
 		<!-- /.navbar-collapse -->
-		
+
 	</nav>
 	<!-- nav bar end -->
 
@@ -119,4 +158,5 @@
 	<!-- FOOTER END -->
 
 </body>
+
 </html>

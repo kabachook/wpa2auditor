@@ -81,7 +81,7 @@ class Task {
 
 		//Check hash uniq
 		if ( !( $instance->check_uniq( $mysqli, $instance->uniq_hash ) ) )
-			throw new Exception( "Hash is not uniq.", 14 );
+			throw new Exception( "Sorry, but hash is not uniq. Try to find out it.", 14 );
 
 		//Add task to DB
 		if ( $instance->add_task_to_db( $mysqli ) == false )
@@ -109,6 +109,7 @@ class Task {
 		$info[ 'status' ] = $this->status;
 		$info[ 'net_key' ] = $this->net_key;
 		$info[ 'id' ] = $this->id;
+		$info[ 'priority' ] = $this->priority;
 
 		return $info;
 	}

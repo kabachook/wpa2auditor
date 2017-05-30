@@ -158,6 +158,8 @@ class Dictionary {
 			url: dictsBaseUrl, //page url
 			type: "POST",
 			data: data,
+			processData: false, // Dont process the tasksFile
+			contentType: false, // string requset
 			success: function () { //Data send success
 				Dictionary.loadTable();
 			},

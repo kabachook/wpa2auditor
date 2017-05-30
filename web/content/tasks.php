@@ -13,7 +13,7 @@ global $mysqli;
 
 $error_message = [
 	'code' => 0,
-	'message' => "All is OK.",
+	'message' => "All is OK. Your handshake/NTLM was uploaded succefully!",
 	"type" => "success"
 ];
 
@@ -25,8 +25,8 @@ if ( $_POST[ 'buttonUploadFile' ] == "true" ) {
 
 	$task_name = $_POST[ 'task_name' ];
 	$priority = "10";
-	if($admin)
-		$priority = $_POST['priority'];
+	if ( $admin )
+		$priority = $_POST[ 'priority' ];
 
 	//Upload handshake and get info about it
 	try {
@@ -56,8 +56,8 @@ if ( $_POST[ 'buttonUploadHash' ] == "true" ) {
 
 	$task_name = $_POST[ 'task_name' ];
 	$priority = "10";
-	if($admin)
-		$priority = $_POST['priority'];
+	if ( $admin )
+		$priority = $_POST[ 'priority' ];
 
 	//Upload NTLM and get info about it
 	try {
@@ -126,12 +126,12 @@ if ( $_GET[ 'ajax' ] == 'table' ) {
 	if ( $somn ) {
 
 		//Show only my networks, if user are logged in
-		$sql = "SELECT * FROM tasks WHERE user_id='" . $user_id . "' ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
+		$sql = "SELECT * FROM tasks WHERE user_id='" . $user_id . "' ORDER BY priority ASC LIMIT " . $limit . " OFFSET " . $offset;
 
 	} else {
 
 		//Else show all networks
-		$sql = "SELECT * FROM tasks ORDER BY id LIMIT " . $limit . " OFFSET " . $offset;
+		$sql = "SELECT * FROM tasks ORDER BY priority ASC LIMIT " . $limit . " OFFSET " . $offset;
 	}
 
 	$result = $mysqli->query( $sql )->fetch_all( MYSQL_ASSOC );
@@ -196,28 +196,63 @@ if ( $_POST[ 'deleteTask' ] == "true" && $admin ) {
 
 //WPA key
 if ( $_POST[ 'sendWPAKey' ] == "true" ) {
+	
+	$messages = [];
+	
+	$message_failed = [
+		'code' => 0,
+		'message' => "Sorry. It's wrong key",
+		"type" => "danger"
+	];
+	
+	$message_succ = [
+		'code' => 0,
+		'message' => "All is OK. It's right password, and it was added to DB succefully! Thank you.",
+		"type" => "success"
+	];
+
+	//header( 'Content-Type: application/json' );
 
 	foreach ( $_POST as $task_id => $wpa_key ) {
-
+		
+		$sql = "SELECT essid FROM tasks WHERE id='" . $task_id . "'";
+		$essid = $mysqli->query($sql)->fetch_object()->essid;
+		
 		//WPA Key must be from 8 to 64 symbols
 		//Ignoring POST value of submit button
-
-		//Check key lenght
-		if ( strlen( $wpa_key ) < 8 || strlen( $wpa_key ) > 64 || $wpa_key == 'true' )
+		
+		if($wpa_key == 'true')
 			continue;
-
+		//Check key lenght
+		if ( strlen( $wpa_key ) < 8 || strlen( $wpa_key ) > 64 ) {
+			$message_failed['message'] = "Password '" . $wpa_key . "' for " . $essid . " net is wrong, because it lenght is small than 8 or bigger than 64";
+			array_push($messages, $message_failed);
+			continue;
+		}
+			
 		//Create task with known id
 		$handshake = Handshake::get_handshake_from_db( $task_id );
 		$result = $handshake->check_key( $wpa_key );
-
+		
 		//If check_key return our key, key is valid
 		if ( $result == $wpa_key ) {
-
+			
 			//Update key and status in db
 			$sql = "UPDATE tasks SET status='2', net_key='" . $wpa_key . "' WHERE id='" . $task_id . "'";
 			$mysqli->query( $sql );
+			
+			$message_succ['message'] = "All is OK. Password '" . $wpa_key . "' right for " . $essid . " net, and it was added to DB succefully! Thank you.";
+			
+			array_push($messages, $message_succ);
+
+		} else {
+			$message_failed['message'] = "Sorry. Password '" . $wpa_key . "' for " . $essid . " net is wrong.";
+			array_push($messages, $message_failed);
 		}
 	}
+	
+	echo json_encode($messages);
+	exit();
 }
 ?>
 
@@ -226,9 +261,9 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 		<div class="col-lg-9 offset-1">
 
 			<!-- Header start -->
-			
-			<br />
-			
+
+			<br/>
+
 			<!-- Warning -->
 			<div class="alert alert-warning" role="alert">
 				<strong>Warning!</strong> Note that some networks may occur more than one time. This happens because they have different wpa passphrases.

@@ -72,7 +72,7 @@ if ( isset( $_POST[ 'remkey' ] ) ) {
 
 //CMS
 $content = 'content/';
-$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'dicts', 'get_job', 'put_job', 'search', 'profile', 'agents', 'agents_api' );
+$keys = array( 'home', 'tasks', 'dicts', 'get_key', 'dicts', 'get_job', 'put_job', 'search', 'agents', 'agents_api' );
 $keys_if = array( 'get_job', 'put_job', 'agents_api' );
 
 //Redirect user to home page if any error

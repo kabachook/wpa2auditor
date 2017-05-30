@@ -101,7 +101,7 @@ if ( $_GET[ 'ajax' ] == 'statusDictUpload' ) {
 							</tr>
 							<tr>
 								<td>
-									<input type="submit" class="btn btn-secondary" value="Upload files" name="buttonUploadFile">
+									<input type="submit" class="btn btn-primary" value="Upload files" name="buttonUploadFile">
 								</td>
 							</tr>
 						</tbody>

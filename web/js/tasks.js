@@ -107,6 +107,7 @@ class Task {
 			'<tr>' +
 			'<th>#</th>' +
 			'<th>Type</th>' +
+			'<th>Priority</th>' +
 			'<th>MAC</th>' +
 			'<th>Task name</th>' +
 			'<th>Net name</th>' +
@@ -124,7 +125,7 @@ class Task {
 			
 			var net_key = element.net_key === "0" ? '<input type="text" class="form-control wpaKeysTable" placeholder="Enter wpa key" name="' + element.id + '">' : "<strong>" + element.net_key + "</strong>";
 
-			$(tasksAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td>' + Task.getTypeByID(element.type) + '</td><td>' + Task.getHumMac(element.station_mac) + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + Task.getStatusByID(element.status) + '</td>' +
+			$(tasksAjaxTableID + " > tbody:last-child").append('<tr><td><strong>' + (index + 1) + '</strong></td><td>' + Task.getTypeByID(element.type) + '</td><td>' + element.priority + '</td><td>' + Task.getHumMac(element.station_mac) + '</td><td>' + element.task_name + '</td><td>' + element.essid + '</td><td>' + net_key + '</td><td><a href="' + element.site_path + '"><i class="fa fa-download fa-lg  "></i></a><td class="status">' + Task.getStatusByID(element.status) + '</td>' +
 				(admin ? '<td><form action="" method="get" onSubmit="Task.ajaxDeleteTask(this);"><input type="hidden" name="deleteTaskID" value="' + element.id + '"><button type="submit" class="btn btn-secondary" name="deleteTask"><i class="fa fa-trash-o"></i></button></form></td>' : '') + '</tr>');
 		});
 
@@ -371,8 +372,11 @@ class Task {
 			contentType: false, // string requset
 
 			//On success upload
-			success: function () {
+			success: function (data) {
 				Task.loadTable();
+				JSON.parse(data).forEach(function(element, index, array){
+					Task.genNotify(element.type, element.message);
+				});
 			},
 
 			//On error upload
