@@ -273,7 +273,8 @@ if ( $_POST[ 'sendWPAKey' ] == "true" ) {
 
 			<div style="overflow: auto;" class="my-2">
 
-				<?php if($admin) { ?>
+				<?php
+				if(getUserID() != -1) { ?>
 				<form style="float: left; padding-right: 5px;" action="" class="form-inline" method="POST" onSubmit="Task.showOnlyMyNetworks(this);">
 					<input type="submit" value="Show only my networks" class="btn btn-default" id="buttonShowOnlyMyNetworks">
 				</form>
