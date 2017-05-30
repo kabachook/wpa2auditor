@@ -28,7 +28,7 @@ speed_regex = r"[0-9]+ [HKM]+(/s)"
 
 # Folders
 dict_folder = 'dicts/'
-hccapx_folder = 'hccap/'
+hccapx_folder = 'hccapx/'
 hash_folder = 'hashes/'
 
 # Cracker arguments
@@ -49,7 +49,6 @@ params = {
 """
 
 
-# TODO: add checks and exeptions cather
 def download_file(url, filename):
     try:
         r = requests.get(url, stream=True)
@@ -171,12 +170,11 @@ if not os.path.exists(user_key_file):
         if r.status_code != 200:
             print("Unable to send data")
             exit(1)
-
 else:
     with open(user_key_file, 'r') as f:
         user_key = f.readline().rstrip('\n')
     f.close()
-    
+
 t = threading.Thread(target=put_alive, daemon=True)
 t.start()
 
@@ -192,15 +190,14 @@ try:
             job = get_job()
             print(job)
             if job['id'] == '-1':
-                print("No tasks. Nothing to do.")
-                exit(1)
+                print("No tasks. Nothing to do.\nSleeping for 5 mins...")
+                time.sleep(300)
+                continue
 
             # Delete spaces in taskname
             taskname = ''.join(job['name'].split(' '))
 
             job_type = job['type']
-            # dict_type = job['dict_type']
-            dict_type = '0'
 
             # Download hashes
             if job_type == '0':
@@ -219,52 +216,43 @@ try:
             # Downaload all dicts and check hashsums
             for i in job['dicts']:
                 # if i['dict_type'] == '0': # Temporary disable type checking
-                if True:
-                    filename = dict_folder + i['dict_url'].split('/')[-1]
-                    if not os.path.exists(filename):
+                filename = dict_folder + i['dict_url'].split('/')[-1]
+                if not os.path.exists(filename):
+                    print('Downloading {}'.format(filename))
+                    download_file(i['dict_url'], filename)
+                else:
+                    if not check_hash(filename, i['dict_hash']):
                         print('Downloading {}'.format(filename))
                         download_file(i['dict_url'], filename)
-                    else:
-                        if not check_hash(filename, i['dict_hash']):
-                            print('Downloading {}'.format(filename))
-                            download_file(i['dict_url'], filename)
-                    if not check_hash(filename, i['dict_hash']):
-                        print("[ERROR] Checksums do not match. Exiting...")
-                        exit(1)
-                    extension = filename.split('.')[-1]
-                    # Unpack dictionaries if necessary
-                    if extension == 'gz':
-                        if not os.path.exists(''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]):
-                            print("Unpacking {}".format(filename))
-                            ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
-                            # filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
-                        dict_queue.append((filename[:-3], i['dict_id'], '0'))
-                    else:
-                        dict_queue.append((filename, i['dict_id'], '0'))
-                '''if i['dict_type'] == '1'
-                    dict_queue.append(i)'''
+                if not check_hash(filename, i['dict_hash']):
+                    print("[ERROR] Checksums do not match. Exiting...")
+                    exit(1)
+                extension = filename.split('.')[-1]
+                # Unpack dictionaries if necessary
+                if extension == 'gz':
+                    if not os.path.exists(''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]):
+                        print("Unpacking {}".format(filename))
+                        ungzip(filename, ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1])
+                        # filename = ''.join([i + '.' for i in filename.split('.')[:-1]])[:-1]
+                    dict_queue.append((filename[:-3], i['dict_id']))
+                else:
+                    dict_queue.append((filename, i['dict_id']))
 
         # run hashcat for every dict
         while len(dict_queue):
-            # 0 - filename, 1 - dict_id, 2 - dict_type
+            # 0 - filename, 1 - dict_id
             i = dict_queue.popleft()  # i = current dictionary
+            dict_path = i[0]
             dict_id = i[1]
-            curr_dict = ''
             cracker = ''
 
             try:
                 if job_type in ['0', '1']:
-                    if i[2] == '0':
-                        curr_dict = i[0]
-
-                    if i[2] == '1':
-                        curr_dict = i[0]
-
                     cracker = params[job_type].format(hashcat,
                                                       performance,
                                                       outfile,
                                                       brutefile,
-                                                      curr_dict)
+                                                      dict_path)
                 else:
                     exit(1)
 
@@ -324,7 +312,7 @@ try:
                     os.unlink(outfile)
                     break
                 else:
-                    print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], curr_dict))
+                    print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_path))
                     while not put_job({'job_status': 'finished',  # Send fail status
                                        'task_id': job['id'],
                                        'dict_id': dict_id,
@@ -333,15 +321,6 @@ try:
                                        'net_key': "",
                                        'user_key': user_key}):
                         print("Can't data to server")
-            '''else:
-                print("[INFO] Key for task {0} not found in {1} :(".format(job['name'], dict_file))
-                while not put_job({'job_status': 'finished',  # Send fail status
-                                   'task_id': job['id'],
-                                   'dict_id': dict_id,
-                                   'task_status': '3',
-                                   'dict_status': '1',
-                                   'net_key': ""}):
-                    print("Can't data to server")'''
 
             # cleanup
             if os.path.exists(outfile):
