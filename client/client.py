@@ -190,8 +190,8 @@ try:
             job = get_job()
             print(job)
             if job['id'] == '-1':
-                print("No tasks. Nothing to do.\nSleeping for 5 mins...")
-                time.sleep(300)
+                print("No tasks. Nothing to do.\nSleeping for 1 minute...")
+                time.sleep(60)
                 continue
 
             # Delete spaces in taskname
