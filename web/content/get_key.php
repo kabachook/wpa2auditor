@@ -1,4 +1,8 @@
 <?php
+
+//Shut down error reporting
+error_reporting( 0 );
+
 require( 'db.php' );
 
 $error_reg_message = "";
@@ -84,7 +88,7 @@ function checkInvite( $invite ) {
 		return false;
 
 	$sql = "SELECT * FROM users WHERE invite=UNHEX('" . $invite . "')";
-	var_dump($invite);
+
 	$result = $mysqli->query( $sql );
 
 	$res = [
