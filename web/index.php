@@ -1,11 +1,17 @@
 <?php include( 'common.php' ); ?>
 
 <!DOCTYPE html>
-<html><head>
-	<meta charset="utf-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+<html>
+
+<head>
+
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
 	<meta name="description" content="Distributed WPA PSK security audit environment"/>
 	<meta name="keywords" content="free, audit, security, online, besside-ng, aircrack-ng, pyrit, wpa, wpa2, crack, cracker, distributed, wordlist"/>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
 	<title>Distributed WPA/WPA2 auditor</title>
 
@@ -13,96 +19,140 @@
    		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   	<![endif]-->
 
-	<!-- BOOTSTRAP START -->
+	<!-- Instead of glyphicon -->
+	<script src="https://use.fontawesome.com/15779f561f.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<!-- BOOTSTRAP END-->
-	
-	<!-- PLUGINS START -->
+
+	<!-- Bootstrap notify -->
 	<script src="js/bootstrap-notify.min.js" type="application/javascript"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-	<!-- PLUGINS END -->
-	
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/tasks.js" async=""></script>
-	<script src="js/stat.js" async=""></script>
+	<script src="js/dicts.js" async=""></script>
+	<script src="js/agents.js" async=""></script>
+	<script src="js/search.js" async=""></script>
+
 </head>
 
 <body>
-	<nav class="navbar navbar-default mb0">
-		<div class="container-fluid">
-			<!-- Toggle get grouped for better mobile display -->
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-         		<span class="sr-only">Toggle navigation</span>
-         		<span class="icon-bar"></span>
-         		<span class="icon-bar"></span>
-         		<span class="icon-bar"></span>
-       		</button>
-			
+	<nav class="navbar navbar-toggleable-md navbar-light bg-faded justify-content-between">
+		<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    		<span class="navbar-toggler-icon"></span>
+  		</button>
+	
 
 
-				<a class="navbar-brand" href="?">Distributed WPA auditor</a>
-			</div>
 
-			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav">
-					<li><a href="?tasks">Tasks</a>
-					</li>
-					<li><a href="?dicts">Dicts</a>
-					</li>
-					<!--<li><a href="?stat">Stats</a>
-					</li>-->
-				</ul>
+		<a class="navbar-brand" href="?">Distributed WPA auditor</a>
 
-				<ul class="nav navbar-nav navbar-right">
-					<!-- LOGIN BUTTON -->
-					<form class="navbar-form navbar-left" action="?search" method="post">
-						<div class="form-group">
-							<input type="text" class="form-control" placeholder="Search by ESSID" name="search_query">
-							<button type="submit" class="btn btn-default">Search</button>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="navbarNavDropdown">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item"><a class="nav-link" href="?tasks">Tasks</a>
+				</li>
+				<li class="nav-item"><a class="nav-link" href="?dicts">Dicts</a>
+				</li>
+				<?php if(false) { ?>
+				<li class="nav-item"><a class="nav-link" href="?agents">Agents</a>
+				</li>
+				<?php } ?>
+			</ul>
+
+			<!-- Search form start -->
+			<form class="form-inline my-2 my-lg-0 m-2 mr-4" action="?search" method="post">
+				<div class="input-group">
+					<input type="text" class="form-control mr-1" placeholder="Search by ESSID" name="search_query">
+					<button type="submit" class="btn btn-secondary">Search</button>
+				</div>
+			</form>
+			<!-- Search form end -->
+
+			<!-- LOGIN BUTTON -->
+			<?php
+			//Check if we have key in cookie
+			if (isset($_COOKIE['key'])) {
+
+				$sql = "SELECT * FROM users WHERE userkey=UNHEX('" . $_COOKIE['key'] . "')";
+				$result = $mysqli->query($sql)->fetch_object();
+
+				?>
+
+			<!-- Modal -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+							<h4 class="modal-title" id="myModalLabel">My profile</h4>
 						</div>
-					</form>
-					<?php
-
-					//Check if we have key in cookie
-					if ( isset( $_COOKIE[ 'key' ] ) ) {
-
-					?>
-						<p class="navbar-text">Signed in as <strong><a href="?profile"><?php echo getNickname(); ?> </a></strong></p><form class="navbar-form navbar-left" action="" method="post"><input type="hidden" name="remkey" value="1" /><button type="submit" class="btn btn-default">Log out</button></form>
-						
-					<?php
-					} else {
-					//If false - login and signup button
-					?>
-						<form class="navbar-form navbar-left" action="" method="post">
-								  <div class="form-group">
-									<input type="text" class="form-control" placeholder="Key" name="key" maxlength="32">
-									<button type="submit" class="btn btn-default">Log in</button> or <a href="?get_key" class="btn btn-default">Sign up</a>
-								  </div>
-						</form>
-					<?php
-					}
-					?>
-
-					<!-- LOGIN BUTTON END -->
-				</ul>
+						<div class="modal-body">
+							<p>Your userkey is
+								<strong>
+									<?php echo bin2hex($result->userkey); ?> </strong>
+							</p>
+							<p>Your invite is
+								<strong>
+									<?php echo bin2hex($result->invite); ?> </strong>
+							</p>
+							<p>You invite
+								<strong>
+									<?php echo $result->invited_c; ?>
+								</strong> users</p>
+						</div>
+						<div class="modal-footer">
+							<center>
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close profile</button>
+							</center>
+						</div>
+					</div>
+				</div>
 			</div>
-			<!-- /.navbar-collapse -->
+
+
+			<form class="form-inline my-2 my-lg-0" action="" method="post">
+				<div class="input-group">
+					<span class="navbar-text  mb-2 mr-sm-2 mb-sm-0">Signed in as <strong><a href="#aboutModal" data-toggle="modal" data-target="#myModal"><?php echo getNickname(); ?> </a></strong></span>
+					<input type="hidden" name="remkey" value="1"/><button type="submit" class="btn btn-secondary">Log out</button>
+				</div>
+			</form>
+
+			<?php
+			} else {
+				//If false - signin and signup button
+				?>
+
+			<form class="form-inline my-2 my-lg-0" action="" method="post">
+				<div class="form-group">
+					<input type="text" class="form-control mr-1" placeholder="Key" name="key" maxlength="32">
+					<button type="submit" class="btn btn-secondary">Log in</button> <span class="mx-1">or</span> <a href="?get_key" class="btn btn-secondary">Sign up</a>
+				</div>
+			</form>
+
+			<?php
+			}
+			?>
+			<!-- LOGIN BUTTON END -->
+
 		</div>
-		<!-- /.container-fluid -->
+		<!-- /.navbar-collapse -->
+
 	</nav>
 	<!-- nav bar end -->
 
-	<?php @include($cont) ?>
+	<div id="content">
+		<?php include($cont) ?>
+	</div>
 
 	<!-- FOOTER -->
 	<hr>
 	<div class="container">
 		<footer>
-			Copyright Nick Gant and AtomnijPchelovek
+			Copyright Nick Gant and AtomnijPchelovek 2017
 		</footer>
 	</div>
 	<!-- FOOTER END -->
